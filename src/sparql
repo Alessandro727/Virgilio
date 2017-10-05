@@ -1,0 +1,459 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sparql xmlns='http://www.w3.org/2005/sparql-results#'>
+	<head>
+		<variable name='marketLoc'/>
+		<variable name='marketName'/>
+		<variable name='layer'/>
+		<variable name='osmid'/>
+	</head>
+	<results>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/node/1196645632</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ares 118</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4597917 41.8702421)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/node/2318096925</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Pronto Soccorso</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.5102905 41.9070472)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/node/3034658080</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Villa Stuart</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4504209 41.9277165)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/23953835</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Policlinico Universitario Umberto I</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.5127264 41.9078672)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/24045469</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Centro Medicina Nucleare Italiano Villa Bianca</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.5122485 41.9246754)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/24045509</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Policlinico Italia</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.5234415 41.9163537)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/24566956</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Addolorata</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.498522 41.8851937)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/49208548</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale CTO Andrea Alesini</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4870334 41.8588779)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/53050463</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale Israelitico Roma</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4782188 41.8906021)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/27876052</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>San Camillo</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4541849 41.8672386)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/33239124</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale Oftalmico</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4483348 41.9080158)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/60557736</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Clinica Villa Benedetta</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4257907 41.9013338)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/102570655</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>IDI (Istituto Dermopatico dell'Immacolata)</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4303048 41.9017074)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/113567005</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale Bambino Gesù</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4606754 41.897129)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/110155887</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>A.S.L. Roma C</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.5302614 41.8775141)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/143974789</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>San Carlo di Nancy</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4387121 41.8982018)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/204078793</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale Pediatrico Bambino Gesù</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4748756 41.8565185)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/205774329</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale Nuovo Regina Margherita</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4709945 41.8859484)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/200941491</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale Pediatrico Bambino Gesù</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4752963 41.8575297)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/202877536</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale Militare Celio</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4978912 41.8871808)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/347306371</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Istituto nazionale per le malattie infettive "Lazzaro Spallanzani"</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4579536 41.8648846)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/368133710</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Clinica Privata</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.5176129 41.9152851)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/363363689</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Clinica Mater Dei</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4879923 41.9241867)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/377628948</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Clinica Città di Roma</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.4561108 41.8747019)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/way/373771050</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Clinica Sanatrix</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.5136253 41.9301491)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/relation/1675262</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale S.Anna - A.S.L. Roma A</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.50023655 41.91978115)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/relation/1711758</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Fatebenefratelli</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.477039833 41.890943333)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/relation/2130163</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Azienda Ospedaliera San Giovanni-Addolorata (Presidio S.Giovanni)</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.502112105 41.88600825)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/relation/2132382</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Policlinico militare di Roma "Celio"</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.500632031 41.885767692)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/relation/1876703</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Azienda Ospedaliera San Giovanni - Addolorata (Presidio Santa Maria)</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.503340695 41.887785831)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/relation/1059297</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Ospedale Santo Spirito in Sassia</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.46207386 41.9008675)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='osmid'>
+				<uri>https://www.openstreetmap.org/relation/2858036</uri>
+			</binding>
+			<binding name='marketName'>
+				<literal>Casa di Cura Santa Famiglia</literal>
+			</binding>
+			<binding name='marketLoc'>
+				<literal datatype='http://www.opengis.net/ont/geosparql#wktLiteral'>Point(12.46503505 41.909081066)</literal>
+			</binding>
+			<binding name='layer'>
+				<literal>hospital</literal>
+			</binding>
+		</result>
+	</results>
+</sparql>

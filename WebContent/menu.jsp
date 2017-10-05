@@ -1,0 +1,14 @@
+	<a href="login.jsp">Login</a>
+	| <a href="register1.jsp">Register</a>
+	| <a href="test1.jsp">Test</a>
+	| <a href="findCheckinByDate1.jsp">Find Checkins by date</a>
+	| <a href="findTopKPopularRoutes1.jsp">Find Top K Popular route</a>
+	| <a href="findPOIsInTheSquare1.jsp">Find POIs in the square</a>
+	| <a href="findPOIsByDistance1.jsp">Find POIs by distance</a>
+	| <a href="createGraph.jsp">Create Graph</a>
+<!--| <a href="centeredMap.jsp">Simple Map</a>
+	| <a href="centeredMapWithMarker.jsp">Marker</a>
+	| <a href="centeredMapWithPolyline.jsp">Polyline</a>
+	| <a href="geocoding.jsp">Geocoding</a>
+	| <a href="directions.jsp">Directions</a>
+	| <a href="mapWithRouteBoxer.jsp">Route Boxer</a> -->

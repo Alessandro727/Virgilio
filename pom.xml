@@ -1,0 +1,234 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>progettoTesi</groupId>
+	<artifactId>progettoTesi</artifactId>
+	<version>0.0.1</version>
+	<packaging>war</packaging>
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<warSourceDirectory>WebContent</warSourceDirectory>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<!-- =================== -->
+		<!-- JUNIT DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.aksingh</groupId>
+			<artifactId>owm-japis</artifactId>
+			<version>2.5.0.3</version>
+		</dependency>
+
+		<!-- =================== -->
+		<!-- Neo4J DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j</artifactId>
+			<version>2.3.1</version>
+
+		</dependency>
+
+		<!-- =================== -->
+		<!-- LOGGER DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.6</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.6</version>
+		</dependency>
+
+		<!-- =================== -->
+		<!-- RESTFB DIPENDENCIES -->
+		<!-- =================== -->
+
+		<dependency>
+			<groupId>com.restfb</groupId>
+			<artifactId>restfb</artifactId>
+			<version>1.18.0</version>
+		</dependency>
+
+		<!-- =================== -->
+		<!-- GUICE DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<version>3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>me.atlis</groupId>
+			<artifactId>foursquare-api</artifactId>
+			<version>1.0.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-servlet</artifactId>
+			<version>3.0</version>
+		</dependency>
+
+
+		<!-- =================== -->
+		<!-- OPENCALAIS JAVA DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>mx.bigdata.jcalais</groupId>
+			<artifactId>j-calais</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<!-- ===================== -->
+		<!-- GEONAMES DIPENDENCIES -->
+		<!-- ===================== -->
+		<dependency>
+			<groupId>org.geonames</groupId>
+			<artifactId>geonames</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<!-- =================== -->
+		<!-- XML DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom2</artifactId>
+			<version>2.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+
+		<!-- =================== -->
+		<!-- RDF DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>apache-jena-libs</artifactId>
+			<type>pom</type>
+			<version>3.4.0</version>
+		</dependency>
+
+		<!-- =================== -->
+		<!-- JSON DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
+		</dependency>
+
+		<!-- =================== -->
+		<!-- JSON DIPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<!-- =================== -->
+		<!-- VISURAL COMMON DEPENDECIES -->
+		<!-- =================== -->
+		<!-- visural-common is a general purpose Java library with various "odds 
+			and ends" utilities including. -->
+		<dependency>
+			<groupId>com.visural</groupId>
+			<artifactId>visural-common</artifactId>
+			<version>0.5.0</version>
+		</dependency>
+		<!-- =================== -->
+		<!-- GOOGLE GUAVA DEPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>17.0</version>
+		</dependency>
+		<!-- =================== -->
+		<!-- SERVLET DEPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- =================== -->
+		<!-- POSTGRES DEPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.1-901-1.jdbc4</version>
+		</dependency>
+		<!-- =================== -->
+		<!-- C3P0 DEPENDENCIES -->
+		<!-- =================== -->
+		<dependency>
+			<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.1.2</version>
+		</dependency>
+	</dependencies>
+	<!-- =================== -->
+	<!-- VISURAL COMMON REPOSITORY -->
+	<!-- =================== -->
+	<repositories>
+
+
+		<repository>
+			<id>foursquareapijava</id>
+			<name>Foursquare V2 API for Java Repository</name>
+			<url>http://foursquare-api-java.googlecode.com/svn/repository</url>
+		</repository>
+		<repository>
+			<id>visural-common</id>
+			<name>visural-common</name>
+			<url>http://visural-common.googlecode.com/svn/trunk/visural-common/maven/</url>
+		</repository>
+	</repositories>
+
+</project>
