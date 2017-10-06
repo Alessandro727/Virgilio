@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Venue {
 	
-	private int id;
+	private long id;
 	private String latitude;
 	private String longitude;
 	//private int checkinsNumber;
@@ -29,12 +29,12 @@ public class Venue {
 		this.checkins = new ArrayList<Checkin>();
 	}
 	
-	public int getId() {
+	public Long getId() {
 		return this.id;
 	}
 	
-	public void setId(int id) {
-		this.id = id;
+	public void setId(long i) {
+		this.id = i;
 	}
 	
 	public String getLatitude() {

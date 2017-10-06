@@ -79,14 +79,14 @@ public class FindTopKPopularRoutes extends HttpServlet {
 	
 		Google google = new Google();
 		
-		MacroCategory mc = new MacroCategory();
-		mc.setId(12);	// 12 = id macro categoria fittizia
-		mc.setMacro_category_fq("Macro Categoria Fittizia");
-		mc.setMrt(0);
+//		MacroCategory mc = new MacroCategory();
+//		mc.setId(12);	// 12 = id macro categoria fittizia
+//		mc.setMacro_category_fq("Macro Categoria Fittizia");
+//		mc.setMrt(0);
 		
 		Venue startVenue = google.getCoordinatesFromAddress(start);
-		startVenue.setId(0);	// 0 is the id of the source node of Router algorithm
-		startVenue.setMacro_category(mc);
+		startVenue.setId((long) 0);	// 0 is the id of the source node of Router algorithm
+//		startVenue.setMacro_category(mc);
 		
 		try {
 			TimeUnit.MILLISECONDS.sleep(1500);
@@ -103,8 +103,8 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		endVenue.setId(-1);		// -1 is the id of the destination node of Router algorithm
-		endVenue.setMacro_category(mc);
+		endVenue.setId((long) -1);		// -1 is the id of the destination node of Router algorithm
+//		endVenue.setMacro_category(mc);
 		
 		List<Venue> venuesInTheSquare = null;
 		List<Route> topKroute = null;
@@ -135,7 +135,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			
 			
 			
-			venuesInTheSquare = JenaManager.retrieveNodeFromLinkedGeoData(lat, lng, 0.1);
+			venuesInTheSquare = JenaManager.retrieveNodeFromLinkedGeoData(lat, lng, 0.1, categories);
 			
 			
 			

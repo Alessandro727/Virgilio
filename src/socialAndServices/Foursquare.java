@@ -265,7 +265,7 @@ public static CompactVenue searchSingleVenueMatch(Venue v) throws FoursquareApiE
 				}
 				statement.setString(3, name);
 				statement.setString(4, category);
-				statement.setInt(5, v.getId());
+				statement.setLong(5, v.getId());
 				statement.executeUpdate();				
 				
 			}
@@ -327,7 +327,7 @@ public static CompactVenue searchSingleVenueMatch(Venue v) throws FoursquareApiE
 				statement = connection.prepareStatement(update);
 				statement.setString(1, category);
 				statement.setString(2, foursquareId);
-				statement.setInt(3, v.getId());
+				statement.setLong(3, v.getId());
 				statement.executeUpdate();				
 				
 			}

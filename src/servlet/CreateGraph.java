@@ -45,10 +45,10 @@ public class CreateGraph extends HttpServlet {
 		Google google = new Google();
 		
 		Venue startVenue = google.getCoordinatesFromAddress(start);
-		startVenue.setId(0);	// 0 is the id of the source node of Router algorithm
+		startVenue.setId((long) 0);	// 0 is the id of the source node of Router algorithm
 		
 		Venue endVenue = google.getCoordinatesFromAddress(end);
-		endVenue.setId(-1);		// -1 is the id of the destination node of Router algorithm
+		endVenue.setId((long) -1);		// -1 is the id of the destination node of Router algorithm
 		
 		List<Venue> venuesInTheSquare = null;
 		

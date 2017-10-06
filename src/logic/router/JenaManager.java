@@ -7,6 +7,7 @@ import model.Venue;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import org.apache.jena.atlas.web.HttpException;
 import org.apache.jena.query.Query;
@@ -18,10 +19,19 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.xerces.xinclude.MultipleScopeNamespaceSupport;
 import org.omg.PortableInterceptor.NON_EXISTENT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.flickr4java.flickr.Flickr;
+import com.flickr4java.flickr.FlickrException;
+import com.flickr4java.flickr.REST;
+import com.flickr4java.flickr.photos.Photo;
+import com.flickr4java.flickr.photos.PhotoList;
+import com.flickr4java.flickr.photos.SearchParameters;
+import com.flickr4java.flickr.places.Place;
+import com.flickr4java.flickr.places.PlacesList;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -726,19 +736,99 @@ public class JenaManager {
 		//		for(String s: objs)
 		//			System.out.println(s);
 
-		JenaManager.retrieveNodeFromLinkedGeoData(41.45, 12.71, 0.5);
+		String[] category = {"1"};
+
+
+
+		JenaManager.retrieveNodeFromLinkedGeoData(41.45, 12.71, 0.5, category);
 
 
 	}
 
 
 
-	public static List<Venue> retrieveNodeFromLinkedGeoData(double lat, double lon, double radius) {
+	public static List<Venue> retrieveNodeFromLinkedGeoData(double lat, double lon, double radius, String[] categories) {
 
-		List<String> heritageTypes = new ArrayList<>();
-		
-	
 
+
+		String artsCategory = "Planetarium, Library, ArtsCentre, ArtGallery, Artwork, Gallery, Observatory, ArtShop, UNESCOWorldHeritage";	
+		List<String> arrayArts = new ArrayList<String>(Arrays.asList(artsCategory.split("\\, ", -1)));
+
+		String museumCategory ="Museum, HistoricMuseum";
+		List<String> arrayMuseum = new ArrayList<String>(Arrays.asList(museumCategory.split("\\, ", -1)));
+
+		String historyAndMonumentsCategory = "Courthouse, Artwork, GovermentBuilding, Statue, Tourist, WaterFountain, Souvenir, Souvenirs, TouristShop, Terrace, ArchaeologicalSite, Castle, Monument, HistoricBuilding, HistoricFountain, ProtectedBuilding, HistoricTower, UNESCOWorldHeritage, HistoricPointOfInterest, Tower";
+		List<String> arrayHistoryAndMonument = new ArrayList<String>(Arrays.asList(historyAndMonumentsCategory.split("\\, ", -1)));
+
+		String churchCategory = "PlaceOfWorship, Chapel, ChurchHall, Church, Monastery, Synagogue, Temple, Cathedral, Abbey, HistoricChurch, HistoricChapel, HistoricMonastery";
+		List<String> arrayChurch = new ArrayList<String>(Arrays.asList(churchCategory.split("\\, ", -1)));
+
+		String entertaimentsCategory = "AnimalShelter, BicycleRental, ArtsCentre, Cinema, Theatre, Sauna, Shelter, ArtGallery, Artwork, Casino, ConcertHall, MusicVenue, Solarium, Spa, BeautySalon, ThemePark, Zoo, Viewpoint, Castle, LandusePark, Stadium, WaterPark, NatureReserve, Park, Garden, Beach";
+		List<String> arrayEntertaiments = new ArrayList<String>(Arrays.asList(entertaimentsCategory.split("\\, ", -1)));
+
+		String foodCategory = "Restaurant, FastFood, Bbq, Pub, Bar, Cafe, Biergarten, IceCream, Brewery, Bakery, CoffeeShop, InternetCafe, Restaurant%3Bpub, TakeAway";
+		List<String> arrayFood = new ArrayList<String>(Arrays.asList(foodCategory.split("\\, ", -1)));
+
+		String nightLifeCategory = "Pub, Cinema, Nightclub, Stripclub, Theatre, Brothel, Brewery, Casino, byNight, Dance, Bingo";
+		List<String> arrayNightLife = new ArrayList<String>(Arrays.asList(nightLifeCategory.split("\\, ", -1)));
+
+		String shopAndServiceCategory = "Marketplace, Brewery, CoffeeShop, Commercial, Florist, Hairdresser, Market, PublicMarket, Shop, Shopping, Shops, Supermarket, AlcoholShop, AnimeShop, ArtShop, Mall, Patisserie, ShoppingCenter, Souvenir";
+		List<String> arrayShopAndService = new ArrayList<String>(Arrays.asList(shopAndServiceCategory.split("\\, ", -1)));
+
+		String outdoorsAndRecreationCategory = "AnimalShelter, Biergarten, FastFood, IceCream, BicycleRental, ArtsCentre, Campsite, Farm, Picknick, PicnicSite, ThemePark, Zoo, Viewpoint, ArchaeologicalSite, Castle, UNESCOWorldHeritage, LandusePark, Volcano, Glacier, Peak, Grassland, Tree, Wood, CaveEntrance, Beach, Cape, Crater, Fjord, Island, Hill, Island, NaturalWaterfall, ProtectedArea, featuresSport, DogPark, WaterPark, NatureReserve, Park, Garden";
+		List<String> arrayOutDoorsAndRecreation = new ArrayList<String>(Arrays.asList(outdoorsAndRecreationCategory.split("\\, ", -1)));
+
+		String athleticsAndSport = "Gym, Sport, SportsCentre, SwimmingPool, SportShop, Stadium";
+		List<String> arrayAthleticsAndSport = new ArrayList<String>(Arrays.asList(athleticsAndSport.split("\\, ", -1)));
+
+		List<String> userCategoriesLGD = new ArrayList<>();
+
+		List<String> userCategories = 
+				new ArrayList<String>(Arrays.asList(categories));
+
+		if (userCategories.contains("1"))	{
+			userCategoriesLGD.addAll(arrayArts);
+		}
+
+		if (userCategories.contains("2"))	{
+			userCategoriesLGD.addAll(arrayEntertaiments);
+		}
+
+		if (userCategories.contains("3"))	{
+			userCategoriesLGD.addAll(arrayMuseum);
+		}
+
+		if (userCategories.contains("5"))	{
+			userCategoriesLGD.addAll(arrayFood);
+		}
+
+		if (userCategories.contains("6"))	{
+			userCategoriesLGD.addAll(arrayNightLife);
+		}
+
+		if (userCategories.contains("7"))	{
+			userCategoriesLGD.addAll(arrayOutDoorsAndRecreation);
+		}
+
+		if (userCategories.contains("8"))	{
+			userCategoriesLGD.addAll(arrayHistoryAndMonument);
+		}
+
+		if (userCategories.contains("9"))	{
+			userCategoriesLGD.addAll(arrayChurch);
+		}
+
+		if (userCategories.contains("10"))	{
+			userCategoriesLGD.addAll(arrayShopAndService);
+		}
+
+		if (userCategories.contains("11"))	{
+			userCategoriesLGD.addAll(arrayAthleticsAndSport);
+		}
+
+		Set<String> categoriesSet = new LinkedHashSet<>(userCategoriesLGD);
+
+		System.out.println(categoriesSet);
 
 		double  lat1 = lat - radius,
 				lat2 = lat + radius,
@@ -748,207 +838,151 @@ public class JenaManager {
 		List<Venue> result = new ArrayList<>();
 
 
-
-//		String heritageTypesQueryString = " {" + " ?obj a <" + heritageTypes.get(0) + ">.} ";
-//
-//		for (int i = 1; i < heritageTypes.size(); i++) {
-//			heritageTypesQueryString += " UNION {" + " ?obj a <" + heritageTypes.get(i) + ">.} ";
-//		}
-
-		
-		
 		String ontology_service =  "http://linkedgeodata.org/sparql";
 
-		
+
 		String endpoint = "otee:Endpoints";
 
-		//		String endpointsSparql =  "PREFIX dbp-prop: <http://dbpedia.org/property/> "
-		//				+ "PREFIX dbpedia: <http://dbpedia.org/resource/> "
-		//				+ "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> "
-		//				+ "PREFIX foaf: <http://xmlns.com/foaf/0.1/> "
-		//				+ "PREFIX lgdr:<http://linkedgeodata.org/triplify/>" 
-		//				+ "PREFIX lgdo:<http://linkedgeodata.org/ontology/> "
-		//				+ "PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>"
-		//				+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>"
-		//				+ "SELECT distinct * WHERE{ "
-		//				+ heritageTypesQueryString 
-		//				+ "?obj <http://linkedgeodata.org/ontology/wikipedia> ?homepage." 
-		//				+ "?obj geo:lat ?lat."
-		//				+ "?obj geo:long ?long."
-		//				+ "FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"
-		//				+ "}"
-		//				+"LIMIT 100";
-
-		String endpointsSparql = 
-				"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "+"\n"
-						+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"+"\n"
-						+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+"\n"
-						+ "PREFIX owl: <http://www.w3.org/2002/07/owl#>"+"\n"
-						+ "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"+"\n"
-						+ "PREFIX schema: <http://schema.org/>"+"\n"
-						+ "PREFIX cc: <http://creativecommons.org/ns#>"+"\n"
-						+ "PREFIX geo: <http://www.opengis.net/ont/geosparql#>"+"\n"
-						+ "PREFIX prov: <http://www.w3.org/ns/prov#>"+"\n"
-						+ "PREFIX wikibase: <http://wikiba.se/ontology#>"+"\n"
-						+ "PREFIX wdata: <http://www.wikidata.org/wiki/Special:EntityData/>"+"\n"
-						+ "PREFIX wd: <http://www.wikidata.org/entity/>"+"\n"
-						+ "PREFIX wdt: <http://www.wikidata.org/prop/direct/>"+"\n"
-						+ "PREFIX wds: <http://www.wikidata.org/entity/statement/>"+"\n"
-						+ "PREFIX p: <http://www.wikidata.org/prop/>"+"\n"
-						+ "PREFIX wdref: <http://www.wikidata.org/reference/>"+"\n"
-						+ "PREFIX wdv: <http://www.wikidata.org/value/>"+"\n"
-						+ "PREFIX ps: <http://www.wikidata.org/prop/statement/>"+"\n"
-						+ "PREFIX psv: <http://www.wikidata.org/prop/statement/value/>"+"\n"
-						+ "PREFIX psn: <http://www.wikidata.org/prop/statement/value-normalized/>"+"\n"
-						+ "PREFIX pq: <http://www.wikidata.org/prop/qualifier/>"+"\n"
-						+ "PREFIX pqv: <http://www.wikidata.org/prop/qualifier/value/>"+"\n"
-						+ "PREFIX pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/>"+"\n"
-						+ "PREFIX pr: <http://www.wikidata.org/prop/reference/>"+"\n"
-						+ "PREFIX prv: <http://www.wikidata.org/prop/reference/value/>"+"\n"
-						+ "PREFIX prn: <http://www.wikidata.org/prop/reference/value-normalized/>"+"\n"
-						+ "PREFIX wdno: <http://www.wikidata.org/prop/novalue/>"+"\n"
-						+ "PREFIX bd: <http://www.bigdata.com/rdf#>"+"\n"
-
-
-				+ "SELECT DISTINCT ?museumLabel ?museumDescription ?link ?coord ?lat ?long ?immagine ?museum ?creatoreLabel ?categoria_principale_dell_argomento ?categoria_principale_dell_argomentoLabel WHERE { "+"\n"
-				+ "OPTIONAL { ?museum wdt:P856 ?link. } "+"\n"
-				+ "OPTIONAL { ?museum wdt:P625 ?coord. } "+"\n"
-				+ "?museum p:P625 ?statement. "+"\n"
-				+ "?statement psv:P625 ?node. "+"\n"
-				+ "?node wikibase:geoLatitude ?lat. "+"\n"
-				+ "?node wikibase:geoLongitude ?long. "+"\n"
-				+ "OPTIONAL { ?museum wdt:P18 ?immagine. } "+"\n"
-				+ "OPTIONAL { ?museum wdt:P31 ?categoria_principale_dell_argomento. } "+"\n"
-				+ "OPTIONAL { ?museum wdt:P170 ?creatore. } "+"\n"
-				+ "SERVICE wikibase:label { bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],en,it,ru,de,fr\". } "+"\n"
-				+ "{ ?museum wdt:P31 wd:Q11707. } "+"\n"
-				+ "UNION "+"\n"
-				+ "{ ?museum wdt:P31 wd:Q22698. } "+"\n"
-				+ "OPTIONAL { ?museum wdt:P170 ?creatore. } "+"\n"
-				+ "FILTER((?lat > "+"\"41.8\""+"^^xsd:decimal) && (?lat <= "+"\"42.1\""+"^^xsd:decimal) && (?long > "+"\"12.3\""+"^^xsd:decimal) && (?long <= "+"\"12.5\""+"^^xsd:decimal))} "+"\n"
-				+ "LIMIT 50";
-
-		//		 Query query = QueryFactory.create(endpointsSparql);
-
-		String endpointsSparqlOSM = "PREFIX geof: <http://www.opengis.net/def/geosparql/function/> "+"\n"
-				+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"+"\n"
-				+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+"\n"
-				+ "PREFIX owl: <http://www.w3.org/2002/07/owl#>"+"\n"
-				+ "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"+"\n"
-				+ "PREFIX schema: <http://schema.org/>"+"\n"
-				+ "PREFIX geo: <http://www.opengis.net/ont/geosparql#>"+"\n"
-				+ "PREFIX prov: <http://www.w3.org/ns/prov#>"+"\n"
-				+ "PREFIX wikibase: <http://wikiba.se/ontology#>"+"\n"
-				+ "PREFIX wdata: <http://www.wikidata.org/wiki/Special:EntityData/>"+"\n"
-				+ "PREFIX wd: <http://www.wikidata.org/entity/>"+"\n"
-				+ "PREFIX wdt: <http://www.wikidata.org/prop/direct/>"+"\n"
-				+ "PREFIX wds: <http://www.wikidata.org/entity/statement/>"+"\n"
-				+ "PREFIX p: <http://www.wikidata.org/prop/>"+"\n"
-				+ "PREFIX wdref: <http://www.wikidata.org/reference/>"+"\n"
-				+ "PREFIX wdv: <http://www.wikidata.org/value/>"+"\n"
-				+ "PREFIX ps: <http://www.wikidata.org/prop/statement/>"+"\n"
-				+ "PREFIX psv: <http://www.wikidata.org/prop/statement/value/>"+"\n"
-				+ "PREFIX psn: <http://www.wikidata.org/prop/statement/value-normalized/>"+"\n"
-				+ "PREFIX pq: <http://www.wikidata.org/prop/qualifier/>"+"\n"
-				+ "PREFIX pqv: <http://www.wikidata.org/prop/qualifier/value/>"+"\n"
-				+ "PREFIX pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/>"+"\n"
-				+ "PREFIX pr: <http://www.wikidata.org/prop/reference/>"+"\n"
-				+ "PREFIX prv: <http://www.wikidata.org/prop/reference/value/>"+"\n"
-				+ "PREFIX prn: <http://www.wikidata.org/prop/reference/value-normalized/>"+"\n"
-				+ "PREFIX wdno: <http://www.wikidata.org/prop/novalue/>"+"\n"
-				+ "PREFIX bd: <http://www.bigdata.com/rdf#>"+"\n"
-							+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n"
-									+"SELECT ?marketName (?amenity AS ?layer) ?osmid WHERE { "+"\n"
-									+"VALUES (?amenity) { "+"\n"
-									+"(\"hospital\")"+"\n"
-									+"}"+"\n"
-									+"?osmid osmt:amenity ?amenity ;"+"\n"
-									+"		 osmt:name ?marketName ."+"\n"
-//									+"?osmid osmm:loc ?marketLoc."+"\n"
-									
-//									+"BIND(geof:distance(?myLoc, ?marketLoc) AS ?dist)"+"\n"
-//									+"FILTER(?dist < 5)"+"\n"
-									+"}limit 10";
-
 		String wheelChair = "";
+		String selectWheelChair = "";
+		
 		if (false)	{
 			wheelChair = "OPTIONAL { ?obj lgdo:wheelchair ?wc } .";
+			selectWheelChair = "(SAMPLE(?wc) as ?wheel)";
 		}
+
+
+		String query = "{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) "+selectWheelChair+" WHERE {"+"\n"
+				+"?obj a lgdo:"+categoriesSet.iterator().next()+" ."+"\n"
+				+"?obj"+"\n"
+				+"rdfs:label ?l ;"+"\n"
+				+"g:lat ?lat ;"+"\n"
+				+"g:long ?long ."+"\n"
+				+"OPTIONAL { ?obj lgdo:cuisine ?cuisine } ."+"\n"
+				+"OPTIONAL { ?obj lgdo:opening_hours ?openHours } ."+"\n"
+				+wheelChair+"\n"
+				+ "FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
+				+"} "+"\n"
+				+"GROUP BY ?obj"+"\n"
+				+"LIMIT 0}";
 		
-		String endpointsSparqlLGD = "Prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+"\n"
-									+"Prefix ogc: <http://www.opengis.net/ont/geosparql#>"+"\n"
-									+"Prefix geom: <http://geovocab.org/geometry#>"+"\n"
-									+"Prefix lgdo: <http://linkedgeodata.org/ontology/>"+"\n"
-									+"PREFIX lgdp: <http://linkedgeodata.org/property/>"+"\n"
-									+"PREFIX geo: <http://www.opengis.net/ont/geosparql#>"+"\n"
-									+"PREFIX  g: <http://www.w3.org/2003/01/geo/wgs84_pos#>"+"\n"
-									+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n"
-									+"SELECT * WHERE {"+"\n"
-									+"{ SELECT * WHERE {"
-									+"?obj a lgdo:Restaurant ."+"\n"
-									+"?obj"+"\n"
-									+"rdfs:label ?label ;"+"\n"
-									+"g:lat ?lat ;"+"\n"
-									+"g:long ?long ;"+"\n"
-									+"lgdo:cuisine ?cuisine ."+"\n"
-								    +wheelChair+"\n"
-								
-								+"} "+"\n"
-								+"LIMIT 10}"
-									+ "UNION {"+"\n"
-									+"SELECT * WHERE {"+"\n"
-									+"{?obj a lgdo:Church .}"+"\n"
-									+"?obj"+"\n"
-										+"rdfs:label ?label ;"+"\n"
-										+"g:lat ?lat ;"+"\n"
-										+"g:long ?long ."+"\n"
-									    +wheelChair+"\n"
-									
-									+"}"+"\n"
-									+"LIMIT 10} }";
+		for (Iterator<String> it = categoriesSet.iterator(); it.hasNext(); ) {
+			
+			query += "UNION "+"\n"+"{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) "+selectWheelChair+" WHERE {"
+					+"?obj a lgdo:"+it.next()+" ."+"\n"
+					+"?obj"+"\n"
+					+"rdfs:label ?l ;"+"\n"
+					+"g:lat ?lat ;"+"\n"
+					+"g:long ?long ."+"\n"
+					+"OPTIONAL { ?obj lgdo:cuisine ?cuisine } ."+"\n"
+					+"OPTIONAL { ?obj lgdo:opening_hours ?openHours } ."+"\n"
+					+wheelChair+"\n"
+					+ "FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
+					+"} "+"\n"
+					+"GROUP BY ?obj"+"\n"
+					+"LIMIT 10}";
+		}
+
+			System.out.println(query);
+
+		String queryLGD = "Prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+"\n"
+				+"Prefix ogc: <http://www.opengis.net/ont/geosparql#>"+"\n"
+				+"Prefix geom: <http://geovocab.org/geometry#>"+"\n"
+				+"Prefix lgdo: <http://linkedgeodata.org/ontology/>"+"\n"
+				+"PREFIX lgdp: <http://linkedgeodata.org/property/>"+"\n"
+				+"PREFIX geo: <http://www.opengis.net/ont/geosparql#>"+"\n"
+				+"PREFIX  g: <http://www.w3.org/2003/01/geo/wgs84_pos#>"+"\n"
+				+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n"
+				+"SELECT * WHERE {"+"\n"
+				+query+"\n"
+				+"}";
+
 
 		QueryExecution queryExecution = QueryExecutionFactory.sparqlService(ontology_service,
-				endpointsSparqlLGD);
-		
+				queryLGD);
 
-//		System.out.println(endpointsSparqlOSM);
-		
+
+		//		System.out.println(endpointsSparqlOSM);
+
 		System.out.println(queryExecution.getQuery().toString());
-		
-		
-		
-		
-		
-		
-//		ResultSet results = queryExecution.execSelect();
-		
+
+
+
+
+
+
+		//		ResultSet results = queryExecution.execSelect();
+
 		ResultSet results = queryExecution.execSelect();
 
-//		ResultSetFormatter.out(System.out, results);
-//				 try {
-//			            ResultSet results2 = queryExecution.execSelect();
-////			            ResultSetFormatter.out(System.out, results, query);
-//			            ResultSetFormatter.out(System.out, results2);
-//			        } catch (Exception ex) {
-//			        	
-//			            System.out.println(ex.getMessage());
-//			        } finally {
-//			            queryExecution.close();
-//			        }
+		//		ResultSetFormatter.out(System.out, results);
+		//				 try {
+		//			            ResultSet results2 = queryExecution.execSelect();
+		////			            ResultSetFormatter.out(System.out, results, query);
+		//			            ResultSetFormatter.out(System.out, results2);
+		//			        } catch (Exception ex) {
+		//			        	
+		//			            System.out.println(ex.getMessage());
+		//			        } finally {
+		//			            queryExecution.close();
+		//			        }
 
-		
+
 
 
 		while (results.hasNext()) {
 
-			
+
 
 			Venue obj = new Venue();
 
 			QuerySolution solution = results.next();
-			String lat_s = solution.get("lat").toString().split("\\^")[0];
-			String long_s = solution.get("long").toString().split("\\^")[0];
+			String lat_s = solution.get("latitudine").toString().split("\\^")[0];
+			String long_s = solution.get("longitudine").toString().split("\\^")[0];
 			String label = solution.get("label").toString().split("\\@")[0];
+			
+			Flickr flickr = new Flickr("f9ab674ce9f9deb95de6cef1dae510a1", "3fa8105f2df6bbf2", new REST());
+			
+			
+			System.out.println(lat_s);
+			System.out.println(long_s);
+			
+			
+//			String[] labelWords = label.split("\\ ");
+			
+			label = label.replace("\\\"","");
+			
+			String[] tags=new String[]{label};
+			
+			
+			SearchParameters searchParams=new SearchParameters();
+			searchParams.setBBox(String.valueOf((Double.parseDouble(long_s)-0.1)), String.valueOf((Double.parseDouble(lat_s)-0.1)), String.valueOf((Double.parseDouble(long_s)+0.1)), String.valueOf((Double.parseDouble(lat_s)+0.1)));
+			searchParams.setTags(tags);
+			try {
+				searchParams.setMedia("photos");
+			} catch (FlickrException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        searchParams.setSort(SearchParameters.RELEVANCE);
+	        
+//	        searchParams.setLatitude(lat_s);
+//	        
+//	        searchParams.setLongitude(long_s);
+	        
+	        PhotoList<Photo> list = new PhotoList<>();
+			
+			try {
+				list = flickr.getPhotosInterface().search(searchParams, 10, 1);
+			} catch (FlickrException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
+			
+//			System.out.println(places.get(0).);
 			//			System.out.println("\n");
 			//			System.out.println(lat_s);
 			System.out.println(label);
@@ -961,8 +995,8 @@ public class JenaManager {
 
 			}
 
-			if (solution.get("immagine")!=null) {
-				obj.setMediaUrl(solution.get("immagine").toString());
+			if (!list.isEmpty()) {
+				obj.setMediaUrl(list.get(0).getLargeUrl());
 			}
 
 			if (solution.get("museumDescription")!=null) {
@@ -979,10 +1013,12 @@ public class JenaManager {
 			//			obj = getUri(getWikiPage(wiki), obj);
 
 
+
+
 			//			String label = getLabel(solution.get("museumLabel").toString());
 			//			obj.setName_fq(label.replaceAll("\'", ""));
-//			obj.setCategory_fq(solution.get("categoria_principale_dell_argomentoLabel").toString().split("\\@")[0]);
-			obj.setId(Integer.parseInt(solution.get("obj").toString().split("http://linkedgeodata.org/triplify/node")[1]));
+			//			obj.setCategory_fq(solution.get("categoria_principale_dell_argomentoLabel").toString().split("\\@")[0]);
+			obj.setId(Long.parseLong((solution.get("obj").toString().split("http://linkedgeodata.org/triplify/node")[1])));
 			obj.setProvider("LinkedGeoData");		 
 			obj.setName_fq(label);
 			obj.setWhy("Close place");
@@ -1094,6 +1130,8 @@ public class JenaManager {
 		return s;
 	}
 
+	
+	
 
 	public static Collection<? extends Venue> retrieveReccommendFromDBPedia(double lat, double lng, double d) {
 

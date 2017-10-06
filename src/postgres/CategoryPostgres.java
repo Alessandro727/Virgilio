@@ -32,13 +32,13 @@ public class CategoryPostgres {
 			if (result.next()) {
 				venues = new LinkedList<Venue>();
 				venue = new Venue();
-				venue.setId(result.getInt("id"));
+				venue.setId(result.getLong("id"));
 				venue.setCategory_fq(result.getString("category_fq"));				
 				venues.add(venue);				
 			}
 			while (result.next()) {				
 				venue = new Venue();
-				venue.setId(result.getInt("id"));
+				venue.setId(result.getLong("id"));
 				venue.setCategory_fq(result.getString("category_fq"));				
 				venues.add(venue);
 			} 
@@ -76,7 +76,7 @@ public class CategoryPostgres {
 			String update = "update venues set category_fq_id = ? where category_fq = ?";
 			for (Venue v: venues) {
 				statement = connection.prepareStatement(update);
-				statement.setInt(1, v.getId());
+				statement.setLong(1, v.getId());
 				statement.setString(2, v.getCategory_fq());
 				statement.executeUpdate();
 			}			

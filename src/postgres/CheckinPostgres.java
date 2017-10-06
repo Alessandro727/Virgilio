@@ -123,7 +123,7 @@ public class CheckinPostgres {
 		
 		LinkedList<Venue> venues = null;
 		Venue venue = null;
-		int i = 1;
+		Long i = (long) 1;
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
@@ -216,7 +216,7 @@ public class CheckinPostgres {
 			String query = "select id, user_id from checkins where venue_id = ?";
 			for (Venue v: venues) {
 				statement = connection.prepareStatement(query);
-				statement.setInt(1, v.getId());
+				statement.setLong(1, v.getId());
 				result = statement.executeQuery();				
 				while (result.next()) {
 					c = new Checkin();
@@ -275,7 +275,7 @@ public class CheckinPostgres {
 			connection = datasource.getConnection();
 			String query = "select id, user_id from checkins where venue_id = ?";
 			statement = connection.prepareStatement(query);
-			statement.setInt(1, venue.getId());
+			statement.setLong(1, venue.getId());
 			result = statement.executeQuery();				
 			while (result.next()) {
 				c = new Checkin();
@@ -317,14 +317,14 @@ public class CheckinPostgres {
 			if (result.next()) {
 				venues = new LinkedList<Venue>();
 				venue = new Venue();
-				venue.setId(result.getInt("id"));	//id del checkin
+				venue.setId(result.getLong("id"));	//id del checkin
 				venue.setLatitude(result.getString("latitude"));
 				venue.setLongitude(result.getString("longitude"));
 				venues.add(venue);
 			}
 			while (result.next()) {
 				venue = new Venue();
-				venue.setId(result.getInt("id"));
+				venue.setId(result.getLong("id"));
 				venue.setLatitude(result.getString("latitude"));
 				venue.setLongitude(result.getString("longitude"));
 				venues.add(venue);
@@ -359,7 +359,7 @@ public class CheckinPostgres {
 			String update = "update checkins set venue_id = ? where latitude = ? and longitude = ?";
 			for (Venue v: venues) {
 				statement = connection.prepareStatement(update);
-				statement.setInt(1, v.getId());
+				statement.setLong(1, v.getId());
 				statement.setBigDecimal(2, new BigDecimal(v.getLatitude()));
 				statement.setBigDecimal(3, new BigDecimal(v.getLongitude()));
 				statement.executeUpdate();
@@ -559,7 +559,7 @@ public class CheckinPostgres {
 				String update = "update checkins set venue_id = ? where venue_id = ?";
 				while (result.next()) {
 					statement = connection.prepareStatement(update);
-					statement.setInt(1, v.getId());
+					statement.setLong(1, v.getId());
 					statement.setInt(2, result.getInt("id"));
 					statement.executeUpdate();								
 				}

@@ -38,7 +38,7 @@ public class VenuePostgres {
 			if (result.next()) {
 				venues = new LinkedList<Venue>();
 				venue = new Venue();
-				venue.setId(result.getInt("id"));
+				venue.setId(result.getLong("id"));
 				venue.setLatitude(result.getString("latitude"));
 				venue.setLongitude(result.getString("longitude"));
 				venue.setName_fq(result.getString("name_fq"));
@@ -47,7 +47,7 @@ public class VenuePostgres {
 			}
 			while (result.next()) {
 				venue = new Venue();
-				venue.setId(result.getInt("id"));
+				venue.setId(result.getLong("id"));
 				venue.setLatitude(result.getString("latitude"));
 				venue.setLongitude(result.getString("longitude"));
 				venue.setName_fq(result.getString("name_fq"));
@@ -88,7 +88,7 @@ public class VenuePostgres {
 			if (result.next()) {
 				venues = new LinkedList<Venue>();
 				venue = new Venue();
-				venue.setId(result.getInt("id"));				
+				venue.setId(result.getLong("id"));				
 				venue.setLatitude(result.getString("latitude"));
 				venue.setLongitude(result.getString("longitude"));
 				venue.setName_fq(result.getString("name_fq"));
@@ -96,7 +96,7 @@ public class VenuePostgres {
 			}
 			while (result.next()) {
 				venue = new Venue();
-				venue.setId(result.getInt("id"));
+				venue.setId(result.getLong("id"));
 				venue.setLatitude(result.getString("latitude"));
 				venue.setLongitude(result.getString("longitude"));
 				venue.setName_fq(result.getString("name_fq"));
@@ -133,7 +133,7 @@ public class VenuePostgres {
 			String insert = "insert into venues_original (id, latitude_or, longitude_or) values (?, ?, ?)";
 			for (Venue v: venues) {
 				statement = connection.prepareStatement(insert);
-				statement.setInt(1, v.getId());
+				statement.setLong(1, v.getId());
 				statement.setBigDecimal(2, new BigDecimal(v.getLatitude()));
 				statement.setBigDecimal(3, new BigDecimal(v.getLongitude()));				
 				statement.executeUpdate();
@@ -167,7 +167,7 @@ public class VenuePostgres {
 			connection = datasource.getConnection();
 			for (Venue v: venues) {
 				statement = connection.prepareStatement(delete);
-				statement.setInt(1, v.getId());
+				statement.setLong(1, v.getId());
 				statement.executeUpdate();				
 			}
 		} catch (PersistenceException e) {
@@ -210,7 +210,7 @@ public class VenuePostgres {
 			if (result.next()) {
 				venues = new LinkedList<Venue>();
 				venue = new Venue();
-				venue.setId(result.getInt("id"));
+				venue.setId(result.getLong("id"));
 				venue.setLatitude(result.getString("latitude"));
 				venue.setLongitude(result.getString("longitude"));
 				//venue.setName_fq(result.getString("name_fq"));
@@ -219,7 +219,7 @@ public class VenuePostgres {
 			}
 			while (result.next()) {
 				venue = new Venue();
-				venue.setId(result.getInt("id"));
+				venue.setId(result.getLong("id"));
 				venue.setLatitude(result.getString("latitude"));
 				venue.setLongitude(result.getString("longitude"));
 				//venue.setName_fq(result.getString("name_fq"));
@@ -265,14 +265,14 @@ public class VenuePostgres {
 		if (result.next()) {
 			venues = new LinkedList<Venue>();
 			venue = new Venue();
-			venue.setId(result.getInt("id"));
+			venue.setId(result.getLong("id"));
 			venue.setLatitude(result.getString("latitude_or"));
 			venue.setLongitude(result.getString("longitude_or"));
 			venues.add(venue);
 		}
 		while (result.next()) {
 			venue = new Venue();
-			venue.setId(result.getInt("id"));
+			venue.setId(result.getLong("id"));
 			venue.setLatitude(result.getString("latitude_or"));
 			venue.setLongitude(result.getString("longitude_or"));
 			venues.add(venue);		
@@ -328,7 +328,7 @@ public class VenuePostgres {
 			if (result.next()) {
 				venues = new LinkedList<Venue>();
 				venue = new Venue();				 
-				venue.setId(result.getInt("v.id"));
+				venue.setId(result.getLong("v.id"));
 				venue.setLatitude(result.getString("v.latitude"));
 				venue.setLongitude(result.getString("v.longitude"));
 				venue.setName_fq(result.getString("v.name_fq"));
@@ -343,7 +343,7 @@ public class VenuePostgres {
 			}
 			while (result.next()) {
 				venue = new Venue();				 
-				venue.setId(result.getInt("v.id"));
+				venue.setId(result.getLong("v.id"));
 				venue.setLatitude(result.getString("v.latitude"));
 				venue.setLongitude(result.getString("v.longitude"));
 				venue.setName_fq(result.getString("v.name_fq"));
@@ -412,7 +412,7 @@ public class VenuePostgres {
 			if (result.next()) {
 				venues = new LinkedList<Venue>();
 				venue = new Venue();				 
-				venue.setId(result.getInt("v.id"));
+				venue.setId(result.getLong("v.id"));
 				venue.setLatitude(result.getString("v.latitude"));
 				venue.setLongitude(result.getString("v.longitude"));
 				venue.setName_fq(result.getString("v.name_fq"));
@@ -427,7 +427,7 @@ public class VenuePostgres {
 			}
 			while (result.next()) {
 				venue = new Venue();				 
-				venue.setId(result.getInt("v.id"));
+				venue.setId(result.getLong("v.id"));
 				venue.setLatitude(result.getString("v.latitude"));
 				venue.setLongitude(result.getString("v.longitude"));
 				venue.setName_fq(result.getString("v.name_fq"));
@@ -481,7 +481,7 @@ public class VenuePostgres {
 					if (cv.getName().equals(v.getName_fq())) {
 						statement = connection.prepareStatement(update);
 						statement.setString(1, cv.getId());
-						statement.setInt(2, v.getId());
+						statement.setLong(2, v.getId());
 						statement.executeUpdate();												
 					}
 					else System.out.println(v.getId() + " - non uguale");

@@ -12,7 +12,7 @@ public class Graph {
 	private Node startNode;
 	private Node destinationNode;
 	private ArrayList<Node> allNodes = new ArrayList<Node>();
-	private ArrayList<Integer> visitedNodes = new ArrayList<Integer>(); 
+	private ArrayList<Long> visitedNodes = new ArrayList<Long>(); 
 
 
 	public Graph(Node startNode, Node destinationNode) {

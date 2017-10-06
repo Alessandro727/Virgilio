@@ -6,7 +6,7 @@ import model.Venue;
 
 public class Node implements Comparable<Node> {
 	
-	private int id;
+	private Long id;
 	private Venue venue;
 	private ArrayList<Edge> outGoingEdges = new ArrayList<Edge>();
 	private Integer distance;
@@ -27,7 +27,7 @@ public class Node implements Comparable<Node> {
 	
 	
 	
-	public int getId() {
+	public Long getId() {
 		return this.id;
 	}
 	
@@ -127,11 +127,11 @@ public class Node implements Comparable<Node> {
 	}
 	
 	
-	public boolean pathIsValid(int id) {
+	public boolean pathIsValid(Long long1) {
 		boolean isValid = true;
 		Node prev = this.getPrev();
 		while(prev != null && isValid) {
-			if (prev.getId() == id)
+			if (prev.getId() == long1)
 				isValid = false;
 			prev = prev.getPrev();
 		}
