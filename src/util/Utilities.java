@@ -12,21 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 
-
-
-
-
-
-
-import net.aksingh.java.api.owm.ForecastWeatherData;
-import net.aksingh.java.api.owm.ForecastWeatherData.Forecast.Weather;
-import net.aksingh.java.api.owm.OpenWeatherMap;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import logic.router.Node;
 import model.Venue;
+import net.aksingh.owmjapis.AbstractWeather.Weather;
+import net.aksingh.owmjapis.CurrentWeather;
+import net.aksingh.owmjapis.OpenWeatherMap;
 
 public class Utilities {
 	
@@ -159,10 +152,10 @@ public class Utilities {
 		if (availableTime >= 200)
 			limit = 3;
 		try {
-			ForecastWeatherData fwd = opw.forecastWeatherByCoordinates(Float.valueOf(v.getLatitude()), Float.valueOf(v.getLongitude()));
+			CurrentWeather fwd = opw.currentWeatherByCoordinates(Float.valueOf(v.getLatitude()), Float.valueOf(v.getLongitude()));
 			Weather w;
 			for (int i=1; i<=limit; i++) {
-				w = fwd.getForecast_List().get(i).getWeather_List().get(0);
+				w = fwd.getWeatherInstance(i);
 				System.out.println(w.getWeatherCode() + " " + w.getWeatherName() + " " + w.getWeatherDescription());
 				switch(w.getWeatherCode()) {
 					case 800: case 801: case 802: case 803: case 804:	result ++; break;		// sole e/o nuvole
@@ -189,7 +182,7 @@ public class Utilities {
 				if (i==4)
 					break;
 			}*/			
-		} catch (IOException | JSONException e) {
+		} catch (JSONException e) {
 			e.printStackTrace();
 			return true;
 		}
