@@ -1,5 +1,8 @@
 package util;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -51,11 +54,41 @@ public class Utilities {
         JSONObject venueJsonObject;
         String isOpen = null;
         
+        String clientID = null;
+        String clientSecret = null;
+
+		FileReader fReader = null;
+		try {
+			fReader = new FileReader("config.txt");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		BufferedReader bufferedReader = new BufferedReader(fReader);
+
+		String sCurrentLine;
+
+		try {
+			while ((sCurrentLine = bufferedReader.readLine()) != null) {
+				if (sCurrentLine.contains("FQ_CLIENT_ID"))	{
+					clientID =  sCurrentLine.split("FQ_CLIENT_ID=")[1];
+				}
+				if (sCurrentLine.contains("FQ_CLIENT_SECRET"))	{
+					clientSecret =  sCurrentLine.split("FQ_CLIENT_SECRET=")[1];
+				}
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        
         try {        	
         	url = "https://api.foursquare.com/v2/venues/"
             	+ venue.getFoursquare_id()
-            	+ "?client_id=YYKMILQ24YMAF1WSXVDMQRIAUUYBAZ4HJFW5KCCKEEE2M1DA"
-            	+ "&client_secret=4DEGSCLCLJPMF31IJD5XT2Q2B01RUJROKLIMWBNS4YWAIVG3"
+            	+ "?client_id="+clientID
+            	+ "&client_secret="+clientSecret
             	+ "&v=20120609";        			
         	jsonObject = Utilities.getJSONObjectFromURL(url);
         	if (jsonObject == null)
@@ -146,7 +179,34 @@ public class Utilities {
 	 * @return	true, se il tempo � sereno e/o nuvoloso, false altrimenti
 	 */
 	public static boolean isSunny(Venue v, int availableTime) {
-		OpenWeatherMap opw = new OpenWeatherMap("b79e8b431033cc518d4904c21d93098e");
+		
+		String owmKey = null;
+
+		FileReader fReader = null;
+		try {
+			fReader = new FileReader("config.txt");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		BufferedReader bufferedReader = new BufferedReader(fReader);
+
+		String sCurrentLine;
+
+		try {
+			while ((sCurrentLine = bufferedReader.readLine()) != null) {
+				if (sCurrentLine.contains("OWM_KEY"))	{
+					owmKey =  sCurrentLine.split("OWM_KEY=")[1];
+				}
+				
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		OpenWeatherMap opw = new OpenWeatherMap(owmKey);
 		int result = 0;
 		int limit = 2;
 		if (availableTime >= 200)

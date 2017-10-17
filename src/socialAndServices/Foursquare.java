@@ -1,5 +1,9 @@
 package socialAndServices;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,17 +22,53 @@ import fi.foyt.foursquare.api.entities.VenuesSearchResult;
 
 public class Foursquare {
 	
-	private static final String ID = "NTC5IU2MDYNCSMBPIDTUBHMYZXGABZPNVFIAYTZ13B0PIB5M";
-	private static final String SECRET = "VGBXGJOB3YS40QOCBJNKPPROTKCYI1ZIJSSM2QU0SSUP0OMM";
+	
 	private static final String CALLBACK = "***";
 	
+	
+	public static FoursquareApi fqApiCreate()	{
+		
+		String id = null;
+		String secret =null;
+		
+		FileReader fReader = null;
+		try {
+			fReader = new FileReader("config.txt");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		BufferedReader bufferedReader = new BufferedReader(fReader);
+
+		String sCurrentLine;
+
+		try {
+			while ((sCurrentLine = bufferedReader.readLine()) != null) {
+				if (sCurrentLine.contains("FQ_ID"))	{
+					id =  sCurrentLine.split("FQ_ID=")[1];
+				}
+				if (sCurrentLine.contains("FQ_SECRET"))	{
+					secret =  sCurrentLine.split("FQ_SECRET=")[1];
+				}
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		FoursquareApi foursquareApi = new FoursquareApi(id, secret, CALLBACK);
+		
+		return foursquareApi;
+	}
 	
 	public static CompactVenue searchSingleVenue(String ll) throws FoursquareApiException {
 		
 		CompactVenue venue = null;
 		
 		// First we need a initialize FoursquareApi
-		FoursquareApi foursquareApi = new FoursquareApi(ID, SECRET, CALLBACK);
+		FoursquareApi foursquareApi = Foursquare.fqApiCreate();
 		
 		// After client has been initialized we can make queries
 		/*
@@ -73,7 +113,7 @@ public static CompactVenue searchSingleVenueMatch(Venue v) throws FoursquareApiE
 		CompactVenue venue = null;
 		
 		// First we need a initialize FoursquareApi
-		FoursquareApi foursquareApi = new FoursquareApi(ID, SECRET, CALLBACK);
+		FoursquareApi foursquareApi = Foursquare.fqApiCreate();
 
 		// After client has been initialized we can make queries
 		/*
@@ -117,7 +157,7 @@ public static CompactVenue searchSingleVenueMatch(Venue v) throws FoursquareApiE
 		CompactVenue[] venues = null;
 		
 		// First we need a initialize FoursquareApi
-		FoursquareApi foursquareApi = new FoursquareApi(ID, SECRET, CALLBACK);
+		FoursquareApi foursquareApi = Foursquare.fqApiCreate();
 		
 		// After client has been initialized we can make queries
 		/*

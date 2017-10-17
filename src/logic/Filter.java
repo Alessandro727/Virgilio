@@ -1,5 +1,9 @@
 package logic;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 
 import model.Context;
@@ -81,12 +85,41 @@ public class Filter {
         			venues.remove(i);
         			continue;
         		}*/
+        		
+        		String id = null;
+        		String secret =null;
+        		
+        		FileReader fReader = null;
+        		try {
+        			fReader = new FileReader("config.txt");
+        		} catch (FileNotFoundException e1) {
+        			// TODO Auto-generated catch block
+        			e1.printStackTrace();
+        		}
+        		BufferedReader bufferedReader = new BufferedReader(fReader);
+
+        		String sCurrentLine;
+
+        		try {
+        			while ((sCurrentLine = bufferedReader.readLine()) != null) {
+        				if (sCurrentLine.contains("FQ_ID"))	{
+        					id =  sCurrentLine.split("FQ_ID=")[1];
+        				}
+        				if (sCurrentLine.contains("FQ_SECRET"))	{
+        					secret =  sCurrentLine.split("FQ_SECRET=")[1];
+        				}
+
+        			}
+        		} catch (IOException e) {
+        			// TODO Auto-generated catch block
+        			e.printStackTrace();
+        		}
         			
         		if (CATEGORIES_OPENorCLOSED[v.getMacro_category().getId()] && v.getFoursquare_id() != null) {
         			url = "https://api.foursquare.com/v2/venues/"
             				+ v.getFoursquare_id()
-            				+ "?client_id=NTC5IU2MDYNCSMBPIDTUBHMYZXGABZPNVFIAYTZ13B0PIB5M"
-            				+ "&client_secret=VGBXGJOB3YS40QOCBJNKPPROTKCYI1ZIJSSM2QU0SSUP0OMM"
+            				+ "?client_id="+id
+            				+ "&client_secret="+secret
             				+ "&v=20140131";        			
         	        jsonObject = Utilities.getJSONObjectFromURL(url);
         	        if (jsonObject == null)
@@ -119,6 +152,35 @@ public class Filter {
         String isOpen;
         Venue v;
         
+        String id = null;
+		String secret =null;
+		
+		FileReader fReader = null;
+		try {
+			fReader = new FileReader("config.txt");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		BufferedReader bufferedReader = new BufferedReader(fReader);
+
+		String sCurrentLine;
+
+		try {
+			while ((sCurrentLine = bufferedReader.readLine()) != null) {
+				if (sCurrentLine.contains("FQ_ID"))	{
+					id =  sCurrentLine.split("FQ_ID=")[1];
+				}
+				if (sCurrentLine.contains("FQ_SECRET"))	{
+					secret =  sCurrentLine.split("FQ_SECRET=")[1];
+				}
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
         try {        	
         	for (int i=0; i<venues.size(); i++) {
         		v = venues.get(i);
@@ -133,8 +195,8 @@ public class Filter {
         		if (CATEGORIES_OPENorCLOSED[v.getMacro_category().getId()] && v.getFoursquare_id() != null) {
         			url = "https://api.foursquare.com/v2/venues/"
             				+ v.getFoursquare_id()
-            				+ "?client_id=NTC5IU2MDYNCSMBPIDTUBHMYZXGABZPNVFIAYTZ13B0PIB5M"
-            				+ "&client_secret=VGBXGJOB3YS40QOCBJNKPPROTKCYI1ZIJSSM2QU0SSUP0OMM"
+            				+ "?client_id="+id
+            				+ "&client_secret="+secret
             				+ "&v=20140131";        			
         	        jsonObject = Utilities.getJSONObjectFromURL(url);
         	        if (jsonObject == null)

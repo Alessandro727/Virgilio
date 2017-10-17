@@ -11,17 +11,17 @@ public class Venue {
 	//private int checkinsNumber;
 	private String name_fq;
 	private String category_fq;
+	private String openHours;
 	private String status;
 	private MacroCategory macro_category;
 	private String foursquare_id;
-	private String link_fq;
 	private String mediaUrl;
 	private String creator;
 	private String why;
 	private String provider;
 	private String source;
 	private String externalLink;
-	private String museumDescription;
+	private String description;
 	private List<Checkin> checkins;
 	
 	
@@ -97,14 +97,6 @@ public class Venue {
 		this.foursquare_id = foursquare_id;
 	}
 
-	public String getLink_fq() {
-		return link_fq;
-	}
-
-	public void setLink_fq(String link_fq) {
-		this.link_fq = link_fq;
-	}
-
 	public List<Checkin> getCheckins() {
 		return this.checkins;
 	}
@@ -166,16 +158,24 @@ public class Venue {
 	}
 
 	public String getMuseumDescription() {
-		return museumDescription;
+		return description;
 	}
 
 	public void setMuseumDescription(String museumDescription) {
-		this.museumDescription = museumDescription;
+		this.description = museumDescription;
 	}
 	
 	public String toString()	{
 		return "Venue: "+getName_fq()+", "+getCategory_fq()+", "+getCheckinsNumber()+", "+getStatus()+", "+getMacro_category();
 		
+	}
+
+	public String getOpenHours() {
+		return openHours;
+	}
+
+	public void setOpenHours(String openHours) {
+		this.openHours = openHours;
 	}
 	
 }

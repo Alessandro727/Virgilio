@@ -45,6 +45,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>de.u-mass</groupId>
+			<artifactId>lastfm-java</artifactId>
+			<version>0.1.2</version>
+		</dependency>
+
+		<dependency>
 			<groupId>net.aksingh</groupId>
 			<artifactId>owm-japis</artifactId>
 			<version>2.5.0.3</version>
@@ -98,11 +104,7 @@
 			<version>3.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>me.atlis</groupId>
-			<artifactId>foursquare-api</artifactId>
-			<version>1.0.6</version>
-		</dependency>
+
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-servlet</artifactId>

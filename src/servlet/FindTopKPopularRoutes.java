@@ -135,7 +135,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			
 			
 			
-			venuesInTheSquare = JenaManager.retrieveNodeFromLinkedGeoData(lat, lng, 0.1, categories);
+			venuesInTheSquare = JenaManager.retrievePlaceNodeFromLinkedGeoData(lat, lng, 0.1, categories);
 			
 			
 			

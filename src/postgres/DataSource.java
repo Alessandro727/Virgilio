@@ -1,22 +1,54 @@
 package postgres;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DataSource {
-	private String driver = "com.mysql.jdbc.Driver";
+	private final String driver = "com.mysql.jdbc.Driver";
 //	private String driver = "org.postgresql.Driver";
-	private String dbName = "dbTesi";
+	private final String dbName = "dbTesi";
 //	private String dbName = "gScorrData";
-	private String dbURI = "jdbc:mysql://localhost/"+dbName;
+	private final String dbURI = "jdbc:mysql://localhost/"+dbName;
 	//private String dbURI = "jdbc:postgresql://localhost/gScorrData";
-	private String userName = "root";
+	private final String userName = "root";
 	//private String userName = "postgres";
-	private String password = "gigiotto";
+	
 
 	public Connection getConnection() throws PersistenceException {
 		Connection connection;
+		
+		String password = null; //this is the key used in the Google API 
+
+		FileReader fReader = null;
+		try {
+			fReader = new FileReader("config.txt");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		BufferedReader bufferedReader = new BufferedReader(fReader);
+
+		String sCurrentLine;
+
+		try {
+			while ((sCurrentLine = bufferedReader.readLine()) != null) {
+				if (sCurrentLine.contains("MYSQL_PASSWORD"))	{
+					password =  sCurrentLine.split("MYSQL_PASSWORD=")[1];
+				}
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		
 		try {
 			Class.forName(driver);
 		    //Class.forName("org.postgresql.Driver");		//driver class loading
