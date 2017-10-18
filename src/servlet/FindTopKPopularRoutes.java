@@ -23,7 +23,7 @@ import logic.router.Router_Default;
 import logic.router.Graph;
 import logic.router.Node;
 import logic.router.Router;
-import logic.router.JenaManager;
+import logic.router.JenaManagerForPlace;
 import model.Context;
 import model.MacroCategory;
 import model.Scenario;
@@ -135,7 +135,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			
 			
 			
-			venuesInTheSquare = JenaManager.retrievePlaceNodeFromLinkedGeoData(lat, lng, 0.1, categories);
+			venuesInTheSquare = JenaManagerForPlace.retrivePlacesNodes(lat, lng, 0.1, categories);
 			
 			
 			
