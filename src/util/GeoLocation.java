@@ -172,6 +172,7 @@ public class GeoLocation {
 	
 	
 	public static Venue getMostNearAndPopularVenueWithContext(String lat, String lng, List<Venue> venues) {
+		
 		if (venues == null || venues.size() < 1)
 			return null;
 		

@@ -1,9 +1,8 @@
 package util;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,7 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
+import org.bitpipeline.lib.owm.ForecastWeatherData;
+import org.bitpipeline.lib.owm.OwmClient;
+import org.bitpipeline.lib.owm.WeatherData;
+import org.bitpipeline.lib.owm.WeatherData.WeatherCondition;
+import org.bitpipeline.lib.owm.WeatherStatusResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,6 +25,7 @@ import logic.router.Node;
 import model.Venue;
 import net.aksingh.owmjapis.AbstractWeather.Weather;
 import net.aksingh.owmjapis.CurrentWeather;
+import net.aksingh.owmjapis.HourlyForecast;
 import net.aksingh.owmjapis.OpenWeatherMap;
 
 public class Utilities {
@@ -57,14 +61,9 @@ public class Utilities {
         String clientID = null;
         String clientSecret = null;
 
-		FileReader fReader = null;
-		try {
-			fReader = new FileReader("config.txt");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader bufferedReader = new BufferedReader(fReader);
+        InputStream inputStream = 
+				Utilities.class.getClassLoader().getResourceAsStream("config.txt");
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
 		String sCurrentLine;
 
@@ -182,14 +181,9 @@ public class Utilities {
 		
 		String owmKey = null;
 
-		FileReader fReader = null;
-		try {
-			fReader = new FileReader("config.txt");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader bufferedReader = new BufferedReader(fReader);
+		InputStream inputStream = 
+				Utilities.class.getClassLoader().getResourceAsStream("config.txt");
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
 		String sCurrentLine;
 
@@ -212,10 +206,11 @@ public class Utilities {
 		if (availableTime >= 200)
 			limit = 3;
 		try {
-			CurrentWeather fwd = opw.currentWeatherByCoordinates(Float.valueOf(v.getLatitude()), Float.valueOf(v.getLongitude()));
+			HourlyForecast fwd = opw.hourlyForecastByCoordinates(Float.valueOf(v.getLatitude()), Float.valueOf(v.getLongitude()));
+			System.out.println(fwd.getForecastCount());
 			Weather w;
 			for (int i=1; i<=limit; i++) {
-				w = fwd.getWeatherInstance(i);
+				w = fwd.getForecastInstance(i).getWeatherInstance(0);
 				System.out.println(w.getWeatherCode() + " " + w.getWeatherName() + " " + w.getWeatherDescription());
 				switch(w.getWeatherCode()) {
 					case 800: case 801: case 802: case 803: case 804:	result ++; break;		// sole e/o nuvole
@@ -251,6 +246,8 @@ public class Utilities {
 		else
 			return false;		
 	}
+	
+	
 	
 	
 	
@@ -335,5 +332,8 @@ public class Utilities {
 		}		
 		return contains;
 	}
+	
+	
+	
 
 }

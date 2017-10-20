@@ -31,7 +31,7 @@ public class JenaManagerForMovies {
 	
 	private final static String ontology_serviceMovie =  "https://query.wikidata.org/sparql";
 
-	public Map<Long, Movie> retriveNodes(double lat, double lon, double radius)	{
+	public static Map<Long, Movie> retriveNodes(double lat, double lon, double radius)	{
 
 
 		double  lat1 = lat - radius,

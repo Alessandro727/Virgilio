@@ -1,9 +1,9 @@
 package socialAndServices;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,14 +31,9 @@ public class Foursquare {
 		String id = null;
 		String secret =null;
 		
-		FileReader fReader = null;
-		try {
-			fReader = new FileReader("config.txt");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader bufferedReader = new BufferedReader(fReader);
+		InputStream inputStream = 
+				Foursquare.class.getClassLoader().getResourceAsStream("config.txt");
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
 		String sCurrentLine;
 
@@ -66,6 +61,8 @@ public class Foursquare {
 	public static CompactVenue searchSingleVenue(String ll) throws FoursquareApiException {
 		
 		CompactVenue venue = null;
+		
+		
 		
 		// First we need a initialize FoursquareApi
 		FoursquareApi foursquareApi = Foursquare.fqApiCreate();
@@ -112,6 +109,8 @@ public static CompactVenue searchSingleVenueMatch(Venue v) throws FoursquareApiE
 		
 		CompactVenue venue = null;
 		
+		
+		
 		// First we need a initialize FoursquareApi
 		FoursquareApi foursquareApi = Foursquare.fqApiCreate();
 
@@ -155,6 +154,7 @@ public static CompactVenue searchSingleVenueMatch(Venue v) throws FoursquareApiE
 	public static CompactVenue[] searchVenues(String ll) throws FoursquareApiException {
 		
 		CompactVenue[] venues = null;
+		
 		
 		// First we need a initialize FoursquareApi
 		FoursquareApi foursquareApi = Foursquare.fqApiCreate();

@@ -1,9 +1,9 @@
 package logic.router;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,9 +24,9 @@ import com.flickr4java.flickr.photos.SearchParameters;
 import model.Book;
 
 public class JenaManagerForBook {
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(JenaManagerForBook.class);
-	
+
 	private static final String prefix ="PREFIX wd: <http://www.wikidata.org/entity/>"+"\n"
 			+"PREFIX wdt: <http://www.wikidata.org/prop/direct/>"+"\n"
 			+"PREFIX wikibase: <http://wikiba.se/ontology#>"+"\n"
@@ -36,9 +36,9 @@ public class JenaManagerForBook {
 			+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+"\n"
 			+"PREFIX bd: <http://www.bigdata.com/rdf#>"+"\n"
 			+"PREFIX geo: <http://www.opengis.net/ont/geosparql#>";
-	
+
 	private final static String ontology_serviceBook =  "https://query.wikidata.org/sparql";
-	
+
 	public static Map<Long, Book> retriveBooksNodes(double lat, double lon, double radius)	{
 
 
@@ -86,14 +86,9 @@ public class JenaManagerForBook {
 		String key = null;
 		String secret = null;
 
-		FileReader fReader = null;
-		try {
-			fReader = new FileReader("config.txt");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader bufferedReader = new BufferedReader(fReader);
+		InputStream inputStream = 
+				JenaManagerForBook.class.getClassLoader().getResourceAsStream("config.txt");
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
 		String sCurrentLine;
 

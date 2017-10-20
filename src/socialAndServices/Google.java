@@ -1,9 +1,8 @@
 package socialAndServices;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,14 +24,9 @@ public class Google {
 	public Google() {
 		String key = null; //this is the key used in the Google API 
 
-		FileReader fReader = null;
-		try {
-			fReader = new FileReader("config.txt");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader bufferedReader = new BufferedReader(fReader);
+		InputStream inputStream = 
+				getClass().getClassLoader().getResourceAsStream("config.txt");
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
 		String sCurrentLine;
 
@@ -60,14 +54,9 @@ public class Google {
 		String key_1 = null; //this is the key used in the Google API 
 		String key_2 = null;
 
-		FileReader fReader = null;
-		try {
-			fReader = new FileReader("config.txt");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader bufferedReader = new BufferedReader(fReader);
+		InputStream inputStream = 
+				getClass().getClassLoader().getResourceAsStream("config.txt");
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
 		String sCurrentLine;
 
@@ -95,7 +84,7 @@ public class Google {
 	public Venue getCoordinatesFromAddress(String address) {
 		Venue venue = new Venue();
 		try {
-			URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace(" ", "+") + "&sensor=false");
+			URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace(" ", "+") + "&sensor=false&key="+key);
 			URLConnection conn = url.openConnection();                                                                    
 			conn.connect();
 			InputStreamReader isr = new InputStreamReader(conn.getInputStream());

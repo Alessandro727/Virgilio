@@ -24,7 +24,6 @@ public class Venue {
 	private String description;
 	private List<Checkin> checkins;
 	
-	
 	public Venue() {
 		this.checkins = new ArrayList<Checkin>();
 	}

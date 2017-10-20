@@ -14,10 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.neo4j.cypher.internal.compiler.v2_2.ast.Foreach;
+
 import fi.foyt.foursquare.api.FoursquareApiException;
 import fi.foyt.foursquare.api.entities.CompactVenue;
-import logic.LatLngSquare;
-import logic.VenueSearcher;
+//import logic.LatLngSquare;
+//import logic.VenueSearcher;
 import logic.router.Route;
 import logic.router.Router_Default;
 import logic.router.Graph;
@@ -25,7 +27,6 @@ import logic.router.Node;
 import logic.router.Router;
 import logic.router.JenaManagerForPlace;
 import model.Context;
-import model.MacroCategory;
 import model.Scenario;
 import model.User;
 import model.Venue;
@@ -72,9 +73,6 @@ public class FindTopKPopularRoutes extends HttpServlet {
 		for (int i=0; i<categories.length; i++)	{
 			System.out.println(categories[i]);
 		}
-		
-		
-		
 		
 	
 		Google google = new Google();
@@ -133,14 +131,16 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			
 			double lng = middlePoint(startVenue.getLongitude(),endVenue.getLongitude());
 			
-			
+			System.out.println("LATITUDINE: "+lat);
+			System.out.println("\n");
+			System.out.println("LONGITUDINE: "+lng);
 			
 			venuesInTheSquare = JenaManagerForPlace.retrivePlacesNodes(lat, lng, 0.1, categories);
 			
 			
 			
-			LatLngSquare llSquare = new LatLngSquare(venuesInTheSquare);
-			VenueSearcher searcher = new VenueSearcher(llSquare, scenario);
+//			LatLngSquare llSquare = new LatLngSquare(venuesInTheSquare);
+//			VenueSearcher searcher = new VenueSearcher(llSquare, scenario);
 //			venuesInTheSquare = searcher.getVenuesWithContextAndCategories(30, categories);
 			venuesInTheSquare.add(0, startVenue);
 			venuesInTheSquare.add(endVenue);	
@@ -193,8 +193,8 @@ public class FindTopKPopularRoutes extends HttpServlet {
 	}
 
 	private double middlePoint(String v1, String v2) {
-		double middlePoint = Double.valueOf(v1)-Double.valueOf(v2);
-		return middlePoint;
+		double middlePoint = Double.valueOf(v1)+Double.valueOf(v2);
+		return middlePoint/2.0;
 	}
 
 	/**
@@ -245,6 +245,15 @@ public class FindTopKPopularRoutes extends HttpServlet {
         System.out.println("router_default eseguito...eseguo getTopKRoutes");
         List<Route> topKRoutes = router.getTopKRoutes(5);	// le prime tre route
         System.out.println("getTopKRoutes eseguito");
+        System.out.println(topKRoutes.size());
+        for (Route route : topKRoutes) {
+			for (Venue v : route.getVenueList()) {
+				System.out.println(v.getName_fq());
+				
+			}
+			System.out.println("\n");
+			System.out.println("\n");
+		}
         
         if (topKRoutes.size() == 0) {
         	time = google.getTimeBetweenTwoPoints(venuesInTheSquare.get(0), venuesInTheSquare.get(venuesInTheSquare.size()-1), mode);
@@ -255,21 +264,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
         		topKRoutes.add(route);        		
         	}        		
         }
-        
-        CompactVenue cv;
-        try {
-        	for (Route r: topKRoutes)
-            	for (Venue v: r.getVenueList())
-            		if (v.getFoursquare_id() == null) {
-            			cv = Foursquare.searchSingleVenueMatch(v);
-            			if (cv != null)
-            				v.setFoursquare_id(cv.getId());
-            		}
-        } catch (FoursquareApiException e) {
-			e.printStackTrace();
-		}
-        
-        
+                
         
         return topKRoutes;
 	}

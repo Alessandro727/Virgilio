@@ -48,7 +48,7 @@ public class Couple<X, Y> implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Couple other = (Couple) obj;
+		Couple<?, ?> other = (Couple<?, ?>) obj;
 		if (first == null) {
 			if (other.first != null)
 				return false;

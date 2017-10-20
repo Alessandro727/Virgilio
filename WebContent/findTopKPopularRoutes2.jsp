@@ -27,56 +27,56 @@
 <!-- script for map construction -->
 <script type="text/javascript">
 		
-		var map;
-		var routeJS = new Array();
-		var directionsRender;
-		var directionsService = new google.maps.DirectionsService();
-		var travelMode;
-		
-		function initialize() {
-			
-			<%	for (Venue v: route) { %>	
-				routeJS.push(new Array(	"<%= v.getName_fq() %>",
-										'<%= v.getLatitude() %>,<%= v.getLongitude() %>',
-										<%= v.getMacro_category().getMrt() %>)
-							);
-			<%	} %>
-			
-			
-			<% if (mode.equals("driving")) { %>
-				travelMode = google.maps.DirectionsTravelMode.DRIVING;
-        	<% } else { %>
-        		travelMode = google.maps.DirectionsTravelMode.WALKING;
-        	<% } %>
-			
-			
-			// Map visualization options
-			var mapOptions = {
-					mapTypeId: google.maps.MapTypeId.ROADMAP,	//displays a normal street map (sennò c'è HYBRID, SATELLITE, o TERRAIN')
-					mapTypeControl: false
-			};
-			
-			
-			// THE MAP
-			map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
-			
-			calcRoute(); 
-									
-		}	// end initialize function
-		
-		
-		function calcRoute() {
-	        var waypts = [];
-	        
-	        for(var i=1; i<routeJS.length-1; i++) {
-	        	waypts.push({
-        			location: routeJS[i][1],
-        			stopover: true});
-	        }
-	        
-	        var request = {
-			        origin: '<%= startVenue.getLatitude() + "," + startVenue.getLongitude()  %>', 
-			        destination: '<%= endVenue.getLatitude() + "," + endVenue.getLongitude()  %>',
+var map;
+var routeJS = new Array();
+var directionsRender;
+var directionsService = new google.maps.DirectionsService();
+var travelMode;
+
+function initialize() {
+	
+	<%	for (Venue v: route) { %>	
+		routeJS.push(new Array(	"<%= v.getName_fq() %>",
+								'<%= v.getLatitude() %>,<%= v.getLongitude() %>',
+								<%= v.getMacro_category().getMrt() %>)
+					);
+	<%	} %>
+	
+	
+	<% if (mode.equals("driving")) { %>
+		travelMode = google.maps.DirectionsTravelMode.DRIVING;
+	<% } else { %>
+		travelMode = google.maps.DirectionsTravelMode.WALKING;
+	<% } %>
+	
+	
+	// Map visualization options
+	var mapOptions = {
+			mapTypeId: google.maps.MapTypeId.ROADMAP,	//displays a normal street map (sennò c'è HYBRID, SATELLITE, o TERRAIN')
+			mapTypeControl: false
+	};
+	
+	
+	// THE MAP
+	map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+	
+	calcRoute(); 
+							
+}	// end initialize function
+
+
+function calcRoute() {
+    var waypts = [];
+    
+    for(var i=1; i<routeJS.length-1; i++) {
+    	waypts.push({
+			location: routeJS[i][1],
+			stopover: true});
+    }
+    
+    var request = {
+	        origin: '<%= startVenue.getLatitude() + "," + startVenue.getLongitude()  %>', 
+	        destination: '<%= endVenue.getLatitude() + "," + endVenue.getLongitude()  %>',
 			waypoints : waypts,
 			optimizeWaypoints : true,
 			travelMode : travelMode

@@ -1,9 +1,9 @@
 package logic.router;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,9 +21,9 @@ import de.umass.lastfm.Track;
 import model.Singer;
 
 public class JenaManagerForTraks {
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(JenaManagerForTraks.class);
-	
+
 	private final static String prefix = "PREFIX wd: <http://www.wikidata.org/entity/>"+"\n"
 			+"PREFIX wdt: <http://www.wikidata.org/prop/direct/>"+"\n"
 			+"PREFIX wikibase: <http://wikiba.se/ontology#>"+"\n"
@@ -35,10 +35,10 @@ public class JenaManagerForTraks {
 			+"PREFIX geo: <http://www.opengis.net/ont/geosparql#>"+"\n"
 			+"PREFIX psv: <http://www.wikidata.org/prop/statement/value/>"+"\n"
 			+"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"+"\n";
-	
+
 	private final static String ontology_serviceTrack =  "https://query.wikidata.org/sparql";
-	
-	public Map<Long, Singer> retriveMusicNodes(double lat, double lon, double radius)	{
+
+	public static Map<Long, Singer> retriveMusicNodes(double lat, double lon, double radius)	{
 
 
 		double  lat1 = lat - radius,
@@ -49,17 +49,17 @@ public class JenaManagerForTraks {
 		Map<Long, Singer> singerResult = new HashMap<>();
 
 		String queryTrack = prefix
-					+"SELECT ?artista ?artistaLabel ?birthPlaceLabel ?lat ?long ?genereLabel WHERE {"+"\n"
-					+"SERVICE wikibase:label { bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],en\". }"+"\n"
-					+"?artista wdt:P106 wd:Q177220."+"\n"
-					+"?artista wdt:P19 ?birthPlace."+"\n"
-					+"?birthPlace p:P625 ?coordinate."+"\n"
-					+"?coordinate psv:P625 ?coordinate_node."+"\n"
-					+"?coordinate_node wikibase:geoLongitude ?long."+"\n"
-					+"?coordinate_node wikibase:geoLatitude ?lat."+"\n"
-					+"?artista wdt:P136 ?genere."+"\n"
-					+"FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
-					+"}"+"\n";
+				+"SELECT ?artista ?artistaLabel ?birthPlaceLabel ?lat ?long ?genereLabel WHERE {"+"\n"
+				+"SERVICE wikibase:label { bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],en\". }"+"\n"
+				+"?artista wdt:P106 wd:Q177220."+"\n"
+				+"?artista wdt:P19 ?birthPlace."+"\n"
+				+"?birthPlace p:P625 ?coordinate."+"\n"
+				+"?coordinate psv:P625 ?coordinate_node."+"\n"
+				+"?coordinate_node wikibase:geoLongitude ?long."+"\n"
+				+"?coordinate_node wikibase:geoLatitude ?lat."+"\n"
+				+"?artista wdt:P136 ?genere."+"\n"
+				+"FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
+				+"}"+"\n";
 
 		QueryExecution queryExecution = QueryExecutionFactory.sparqlService(ontology_serviceTrack,
 				queryTrack);
@@ -93,14 +93,9 @@ public class JenaManagerForTraks {
 
 			String key = null; //this is the key used in the Last.fm API 
 
-			FileReader fReader = null;
-			try {
-				fReader = new FileReader("config.txt");
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			BufferedReader bufferedReader = new BufferedReader(fReader);
+			InputStream inputStream = 
+					JenaManagerForTraks.class.getClassLoader().getResourceAsStream("config.txt");
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
 			String sCurrentLine;
 

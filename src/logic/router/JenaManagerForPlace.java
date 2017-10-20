@@ -1,9 +1,10 @@
 package logic.router;
 
+
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -31,11 +32,12 @@ import com.flickr4java.flickr.photos.SearchParameters;
 
 import model.MacroCategory;
 import model.Venue;
+import scala.reflect.internal.Trees.This;
 
 public class JenaManagerForPlace {
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(JenaManagerForPlace.class);
-	
+
 	private final static String artsCategory = "Planetarium, Library, ArtsCentre, ArtGallery, Artwork, Gallery, Observatory, ArtShop, UNESCOWorldHeritage";	
 	private final static String museumCategory ="Museum, HistoricMuseum";
 	private final static String historyAndMonumentsCategory = "Courthouse, Artwork, GovermentBuilding, Statue, Tourist, WaterFountain, Souvenir, Souvenirs, TouristShop, Terrace, ArchaeologicalSite, Castle, Monument, HistoricBuilding, HistoricFountain, ProtectedBuilding, HistoricTower, UNESCOWorldHeritage, HistoricPointOfInterest, Tower";
@@ -46,9 +48,9 @@ public class JenaManagerForPlace {
 	private final static String shopAndServiceCategory = "Marketplace, Brewery, CoffeeShop, Commercial, Florist, Hairdresser, Market, PublicMarket, Shop, Shopping, Shops, Supermarket, AlcoholShop, AnimeShop, ArtShop, Mall, Patisserie, ShoppingCenter, Souvenir";
 	private final static String outdoorsAndRecreationCategory = "AnimalShelter, Biergarten, FastFood, IceCream, BicycleRental, ArtsCentre, Campsite, Farm, Picknick, PicnicSite, ThemePark, Zoo, Viewpoint, ArchaeologicalSite, Castle, UNESCOWorldHeritage, LandusePark, Volcano, Glacier, Peak, Grassland, Tree, Wood, CaveEntrance, Beach, Cape, Crater, Fjord, Island, Hill, Island, NaturalWaterfall, ProtectedArea, featuresSport, DogPark, WaterPark, NatureReserve, Park, Garden";
 	private final static String athleticsAndSport = "Gym, Sport, SportsCentre, SwimmingPool, SportShop, Stadium";
-	
+
 	private final static String ontology_service =  "http://linkedgeodata.org/sparql";
-	
+
 	private final static String prefixes = "Prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+"\n"
 			+"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
 			+"Prefix ogc: <http://www.opengis.net/ont/geosparql#>"+"\n"
@@ -59,7 +61,7 @@ public class JenaManagerForPlace {
 			+"PREFIX  g: <http://www.w3.org/2003/01/geo/wgs84_pos#>"+"\n"
 			+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n";
 
-	
+
 	public static List<Venue> retrivePlacesNodes(double lat, double lon, double radius, String[] categories) {
 
 
@@ -127,14 +129,9 @@ public class JenaManagerForPlace {
 		String key = null;
 		String secret = null;
 
-		FileReader fReader = null;
-		try {
-			fReader = new FileReader("config.txt");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader bufferedReader = new BufferedReader(fReader);
+		InputStream inputStream = 
+				JenaManagerForPlace.class.getClassLoader().getResourceAsStream("config.txt");
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
 		String sCurrentLine;
 
@@ -154,9 +151,8 @@ public class JenaManagerForPlace {
 		}
 
 		while (results.hasNext()) {
-
-
-
+			
+		
 			Venue obj = new Venue();
 
 			QuerySolution solution = results.next();
@@ -200,7 +196,17 @@ public class JenaManagerForPlace {
 			obj.setLatitude(lat_s);	
 			obj.setLongitude(long_s);
 			MacroCategory mCategory = new MacroCategory();
-			mCategory.setMacro_category_fq(solution.get("category").toString().split("http://linkedgeodata.org/ontology/")[1]);
+			String categoryName = solution.get("category").toString().split("http://linkedgeodata.org/ontology/")[1];
+			mCategory.setMacro_category_fq(categoryName);
+			
+			List<String> userCategories = 
+					new ArrayList<String>(Arrays.asList(categories));
+			
+			for (String string : userCategories) {
+				
+			}
+			
+			
 			obj.setMacro_category(mCategory);
 
 			System.out.println(label);
@@ -222,14 +228,29 @@ public class JenaManagerForPlace {
 
 		return result;
 	}
+
+
+
+	private Set<String> createCaretoriesSet(String[] categories) {
+		
+		List<String> userCategoriesLGD = new ArrayList<>();
+
+		Map<Integer, String> categoriesMap = this.createCategoryMap(String[] categories);
+
+		for (String catValue : categoriesMap.values()) {
+			List<String> catList = new ArrayList<String>(Arrays.asList(catValue.split("\\, ", -1)));
+			userCategoriesLGD.addAll(catList);
+		}
+
+		return new LinkedHashSet<>(userCategoriesLGD);
+	}
 	
 	
-	
-	private static Set<String> createCaretoriesSet(String[] categories) {
+	public Map<Integer, String> createCategoryMap(String[] categories)	{
 		
 		Map<Integer, String> categoriesMap = new HashMap<>();
 		List<String> userCategoriesLGD = new ArrayList<>();
-		
+
 		List<String> userCategories = 
 				new ArrayList<String>(Arrays.asList(categories));
 
@@ -264,15 +285,9 @@ public class JenaManagerForPlace {
 			categoriesMap.put(11,athleticsAndSport);
 		}
 		
-		for (String catValue : categoriesMap.values()) {
-			List<String> catList = new ArrayList<String>(Arrays.asList(catValue.split("\\, ", -1)));
-			userCategoriesLGD.addAll(catList);
-		}
-		
-		return new LinkedHashSet<>(userCategoriesLGD);
 	}
-	
-	
+
+
 
 	private static String getWikiPage(String result){
 		String  s=null;
@@ -286,6 +301,6 @@ public class JenaManagerForPlace {
 		}
 		return s;
 	}
-	
+
 
 }
