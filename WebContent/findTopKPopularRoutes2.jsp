@@ -96,8 +96,7 @@ function calcRoute() {
 			route.legs[0].start_address = '<b>Start</b></br>'
 					+ route.legs[0].start_address;
 			j = route.waypoint_order[0] + 1;
-			route.legs[0].end_address = '<b>' + routeJS[j][0] + '</b> ('
-					+ route.legs[0].end_address + ')';
+			route.legs[0].end_address = '<b>' + routeJS[j][0] + '</b></br>';
 
 			for (var i = 0; i < route.waypoint_order.length; i++) {
 				j = route.waypoint_order[i] + 1;
@@ -106,7 +105,7 @@ function calcRoute() {
 				if (i < route.waypoint_order.length - 1) {
 					jSucc = route.waypoint_order[i + 1] + 1;
 					route.legs[i + 1].end_address = '<b>' + routeJS[jSucc][0]
-							+ '</b> (' + route.legs[i + 1].end_address + ')';
+							+ '</b></br>';
 				}
 			}
 			route.legs[route.legs.length - 1].end_address = '<b>Arrive</b></br>'

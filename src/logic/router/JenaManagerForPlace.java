@@ -72,6 +72,9 @@ public class JenaManagerForPlace {
 				lon2 = lon + radius;
 
 		List<Venue> result = new ArrayList<>();
+		Map<Integer, String> mapCategory = createCategoryMap(categories);
+		List<String> userCategories = 
+				new ArrayList<String>(Arrays.asList(categories));
 
 
 		String category = categoriesSet.iterator().next();
@@ -94,7 +97,20 @@ public class JenaManagerForPlace {
 		for (Iterator<String> it = categoriesSet.iterator(); it.hasNext(); ) {
 
 			category = it.next();
+			
+			String limitValue = "10";
+			
 
+			for (String id : userCategories) {
+				if (mapCategory.get(Integer.parseInt(id)).contains(category))	{
+					if(id.equals("3"))	{
+						limitValue = "50";
+					}
+				}	
+				
+			}
+			
+			
 			query += "UNION "+"\n"+"{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) (SAMPLE(?tipo) as ?category) WHERE {"
 					+"?obj rdf:type ?tipo ."+"\n"
 					+"FILTER regex(str(?tipo), \"http://linkedgeodata.org/ontology/"+category+"\") "+"\n"
@@ -108,7 +124,7 @@ public class JenaManagerForPlace {
 					+ "FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
 					+"} "+"\n"
 					+"GROUP BY ?obj"+"\n"
-					+"LIMIT 10}";
+					+"LIMIT "+limitValue+"}";
 		}
 
 
@@ -197,13 +213,6 @@ public class JenaManagerForPlace {
 			String categoryName = solution.get("category").toString().split("http://linkedgeodata.org/ontology/")[1];
 			mCategory.setMacro_category_fq(categoryName);
 			
-			List<String> userCategories = 
-					new ArrayList<String>(Arrays.asList(categories));
-			
-			System.out.println(userCategories);
-			
-			Map<Integer, String> mapCategory = createCategoryMap(categories);
-			
 			
 			for (String id : userCategories) {
 				if (mapCategory.get(Integer.parseInt(id)).contains(categoryName))	{
@@ -212,10 +221,10 @@ public class JenaManagerForPlace {
 				}	
 				
 			}
-	
+			
+			obj.setCategory_fq(categoryName);
 			obj.setMacro_category(mCategory);
 
-			System.out.println(label);
 
 			if(solution.get("open")!=null)	{
 				obj.setOpenHours(solution.get("open").toString());
@@ -223,7 +232,6 @@ public class JenaManagerForPlace {
 
 			if (!list.isEmpty()) {
 				obj.setMediaUrl(list.get(0).getLargeUrl());
-				System.out.println(list.get(0).getLargeUrl());
 			}
 
 			logger.info("NAME FROM LINKED GEO DATA\t"+ label);

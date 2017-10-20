@@ -13,18 +13,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.bitpipeline.lib.owm.ForecastWeatherData;
-import org.bitpipeline.lib.owm.OwmClient;
-import org.bitpipeline.lib.owm.WeatherData;
-import org.bitpipeline.lib.owm.WeatherData.WeatherCondition;
-import org.bitpipeline.lib.owm.WeatherStatusResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import logic.router.Node;
 import model.Venue;
 import net.aksingh.owmjapis.AbstractWeather.Weather;
-import net.aksingh.owmjapis.CurrentWeather;
 import net.aksingh.owmjapis.HourlyForecast;
 import net.aksingh.owmjapis.OpenWeatherMap;
 
