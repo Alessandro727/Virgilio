@@ -32,7 +32,6 @@ import com.flickr4java.flickr.photos.SearchParameters;
 
 import model.MacroCategory;
 import model.Venue;
-import scala.reflect.internal.Trees.This;
 
 public class JenaManagerForPlace {
 
@@ -112,7 +111,6 @@ public class JenaManagerForPlace {
 					+"LIMIT 10}";
 		}
 
-		System.out.println(query);
 
 		String queryLGD = prefixes+"SELECT * WHERE {"+"\n"
 				+query+"\n"
@@ -202,11 +200,19 @@ public class JenaManagerForPlace {
 			List<String> userCategories = 
 					new ArrayList<String>(Arrays.asList(categories));
 			
-			for (String string : userCategories) {
+			System.out.println(userCategories);
+			
+			Map<Integer, String> mapCategory = createCategoryMap(categories);
+			
+			
+			for (String id : userCategories) {
+				if (mapCategory.get(Integer.parseInt(id)).contains(categoryName))	{
+					mCategory.setId(Integer.parseInt(id));
+					mCategory.addMeanResidenceTime(id);
+				}	
 				
 			}
-			
-			
+	
 			obj.setMacro_category(mCategory);
 
 			System.out.println(label);
@@ -231,11 +237,11 @@ public class JenaManagerForPlace {
 
 
 
-	private Set<String> createCaretoriesSet(String[] categories) {
+	private static Set<String> createCaretoriesSet(String[] categories) {
 		
 		List<String> userCategoriesLGD = new ArrayList<>();
 
-		Map<Integer, String> categoriesMap = this.createCategoryMap(String[] categories);
+		Map<Integer, String> categoriesMap = createCategoryMap(categories);
 
 		for (String catValue : categoriesMap.values()) {
 			List<String> catList = new ArrayList<String>(Arrays.asList(catValue.split("\\, ", -1)));
@@ -246,10 +252,9 @@ public class JenaManagerForPlace {
 	}
 	
 	
-	public Map<Integer, String> createCategoryMap(String[] categories)	{
+	public static Map<Integer, String> createCategoryMap(String[] categories)	{
 		
 		Map<Integer, String> categoriesMap = new HashMap<>();
-		List<String> userCategoriesLGD = new ArrayList<>();
 
 		List<String> userCategories = 
 				new ArrayList<String>(Arrays.asList(categories));
@@ -285,6 +290,8 @@ public class JenaManagerForPlace {
 			categoriesMap.put(11,athleticsAndSport);
 		}
 		
+		return categoriesMap;
+		
 	}
 
 
@@ -301,6 +308,6 @@ public class JenaManagerForPlace {
 		}
 		return s;
 	}
-
+	
 
 }

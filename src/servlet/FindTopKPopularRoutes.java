@@ -3,7 +3,6 @@ package servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -14,10 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.neo4j.cypher.internal.compiler.v2_2.ast.Foreach;
-
-import fi.foyt.foursquare.api.FoursquareApiException;
-import fi.foyt.foursquare.api.entities.CompactVenue;
 //import logic.LatLngSquare;
 //import logic.VenueSearcher;
 import logic.router.Route;
@@ -27,10 +22,10 @@ import logic.router.Node;
 import logic.router.Router;
 import logic.router.JenaManagerForPlace;
 import model.Context;
+import model.MacroCategory;
 import model.Scenario;
 import model.User;
 import model.Venue;
-import socialAndServices.Foursquare;
 import socialAndServices.Google;
 import util.Utilities;
 
@@ -77,32 +72,19 @@ public class FindTopKPopularRoutes extends HttpServlet {
 	
 		Google google = new Google();
 		
-//		MacroCategory mc = new MacroCategory();
-//		mc.setId(12);	// 12 = id macro categoria fittizia
-//		mc.setMacro_category_fq("Macro Categoria Fittizia");
-//		mc.setMrt(0);
+		MacroCategory mc = new MacroCategory();
+		mc.setId(12);	// 12 = id macro categoria fittizia
+		mc.setMacro_category_fq("Macro Categoria Fittizia");
+		mc.setMrt(0);
 		
 		Venue startVenue = google.getCoordinatesFromAddress(start);
 		startVenue.setId((long) 0);	// 0 is the id of the source node of Router algorithm
-//		startVenue.setMacro_category(mc);
-		
-		try {
-			TimeUnit.MILLISECONDS.sleep(1500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		startVenue.setMacro_category(mc);
 		
 		Venue endVenue = google.getCoordinatesFromAddress(end);
 		
-		try {
-			TimeUnit.MILLISECONDS.sleep(1500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		endVenue.setId((long) -1);		// -1 is the id of the destination node of Router algorithm
-//		endVenue.setMacro_category(mc);
+		endVenue.setMacro_category(mc);
 		
 		List<Venue> venuesInTheSquare = null;
 		List<Route> topKroute = null;
@@ -130,10 +112,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			double lat = middlePoint(startVenue.getLatitude(),endVenue.getLatitude());
 			
 			double lng = middlePoint(startVenue.getLongitude(),endVenue.getLongitude());
-			
-			System.out.println("LATITUDINE: "+lat);
-			System.out.println("\n");
-			System.out.println("LONGITUDINE: "+lng);
+		
 			
 			venuesInTheSquare = JenaManagerForPlace.retrivePlacesNodes(lat, lng, 0.1, categories);
 			
@@ -245,15 +224,6 @@ public class FindTopKPopularRoutes extends HttpServlet {
         System.out.println("router_default eseguito...eseguo getTopKRoutes");
         List<Route> topKRoutes = router.getTopKRoutes(5);	// le prime tre route
         System.out.println("getTopKRoutes eseguito");
-        System.out.println(topKRoutes.size());
-        for (Route route : topKRoutes) {
-			for (Venue v : route.getVenueList()) {
-				System.out.println(v.getName_fq());
-				
-			}
-			System.out.println("\n");
-			System.out.println("\n");
-		}
         
         if (topKRoutes.size() == 0) {
         	time = google.getTimeBetweenTwoPoints(venuesInTheSquare.get(0), venuesInTheSquare.get(venuesInTheSquare.size()-1), mode);

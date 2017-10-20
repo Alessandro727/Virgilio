@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.TimeUnit;
 
 import model.Venue;
 
@@ -147,12 +146,6 @@ public class Google {
 		String timeInSecond = null;
 		URL url = null;
 		try {
-			try {
-				TimeUnit.MILLISECONDS.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			String latLngFrom = from.getLatitude() + "," + from.getLongitude();
 			String latLngTo = to.getLatitude() + "," + to.getLongitude();
 			//url = new URL("http://maps.googleapis.com/maps/api/directions/json?origin=" + latLngFrom + "&destination=" + latLngTo + "&sensor=false&mode=" + mode);
