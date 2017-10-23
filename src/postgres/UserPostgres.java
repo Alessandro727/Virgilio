@@ -13,9 +13,9 @@ import model.MacroCategory;
 import model.User;
 
 public class UserPostgres {
-	
-	
-	
+
+
+
 	public static List<Checkin> RetrieveCheckinsByUser(int userID) throws PersistenceException {
 		List<Checkin> checkins = null;
 		Checkin checkin = null;
@@ -26,11 +26,11 @@ public class UserPostgres {
 		try {
 			connection = datasource.getConnection();
 			String query = "select date, checkin_id, count(*) as count"
-						+ " from"
-						+ " 	(select date(date) as date, checkin_id"
-						+ " 	from checkins"
-						+ "		where user_id = " + userID + ") as A"
-						+ " group by date, checkin_id order by date";			
+					+ " from"
+					+ " 	(select date(date) as date, checkin_id"
+					+ " 	from checkins"
+					+ "		where user_id = " + userID + ") as A"
+					+ " group by date, checkin_id order by date";			
 			statement = connection.prepareStatement(query);
 			result = statement.executeQuery();
 			if (result.next()) {
@@ -49,24 +49,24 @@ public class UserPostgres {
 				checkins.add(checkin);			
 			} 
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return checkins;
 	}
-	
-	
-	
+
+
+
 	public static User RetrieveUserByUsernameAndPassword(String username, String password) throws PersistenceException {
 		User user = null;
 		DataSource datasource = new DataSource();
@@ -95,24 +95,58 @@ public class UserPostgres {
 				user.setWeight(10, result.getDouble("10"));
 			}			
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return user;
 	}
-	
-	
-	
+
+	public static boolean RetriveUsername(String username) throws PersistenceException	{
+		boolean usernameExist = false;
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		try {
+			connection = datasource.getConnection();
+			String query = "select * from users where username = '" + username.replace("'", "''") + "'";
+			statement = connection.prepareStatement(query);
+			result = statement.executeQuery();
+			while (result.next())	{
+				usernameExist = true;
+				return usernameExist;
+			}
+		}
+		catch (SQLException e) {
+			throw new PersistenceException(e.getMessage());
+		} finally {
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			}
+		}
+		return usernameExist;
+
+	}
+
+
+
 	public static User RetrieveUserById(int id) throws PersistenceException {
 		User user = null;
 		DataSource datasource = new DataSource();
@@ -141,24 +175,24 @@ public class UserPostgres {
 				user.setWeight(10, result.getDouble("10"));
 			}			
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return user;
 	}
-	
-	
-	
+
+
+
 	public static void RetrieveFriends(User user) throws PersistenceException {
 		DataSource datasource = new DataSource();
 		Connection connection = null;
@@ -172,22 +206,22 @@ public class UserPostgres {
 			while (result.next())
 				user.addFriend(result.getInt("friend_id"));
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 	}
-	
-	
+
+
 	public static List<Integer> RetrieveUserIdFromTo(int from, int to) throws PersistenceException {
 		List<Integer> list = null;
 		DataSource datasource = new DataSource();
@@ -206,26 +240,26 @@ public class UserPostgres {
 			while (result.next())
 				list.add(result.getInt("id"));
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return list;
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	public static List<User> getAllUsers() throws PersistenceException {
 		List<User> users = null;
 		User user = null;
@@ -270,29 +304,29 @@ public class UserPostgres {
 				users.add(user);
 			}
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return users;
 	}
-	
-	
-	
-	
+
+
+
+
 	public static List<User> getAllFriendByContext(String context) throws PersistenceException {
 		String lat = "";
 		String lng = "";
-		
+
 		if (context.equals("Roma")) {
 			lat = " v.latitude >= 41.861489 and v.latitude <= 41.9165555 ";
 			lng = " v.longitude >= 12.4608979 and v.longitude <= 12.5220048 ";
@@ -313,7 +347,7 @@ public class UserPostgres {
 			lat = " v.latitude >= 43.7474972 and v.latitude <= 43.787687500000004 ";
 			lng = " v.longitude >= 11.228399600000001 and v.longitude <= 11.2693086 ";
 		}
-		
+
 		List<User> users = null;
 		User user = null;
 		DataSource datasource = new DataSource();
@@ -323,13 +357,13 @@ public class UserPostgres {
 		try {
 			connection = datasource.getConnection();
 			String query = "select c.user_id, count(c.venue_id) as count"
-						+ " from checkins c, venues v"
-						+ " where c.venue_id = v.id"
-						+ " and " + lat + " and " + lng
-						+ " and v.category_fq_id not in (select id from categories where macro_category_id = 5)"
-						+ " group by c.user_id"
-						+ " order by count DESC"
-						+ " limit 6";
+					+ " from checkins c, venues v"
+					+ " where c.venue_id = v.id"
+					+ " and " + lat + " and " + lng
+					+ " and v.category_fq_id not in (select id from categories where macro_category_id = 5)"
+					+ " group by c.user_id"
+					+ " order by count DESC"
+					+ " limit 6";
 			statement = connection.prepareStatement(query);
 			result = statement.executeQuery();
 			if (result.next()) {
@@ -344,24 +378,24 @@ public class UserPostgres {
 				users.add(user);
 			}			
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return RetrieveUserWithMoreFriends(users);
 	}
-	
-	
-	
+
+
+
 	public static List<User> RetrieveUserWithMoreFriends(List<User> list) throws PersistenceException {
 		List<User> users = null;
 		User user = null;
@@ -376,11 +410,11 @@ public class UserPostgres {
 		try {
 			connection = datasource.getConnection();
 			String query = "SELECT user_id, count(friend_id) as count "
-						+ " FROM gscorrdata_new.friendship"
-						+ " where " + s
-						+ " group by user_id"
-						+ " order by count DESC"
-						+ " limit 2";
+					+ " FROM gscorrdata_new.friendship"
+					+ " where " + s
+					+ " group by user_id"
+					+ " order by count DESC"
+					+ " limit 2";
 			statement = connection.prepareStatement(query);
 			result = statement.executeQuery();
 			if (result.next()) {
@@ -395,24 +429,24 @@ public class UserPostgres {
 				users.add(user);
 			}
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return users;
 	}
-	
-	
-	
+
+
+
 	public static List<Integer> RetrieveUserWithNullUsernameFrom(int from) throws PersistenceException {
 		List<Integer> list = null;
 		DataSource datasource = new DataSource();
@@ -431,24 +465,24 @@ public class UserPostgres {
 			while (result.next())
 				list.add(result.getInt("id"));
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return list;
 	}
-	
-	
-	
+
+
+
 	public static List<MacroCategory> RetrieveMacroCategoryByUser(int userID) throws PersistenceException {
 		List<MacroCategory> macroCategories = null;
 		MacroCategory mc = null;
@@ -479,26 +513,26 @@ public class UserPostgres {
 				macroCategories.add(mc);
 			} 
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return macroCategories;
 	}
-	
-	
-	
+
+
+
 	public static void aggiornaPesi(List<double[]> pesi) throws PersistenceException {
-		
+
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
@@ -535,8 +569,8 @@ public class UserPostgres {
 			}
 		}
 	}
-	
-	
+
+
 
 	public static void persistUser(User user) throws PersistenceException {		
 		DataSource datasource = new DataSource();
@@ -544,24 +578,21 @@ public class UserPostgres {
 		PreparedStatement statement = null;
 		try {
 			connection = datasource.getConnection();
-			String insert = "insert into users (username, password, gender, age, role, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, id_padre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String insert = "insert into users (username, password, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			statement = connection.prepareStatement(insert);
 			statement.setString(1, user.getUsername());
 			statement.setString(2, user.getPassword());
-			statement.setString(3, user.getGender());
-			statement.setInt(4, user.getAge());
-			statement.setString(5, user.getRole());
-			statement.setFloat(6, (float)user.getWeigth(1));
-			statement.setFloat(7, (float)user.getWeigth(2));
-			statement.setFloat(8, (float)user.getWeigth(3));
-			statement.setFloat(9, (float)user.getWeigth(4));
-			statement.setFloat(10, (float)user.getWeigth(5));
-			statement.setFloat(11, (float)user.getWeigth(6));
-			statement.setFloat(12, (float)user.getWeigth(7));
-			statement.setFloat(13, (float)user.getWeigth(8));
-			statement.setFloat(14, (float)user.getWeigth(9));
-			statement.setFloat(15, (float)user.getWeigth(10));
-			statement.setInt(16, user.getId());
+			statement.setFloat(3, (float)user.getWeigth(1));
+			statement.setFloat(4, (float)user.getWeigth(2));
+			statement.setFloat(5, (float)user.getWeigth(3));
+			statement.setFloat(6, (float)user.getWeigth(4));
+			statement.setFloat(7, (float)user.getWeigth(5));
+			statement.setFloat(8, (float)user.getWeigth(6));
+			statement.setFloat(9, (float)user.getWeigth(7));
+			statement.setFloat(10, (float)user.getWeigth(8));
+			statement.setFloat(11, (float)user.getWeigth(9));
+			statement.setFloat(12, (float)user.getWeigth(10));
+			statement.setInt(13, user.getId());
 			statement.executeUpdate();						
 		} catch (SQLException e) {
 			throw new PersistenceException(e.getMessage());
@@ -578,10 +609,10 @@ public class UserPostgres {
 			}
 		}
 	}
-	
+
 
 	public static void updateUsernameAndPassword(List<User> users) throws PersistenceException {
-		
+
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
@@ -610,11 +641,11 @@ public class UserPostgres {
 			}
 		}
 	}
-	
-	
+
+
 
 	public static void updateIdPadre(User user, int idPadre) throws PersistenceException {
-		
+
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;

@@ -48,21 +48,18 @@ public class Register extends HttpServlet {
 		String password = request.getParameter("txtPassword");
 		
 		try {
-			if (UserPostgres.RetrieveUserByUsernameAndPassword(username, password) != null) {
+			if (UserPostgres.RetriveUsername(username)) {
 				prossimaPagina = "/register1.jsp";
 				request.setAttribute("error", "User already exists");
 			}
 			else {
-				String gender = request.getParameter("rdGender");
-				int age = Integer.parseInt(request.getParameter("txtAge"));
-				String role = request.getParameter("ddlRole");
+//				String gender = request.getParameter("rdGender");
+//				int age = Integer.parseInt(request.getParameter("txtAge"));
+//				String role = request.getParameter("ddlRole");
 				
 				User user = new User();
 				user.setUsername(username);
 				user.setPassword(password);
-				user.setGender(gender);
-				user.setAge(age);
-				user.setRole(role);
 				user.setWeight(1, Double.valueOf(request.getParameter("txtArts")));
 				user.setWeight(2, Double.valueOf(request.getParameter("txtEntertainment")));
 				user.setWeight(3, Double.valueOf(request.getParameter("txtMuseum")));

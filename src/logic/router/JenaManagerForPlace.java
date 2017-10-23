@@ -41,7 +41,7 @@ public class JenaManagerForPlace {
 	private final static String museumCategory ="Museum, HistoricMuseum";
 	private final static String historyAndMonumentsCategory = "Courthouse, Artwork, GovermentBuilding, Statue, Tourist, WaterFountain, Souvenir, Souvenirs, TouristShop, Terrace, ArchaeologicalSite, Castle, Monument, HistoricBuilding, HistoricFountain, ProtectedBuilding, HistoricTower, UNESCOWorldHeritage, HistoricPointOfInterest, Tower";
 	private final static String churchCategory = "PlaceOfWorship, Chapel, ChurchHall, Church, Monastery, Synagogue, Temple, Cathedral, Abbey, HistoricChurch, HistoricChapel, HistoricMonastery";
-	private final static String entertaimentsCategory = "AnimalShelter, BicycleRental, ArtsCentre, Cinema, Theatre, Sauna, Shelter, ArtGallery, Artwork, Casino, ConcertHall, MusicVenue, Solarium, Spa, BeautySalon, ThemePark, Zoo, Viewpoint, Castle, LandusePark, Stadium, WaterPark, NatureReserve, Park, Garden, Beach";
+	private final static String entertaimentsCategory = "AnimalShelter, BicycleRental, ArtsCentre, Cinema, Theatre, Sauna, Shelter, Casino, ConcertHall, MusicVenue, Solarium, Spa, BeautySalon, ThemePark, Zoo, Viewpoint, Castle, LandusePark, Stadium, WaterPark, NatureReserve, Park, Garden, Beach";
 	private final static String foodCategory = "Restaurant, FastFood, Bbq, Pub, Bar, Cafe, Biergarten, IceCream, Brewery, Bakery, CoffeeShop, InternetCafe, Restaurant%3Bpub, TakeAway";
 	private final static String nightLifeCategory = "Pub, Cinema, Nightclub, Stripclub, Theatre, Brothel, Brewery, Casino, byNight, Dance, Bingo";
 	private final static String shopAndServiceCategory = "Marketplace, Brewery, CoffeeShop, Commercial, Florist, Hairdresser, Market, PublicMarket, Shop, Shopping, Shops, Supermarket, AlcoholShop, AnimeShop, ArtShop, Mall, Patisserie, ShoppingCenter, Souvenir";
@@ -97,20 +97,20 @@ public class JenaManagerForPlace {
 		for (Iterator<String> it = categoriesSet.iterator(); it.hasNext(); ) {
 
 			category = it.next();
-			
+
 			String limitValue = "10";
-			
+
 
 			for (String id : userCategories) {
-				if (mapCategory.get(Integer.parseInt(id)).contains(category))	{
-					if(id.equals("3"))	{
+				if(id.equals("3"))	{
+					if (mapCategory.get(Integer.parseInt(id)).contains(category))	{
 						limitValue = "50";
 					}
 				}	
-				
+
 			}
-			
-			
+
+
 			query += "UNION "+"\n"+"{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) (SAMPLE(?tipo) as ?category) WHERE {"
 					+"?obj rdf:type ?tipo ."+"\n"
 					+"FILTER regex(str(?tipo), \"http://linkedgeodata.org/ontology/"+category+"\") "+"\n"
@@ -165,8 +165,8 @@ public class JenaManagerForPlace {
 		}
 
 		while (results.hasNext()) {
-			
-		
+
+
 			Venue obj = new Venue();
 
 			QuerySolution solution = results.next();
@@ -212,16 +212,16 @@ public class JenaManagerForPlace {
 			MacroCategory mCategory = new MacroCategory();
 			String categoryName = solution.get("category").toString().split("http://linkedgeodata.org/ontology/")[1];
 			mCategory.setMacro_category_fq(categoryName);
-			
-			
+
+
 			for (String id : userCategories) {
 				if (mapCategory.get(Integer.parseInt(id)).contains(categoryName))	{
 					mCategory.setId(Integer.parseInt(id));
 					mCategory.addMeanResidenceTime(id);
 				}	
-				
+
 			}
-			
+
 			obj.setCategory_fq(categoryName);
 			obj.setMacro_category(mCategory);
 
@@ -246,7 +246,7 @@ public class JenaManagerForPlace {
 
 
 	private static Set<String> createCaretoriesSet(String[] categories) {
-		
+
 		List<String> userCategoriesLGD = new ArrayList<>();
 
 		Map<Integer, String> categoriesMap = createCategoryMap(categories);
@@ -258,10 +258,10 @@ public class JenaManagerForPlace {
 
 		return new LinkedHashSet<>(userCategoriesLGD);
 	}
-	
-	
+
+
 	public static Map<Integer, String> createCategoryMap(String[] categories)	{
-		
+
 		Map<Integer, String> categoriesMap = new HashMap<>();
 
 		List<String> userCategories = 
@@ -297,9 +297,9 @@ public class JenaManagerForPlace {
 		if (userCategories.contains("11"))	{
 			categoriesMap.put(11,athleticsAndSport);
 		}
-		
+
 		return categoriesMap;
-		
+
 	}
 
 
@@ -316,6 +316,13 @@ public class JenaManagerForPlace {
 		}
 		return s;
 	}
-	
+
+	public static void main(String[] args) {
+
+		String[] cat = new String[]{"3"};
+
+		JenaManagerForPlace.retrivePlacesNodes(41.89, 12.49, 0.1, cat);
+	}
+
 
 }

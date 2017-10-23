@@ -13,7 +13,7 @@ import java.sql.SQLException;
 public class DataSource {
 	private final String driver = "com.mysql.jdbc.Driver";
 	//	private String driver = "org.postgresql.Driver";
-	private final String dbName = "dbTesi";
+	private final String dbName = "dbVirgilio";
 	//	private String dbName = "gScorrData";
 	private final String dbURI = "jdbc:mysql://localhost/"+dbName;
 	//private String dbURI = "jdbc:postgresql://localhost/gScorrData";
