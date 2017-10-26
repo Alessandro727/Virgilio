@@ -240,8 +240,6 @@ public class JenaManagerForPlace {
 
 		}
 		
-		System.out.println(result.size());
-		
 		return result;
 	}
 
