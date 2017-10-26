@@ -57,7 +57,7 @@ public class Test2 extends HttpServlet {
 		scenario.setFood(Boolean.parseBoolean(request.getParameter("rbFood")));
 		Context context = scenario.getContext();
 		try {
-			int idPadre = retrieveMostSmilarUserInContext(user, context.getCity());
+			long idPadre = retrieveMostSmilarUserInContext(user, context.getCity());
 			UserPostgres.updateIdPadre(user, idPadre);
 			user.setId(idPadre);
 			UserPostgres.RetrieveFriends(user);
@@ -188,9 +188,9 @@ public class Test2 extends HttpServlet {
 	
 	
 	
-	public static int retrieveMostSmilarUserInContext(User user, String context) throws PersistenceException {
+	public static long retrieveMostSmilarUserInContext(User user, String context) throws PersistenceException {
 		List<User> users = UserPostgres.getAllFriendByContext(context);
-		int id = -1;
+		long id = -1;
 				
 		double AB;		// A�B
 		double A = 0;	// A

@@ -7,13 +7,13 @@ import java.util.Date;
 public class Scenario {
 	
 	private int id;
-	private int user_id;
+	private long user_id;
 	private Context context;
 	private String day;
 	private String hour;
 	private boolean food;
 	
-	public Scenario(int user_id, Context context) {
+	public Scenario(long user_id, Context context) {
 		this.user_id = user_id;
 		this.context = context;
 		DateFormat hour = new SimpleDateFormat("HH:mm");
@@ -45,7 +45,7 @@ public class Scenario {
 		this.id = id;
 	}
 
-	public int getUser_id() {
+	public long getUser_id() {
 		return user_id;
 	}
 

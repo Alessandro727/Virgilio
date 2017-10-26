@@ -275,7 +275,7 @@ public class UserPostgres {
 			if (result.next()) {
 				users = new ArrayList<User>();
 				user = new User();
-				user.setId(result.getInt("id"));
+				user.setId(result.getLong("id"));
 				user.setWeight(1, result.getDouble("1"));
 				user.setWeight(2, result.getDouble("2"));
 				user.setWeight(3, result.getDouble("3"));
@@ -290,7 +290,7 @@ public class UserPostgres {
 			}
 			while (result.next()) {
 				user = new User();
-				user.setId(result.getInt("id"));
+				user.setId(result.getLong("id"));
 				user.setWeight(1, result.getDouble("1"));
 				user.setWeight(2, result.getDouble("2"));
 				user.setWeight(3, result.getDouble("3"));
@@ -578,21 +578,26 @@ public class UserPostgres {
 		PreparedStatement statement = null;
 		try {
 			connection = datasource.getConnection();
-			String insert = "insert into users (username, password, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String insert = "insert into users (username, password, gender, age, role, residenceLat, residenceLong, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			statement = connection.prepareStatement(insert);
 			statement.setString(1, user.getUsername());
 			statement.setString(2, user.getPassword());
-			statement.setFloat(3, (float)user.getWeigth(1));
-			statement.setFloat(4, (float)user.getWeigth(2));
-			statement.setFloat(5, (float)user.getWeigth(3));
-			statement.setFloat(6, (float)user.getWeigth(4));
-			statement.setFloat(7, (float)user.getWeigth(5));
-			statement.setFloat(8, (float)user.getWeigth(6));
-			statement.setFloat(9, (float)user.getWeigth(7));
-			statement.setFloat(10, (float)user.getWeigth(8));
-			statement.setFloat(11, (float)user.getWeigth(9));
-			statement.setFloat(12, (float)user.getWeigth(10));
-			statement.setInt(13, user.getId());
+			statement.setString(3, user.getGender());
+			statement.setFloat(4, user.getAge());
+			statement.setString(5, user.getRole());
+			statement.setString(6, user.getResidenceLat());
+			statement.setString(7, user.getResidenceLong());
+			statement.setFloat(8, (float)user.getWeigth(1));
+			statement.setFloat(9, (float)user.getWeigth(2));
+			statement.setFloat(10, (float)user.getWeigth(3));
+			statement.setFloat(11, (float)user.getWeigth(4));
+			statement.setFloat(12, (float)user.getWeigth(5));
+			statement.setFloat(13, (float)user.getWeigth(6));
+			statement.setFloat(14, (float)user.getWeigth(7));
+			statement.setFloat(15, (float)user.getWeigth(8));
+			statement.setFloat(16, (float)user.getWeigth(9));
+			statement.setFloat(17, (float)user.getWeigth(10));
+//			statement.setInt(18, user.getId());
 			statement.executeUpdate();						
 		} catch (SQLException e) {
 			throw new PersistenceException(e.getMessage());
@@ -644,7 +649,7 @@ public class UserPostgres {
 
 
 
-	public static void updateIdPadre(User user, int idPadre) throws PersistenceException {
+	public static void updateIdPadre(User user, long idPadre) throws PersistenceException {
 
 		DataSource datasource = new DataSource();
 		Connection connection = null;
@@ -653,8 +658,8 @@ public class UserPostgres {
 			connection = datasource.getConnection();
 			String update = "update users set id_padre = ? where id = ?";
 			statement = connection.prepareStatement(update);
-			statement.setInt(1, idPadre);
-			statement.setInt(2, user.getId());
+			statement.setLong(1, idPadre);
+			statement.setLong(2, user.getId());
 			statement.executeUpdate();						
 		} catch (SQLException e) {
 			throw new PersistenceException(e.getMessage());

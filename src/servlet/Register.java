@@ -1,6 +1,9 @@
 package servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -14,7 +17,10 @@ import javax.servlet.http.HttpServletResponse;
 import postgres.CheckinPostgres;
 import postgres.PersistenceException;
 import postgres.UserPostgres;
+import scala.collection.mutable.Publisher;
+import socialAndServices.Google;
 import model.User;
+import model.Venue;
 
 /**
  * Servlet implementation class Register
@@ -22,6 +28,7 @@ import model.User;
 @WebServlet("/Register")
 public class Register extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static final double INFINITY = Integer.MAX_VALUE;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -46,6 +53,17 @@ public class Register extends HttpServlet {
 		
 		String username = request.getParameter("txtUsername");
 		String password = request.getParameter("txtPassword");
+		String gender = request.getParameter("rdGender");
+		int age = Integer.valueOf(request.getParameter("txtAge"));
+		String role = request.getParameter("ddlRole");
+		String residence = request.getParameter("residence");
+		System.out.println(residence);
+		Google google = new Google();
+		Venue venue = google.getCoordinatesFromAddress(residence);
+		
+		String residenceLat = venue.getLatitude();
+		String residenceLong = venue.getLongitude();
+		User user = new User();
 		
 		try {
 			if (UserPostgres.RetriveUsername(username)) {
@@ -57,7 +75,7 @@ public class Register extends HttpServlet {
 //				int age = Integer.parseInt(request.getParameter("txtAge"));
 //				String role = request.getParameter("ddlRole");
 				
-				User user = new User();
+				
 				user.setUsername(username);
 				user.setPassword(password);
 				user.setWeight(1, Double.valueOf(request.getParameter("txtArts")));
@@ -70,9 +88,14 @@ public class Register extends HttpServlet {
 				user.setWeight(8, Double.valueOf(request.getParameter("txtAthletics")));
 				user.setWeight(9, Double.valueOf(request.getParameter("txtChurch")));
 				user.setWeight(10, Double.valueOf(request.getParameter("txtShop")));
+				user.setGender(gender);
+				user.setAge(age);
+				user.setRole(role);
+				user.setResidenceLat(residenceLat);
+				user.setResidenceLong(residenceLong);
 				
 				
-				user.setId(retrieveMostSmilarUser(user));
+//				user.setId(retrieveMostSmilarUser(user));
 				
 				UserPostgres.persistUser(user);
 				prossimaPagina = "/register2.jsp";
@@ -82,16 +105,29 @@ public class Register extends HttpServlet {
 			e.printStackTrace();
 		}	
 		
+		System.out.println(prossimaPagina);
+		
+		for(int i=0; i<user.getWeigths().length; i++)	{
+			System.out.println(user.getWeigth(i));
+		}
+		
 		ServletContext application  = getServletContext();
 		RequestDispatcher rd = application.getRequestDispatcher(prossimaPagina);
 		rd.forward(request, response);
+		try {
+			System.out.println(mostTenSimilarUser(user));
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	
 	
-	public int retrieveMostSmilarUser(User user) throws PersistenceException {
+	public long retrieveMostSmilarUser(User user) throws PersistenceException {
 		List<User> users = UserPostgres.getAllUsers();
-		int id = -1;
+		System.out.println(users.size());
+		long id = -1;
 		int numCheckins = 0;
 		
 		double AB;		// A�B
@@ -114,20 +150,105 @@ public class Register extends HttpServlet {
 			simTemp = ( AB / Math.sqrt(A*B) );
 			if (simTemp > sim) {
 				sim = simTemp;
-				id = u.getId();
-				numCheckins = CheckinPostgres.getNumCheckinsByUser(u.getId());
+				id = CheckinPostgres.getUserIdByUsername(u.getUsername());
+				System.out.println("ID primo if: "+id);
+				numCheckins = CheckinPostgres.getNumCheckinsByUser(id);
 			} else {
 				if (simTemp == sim) {
-					int ck = CheckinPostgres.getNumCheckinsByUser(u.getId());
+					int ck = CheckinPostgres.getNumCheckinsByUser(CheckinPostgres.getUserIdByUsername(u.getUsername()));
 					if (ck > numCheckins) {						
-						id = u.getId();
+						id = CheckinPostgres.getUserIdByUsername(u.getUsername());
+						System.out.println("ID secondo if: "+id);
 						numCheckins = ck;
 					}
 				}
 			}
 		}
-		
+		System.out.println("ID: "+id);
 		return id;
 	}
+	
+	
+	public static List<Long> mostTenSimilarUser(User user) throws PersistenceException	{
+		List<User> users = UserPostgres.getAllUsers();
+		List<Long> tenUserId = new ArrayList<>();
+		System.out.println(users.size());
+//		long id = -1;
+		double sim = INFINITY;
+		double simTemp;
+		
+		for (User u: users)	{
+			
+			double diffCoppiaUser = 0;
+			
+			for(int i=1; i<user.getWeigths().length; i++)	{
+				
+				diffCoppiaUser +=  Math.pow((u.getWeigth(i)-user.getWeigth(i)), 2);
+			}
+			
+			simTemp = Math.pow(diffCoppiaUser, 0.5);
+			
+			if (simTemp<=sim) {
+				
+				sim = simTemp;
+				if (tenUserId.size()<10)	{
+					tenUserId.add(u.getId());
+				}
+				else {
+					deleteLessSimilarUser(tenUserId);
+					tenUserId.add(u.getId());
+				}
+			}
+			
+			
+		}
+		
+		
+		return tenUserId;
+		
+	}
+	
+	
+	private static void deleteLessSimilarUser(List<Long> tenUser) {
+		Collections.sort(tenUser);
+		tenUser.remove(0);
+		
+		
+		
+	}
 
+	public static void main(String[] args) throws PersistenceException {
+	
+		
+		User user = new User();
+		
+		user.setId(3439);
+		user.setWeight(1, 0.4);
+		user.setWeight(2, 0.6);
+		user.setWeight(3, 0.2);
+		user.setWeight(4, 0.3);
+		user.setWeight(5, 0.8);
+		user.setWeight(6, 0.8);
+		user.setWeight(7, 0.5);
+		user.setWeight(8, 0.5);
+		user.setWeight(9, 0.6);
+		user.setWeight(10, 0.4);
+		
+		
+		System.out.println(mostTenSimilarUser(user));
+		
+	}
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

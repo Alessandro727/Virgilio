@@ -83,9 +83,9 @@ public class Main {
 
 
 
-	public static int cosenoSim(User user) throws PersistenceException {
+	public static long cosenoSim(User user) throws PersistenceException {
 		List<User> users = UserPostgres.getAllUsers();
-		int id = -1;
+		long id = -1;
 		int numCheckins = 0;
 
 		double AB;		// A�B

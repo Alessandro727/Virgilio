@@ -5,12 +5,14 @@ import java.util.List;
 
 public class User {
 	
-	private int id;
+	private long id;
 	private String username;
 	private String password;
 	private String gender;
 	private int age;
 	private String role;
+	private String residenceLat;
+	private String residenceLong;
 	private List<Integer> friends;
 	private List<Checkin> checkins;
 	private double[] weigths;
@@ -21,11 +23,11 @@ public class User {
 		this.weigths = new double[11];	// 10 + 1 cos� che non devo cominciare da zero		
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -112,6 +114,22 @@ public class User {
 	public void setWeight(int i, double d) {
 		if (i < this.weigths.length)
 			this.weigths[i] = d;
+	}
+
+	public String getResidenceLat() {
+		return residenceLat;
+	}
+
+	public void setResidenceLat(String residenceLat) {
+		this.residenceLat = residenceLat;
+	}
+
+	public String getResidenceLong() {
+		return residenceLong;
+	}
+
+	public void setResidenceLong(String residenceLong) {
+		this.residenceLong = residenceLong;
 	}
 
 }

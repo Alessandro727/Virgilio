@@ -20,7 +20,7 @@ public class ScenarioPostgres {
 			connection = datasource.getConnection();
 			String insert = "insert into scenarios (user_id, context_id, day, hour, food) values (?, ?, ?, ?, ?)";
 			statement = connection.prepareStatement(insert);
-			statement.setInt(1, scenario.getUser_id());
+			statement.setLong(1, scenario.getUser_id());
 			statement.setInt(2, scenario.getContext().getId());
 			statement.setString(3, scenario.getDay());				
 			statement.setString(4, scenario.getHour());

@@ -86,7 +86,7 @@ public class CheckinPostgres {
 	
 	
 	
-	public static int getNumCheckinsByUser(int user_id) throws PersistenceException {
+	public static int getNumCheckinsByUser(long user_id) throws PersistenceException {
 		int numCheckins = 0;
 		DataSource datasource = new DataSource();
 		Connection connection = null;
@@ -115,6 +115,38 @@ public class CheckinPostgres {
 				}
 			}
 		return numCheckins;
+	}
+	
+
+	public static long getUserIdByUsername(String username) throws PersistenceException {
+		long user_id = 0;
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		try {
+			connection = datasource.getConnection();
+			String query = "select id from users where username = " + username;
+			statement = connection.prepareStatement(query);
+			result = statement.executeQuery();
+			while (result.next()) {
+				user_id = result.getLong("id");
+			} 
+		} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+		} finally {
+				try {
+					if (result != null)
+						result.close();
+					if (statement != null) 
+						statement.close();
+					if (connection!= null)
+						connection.close();
+				} catch (SQLException e) {
+					throw new PersistenceException(e.getMessage());
+				}
+			}
+		return user_id;
 	}
 	
 		
