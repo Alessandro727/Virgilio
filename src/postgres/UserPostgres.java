@@ -144,6 +144,38 @@ public class UserPostgres {
 		return usernameExist;
 
 	}
+	
+	public static long retriveUserIdByUsername(String username) throws PersistenceException	{
+		long id = 0;
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		try {
+			connection = datasource.getConnection();
+			String query = "select * from users where username = '" + username.replace("'", "''") + "'";
+			statement = connection.prepareStatement(query);
+			result = statement.executeQuery();
+			if (result.next()) {
+				id=result.getLong("id");
+			}			
+		} catch (SQLException e) {
+			throw new PersistenceException(e.getMessage());
+		} finally {
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			}
+		}
+		return id;
+		
+	}
 
 
 
@@ -675,6 +707,10 @@ public class UserPostgres {
 				throw new PersistenceException(e.getMessage());
 			}
 		}
+	}
+	
+	public static void main(String[] args) throws PersistenceException	{
+		System.out.println(UserPostgres.retriveUserIdByUsername("carlo"));
 	}
 
 }

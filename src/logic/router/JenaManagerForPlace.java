@@ -61,7 +61,7 @@ public class JenaManagerForPlace {
 			+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n";
 
 
-	public static List<Venue> retrivePlacesNodes(double lat, double lon, double radius, String[] categories) {
+	public static List<Venue> retrivePlacesNodes(double lat, double lon, double radius, List<String> categories) {
 
 
 		Set<String> categoriesSet = createCaretoriesSet(categories);
@@ -73,8 +73,7 @@ public class JenaManagerForPlace {
 
 		List<Venue> result = new ArrayList<>();
 		Map<Integer, String> mapCategory = createCategoryMap(categories);
-		List<String> userCategories = 
-				new ArrayList<String>(Arrays.asList(categories));
+
 
 
 		String category = categoriesSet.iterator().next();
@@ -101,7 +100,7 @@ public class JenaManagerForPlace {
 			String limitValue = "10";
 
 
-			for (String id : userCategories) {
+			for (String id : categories) {
 				if(id.equals("3"))	{
 					if (mapCategory.get(Integer.parseInt(id)).contains(category))	{
 						limitValue = "50";
@@ -214,7 +213,7 @@ public class JenaManagerForPlace {
 			mCategory.setMacro_category_fq(categoryName);
 
 
-			for (String id : userCategories) {
+			for (String id : categories) {
 				if (mapCategory.get(Integer.parseInt(id)).contains(categoryName))	{
 					mCategory.setId(Integer.parseInt(id));
 					mCategory.addMeanResidenceTime(id);
@@ -245,7 +244,7 @@ public class JenaManagerForPlace {
 
 
 
-	private static Set<String> createCaretoriesSet(String[] categories) {
+	private static Set<String> createCaretoriesSet(List<String> categories) {
 
 		List<String> userCategoriesLGD = new ArrayList<>();
 
@@ -260,41 +259,39 @@ public class JenaManagerForPlace {
 	}
 
 
-	public static Map<Integer, String> createCategoryMap(String[] categories)	{
+	public static Map<Integer, String> createCategoryMap(List<String> categories)	{
 
 		Map<Integer, String> categoriesMap = new HashMap<>();
 
-		List<String> userCategories = 
-				new ArrayList<String>(Arrays.asList(categories));
-
-		if (userCategories.contains("1"))	{
-			categoriesMap.put(1,artsCategory);
+				
+		if (categories.contains("1"))	{
+			categoriesMap.put(1,museumCategory);
 		}
-		if (userCategories.contains("2"))	{
-			categoriesMap.put(2,entertaimentsCategory);
+		if (categories.contains("2"))	{
+			categoriesMap.put(2,churchCategory);
 		}
-		if (userCategories.contains("3"))	{
-			categoriesMap.put(3,museumCategory);
+		if (categories.contains("3"))	{
+			categoriesMap.put(3,historyAndMonumentsCategory);
 		}
-		if (userCategories.contains("5"))	{
-			categoriesMap.put(5,foodCategory);
+		if (categories.contains("4"))	{
+			categoriesMap.put(5,artsCategory);
 		}
-		if (userCategories.contains("6"))	{
-			categoriesMap.put(6,nightLifeCategory);
+		if (categories.contains("5"))	{
+			categoriesMap.put(6,outdoorsAndRecreationCategory);
 		}
-		if (userCategories.contains("7"))	{
-			categoriesMap.put(7,outdoorsAndRecreationCategory);
+		if (categories.contains("6"))	{
+			categoriesMap.put(7,foodCategory);
 		}
-		if (userCategories.contains("8"))	{
-			categoriesMap.put(8,historyAndMonumentsCategory);
+		if (categories.contains("7"))	{
+			categoriesMap.put(8,entertaimentsCategory);
 		}
-		if (userCategories.contains("9"))	{
-			categoriesMap.put(9,churchCategory);
+		if (categories.contains("8"))	{
+			categoriesMap.put(9,nightLifeCategory);
 		}
-		if (userCategories.contains("10"))	{
+		if (categories.contains("9"))	{
 			categoriesMap.put(10,shopAndServiceCategory);
 		}
-		if (userCategories.contains("11"))	{
+		if (categories.contains("10"))	{
 			categoriesMap.put(11,athleticsAndSport);
 		}
 
@@ -319,7 +316,9 @@ public class JenaManagerForPlace {
 
 	public static void main(String[] args) {
 
-		String[] cat = new String[]{"3"};
+		List<String> cat = new ArrayList<>();
+		
+		cat.add("3");
 
 		JenaManagerForPlace.retrivePlacesNodes(41.89, 12.49, 0.1, cat);
 	}

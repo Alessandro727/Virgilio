@@ -1,7 +1,9 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import model.User;
 import postgres.PersistenceException;
@@ -41,7 +43,7 @@ public class KMeans
 			// randomly selected centroids
 			_centroids = new double[_numClusters][];
 
-			ArrayList idx= new ArrayList();
+			ArrayList<Integer> idx= new ArrayList<Integer>();
 			for (int i=0; i<numClusters; i++){
 				int c;
 				do{
@@ -59,7 +61,7 @@ public class KMeans
 		}
 
 		double [][] c1 = _centroids;
-		double threshold = 0.001;
+		double threshold = 1;
 		int round=0;
 
 		while (true){
@@ -173,22 +175,77 @@ public class KMeans
 		return _nrows;
 	}
 
-	public void printResults(){
+	public Map<Long, Integer> takeResults(){
+
+		Map<Long, Integer> mapUserCluster = new HashMap<>();
 		System.out.println("Label:");
-		for (int i=0; i<_nrows; i++)
-			System.out.println(_label[i]);
-		System.out.println("Centroids:");
-		for (int i=0; i<_numClusters; i++){
-			for(int j=0; j<_ndims; j++)
-				System.out.print(_centroids[i][j] + " ");
-			System.out.println();
+		for (int i=0; i<_nrows; i++)	{
+//			System.out.println(_label[i]);
+			mapUserCluster.put(Long.valueOf(i), _label[i]);
+		}
+//		System.out.println("Centroids:");
+//		for (int i=0; i<_numClusters; i++){
+//			for(int j=0; j<_ndims; j++)
+//				System.out.print(_centroids[i][j] + " ");
+//
+//			System.out.println();
+//		}
+
+		return mapUserCluster;
+	}
+
+	public static char[] checkDoppioUno(char[] array) {
+		int i=0;
+		for(int j=0; j<array.length; j++)	{
+			if(array[j]=='1')
+				i++;
+			if(i>2)	{
+				return array;
+			}
+		}
+		if (i<2)	
+			return array;
+		return null;
+	}
+	
+	public static double[][] getFirstCentroids()	{
+		
+		double[][] centroids = new double[55][10];
+		
+		int h=0;
+		while(h<10)	{
+			centroids[h][h] = 1.0;
+			h++;
+		}
+		int f=10;
+
+		while(f<55)	{
+			for(int r=0; r<10; r++)	{
+				for 	(int g=r+1; g<10; g++)	{
+					centroids[f][r] =1.0;
+					centroids[f][g] = 1.0;
+					f++;
+				}
+
+			}
 		}
 
+//
+//
+//
+//		for (int l=0; l<55; l++){
+//			for(int m=0; m<10; m++)
+//				System.out.print(centroids[l][m] + " ");
+//			System.out.println();
+//		}
+		
+		return centroids;
 	}
 
 
-	public static void main( String[] astrArgs ) throws PersistenceException 
-	{
+
+
+	public static Map<Long, Integer> clusterResult() throws PersistenceException {
 		/**
 		 * The code commented out here is just an example of how to use
 		 * the provided functions and constructors.
@@ -200,35 +257,26 @@ public class KMeans
 		int size = users.size();
 
 		double[][] coordinates = new double[size][10];
+		
+		
 		int i = 0;
 		for (User user : users) {
 			for (int j=0; j<user.getWeigths().length-1; j++) {
 
 				coordinates[i][j] = user.getWeigth(j+1);
-				//				System.out.println(coordinates[i][j]);
 			}
-			//			System.out.println(coordinates[i]);
 			i++;
-
-			//			System.out.println("\n");
 		}
 
 
 		KMeans KM = new KMeans(coordinates,users.size(),10);
-		KM.clustering(10, -1, null); // 2 clusters, maximum 10 iterations
-		KM.printResults();
+		double[][] centroids = KMeans.getFirstCentroids();
+		KM.clustering(55, 1, centroids);
+		Map<Long, Integer> mapUserCluster = KM.takeResults();
+		
+		return mapUserCluster;
+	
 
-		/** using CSVHelper to parse strings
-     CSVHelper csv = new CSVHelper();
-     StringReader r= new StringReader("x,y,z");
-     try{
-       ArrayList<String> ss = csv.parseLine(r);
-       for (String v:ss)
-        System.out.println(v);
-     }catch(Exception e){
-       System.err.println(e);
-     }
-		 */
 
 	}
 }

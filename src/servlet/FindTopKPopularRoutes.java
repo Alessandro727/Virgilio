@@ -2,7 +2,9 @@ package servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -13,8 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-//import logic.LatLngSquare;
-//import logic.VenueSearcher;
 import logic.router.Route;
 import logic.router.Router_Default;
 import logic.router.Graph;
@@ -26,7 +26,10 @@ import model.MacroCategory;
 import model.Scenario;
 import model.User;
 import model.Venue;
+import postgres.PersistenceException;
+import postgres.UserPostgres;
 import socialAndServices.Google;
+import util.KMeans;
 import util.Utilities;
 
 /**
@@ -35,15 +38,15 @@ import util.Utilities;
 @WebServlet("/FindTopKPopularRoutes")
 public class FindTopKPopularRoutes extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public FindTopKPopularRoutes() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public FindTopKPopularRoutes() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -51,7 +54,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
 		User user = (User)session.getAttribute("user");
-	
+
 		String prossimaPagina = null;
 		String start = request.getParameter("txtStart");
 		String end = request.getParameter("txtEnd");
@@ -59,41 +62,73 @@ public class FindTopKPopularRoutes extends HttpServlet {
 		int availableTime = Integer.parseInt(request.getParameter("ddlHours"))*60;	// hours to minutes
 		availableTime += Integer.parseInt(request.getParameter("ddlMinutes"));		// minutes
 		int maxWayPoints = Integer.parseInt(request.getParameter("txtMaxWayPoints"));
-		
-		
-		
-		String[] categories = request.getParameterValues("cbCategories");
-		
-		
-		for (int i=0; i<categories.length; i++)	{
-			System.out.println(categories[i]);
+
+		Map<Long, Integer> mapUserCluster = new HashMap<>();
+		double[][] centroidCluster= new double[55][10];
+
+		long idUser = 0;
+		try {
+			idUser = UserPostgres.retriveUserIdByUsername(user.getUsername());
+		} catch (PersistenceException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		
-	
+
+		try {
+			mapUserCluster = KMeans.clusterResult();
+			centroidCluster = KMeans.getFirstCentroids();
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		List<String> categories = new ArrayList<>();
+		String[] temp = new String[1];
+		int numCluster = mapUserCluster.get(idUser);
+
+		for (int j=0; j<centroidCluster[numCluster].length; j++)	{
+			if(centroidCluster[numCluster][j]==1)	{
+				temp[0] = String.valueOf(j+1);
+				categories.add(temp[0]);
+			}		
+		}
+
+		//		String[] categories = request.getParameterValues("cbCategories");
+
+
+
+		for (String string : categories) {
+			System.out.println(string);
+		}
+
+
+
+
+
 		Google google = new Google();
-		
+
 		MacroCategory mc = new MacroCategory();
 		mc.setId(12);	// 12 = id macro categoria fittizia
 		mc.setMacro_category_fq("Macro Categoria Fittizia");
 		mc.setMrt(0);
-		
+
 		Venue startVenue = google.getCoordinatesFromAddress(start);
 		startVenue.setId((long) 0);	// 0 is the id of the source node of Router algorithm
 		startVenue.setMacro_category(mc);
-		
+
 		Venue endVenue = google.getCoordinatesFromAddress(end);
-		
+
 		endVenue.setId((long) -1);		// -1 is the id of the destination node of Router algorithm
 		endVenue.setMacro_category(mc);
-		
+
 		List<Venue> venuesInTheSquare = null;
 		List<Route> topKroute = null;
-		
+
 		if (startVenue.getStatus().equals("OK") && endVenue.getStatus().equals("OK")) {
 			venuesInTheSquare = new ArrayList<Venue>();
 			venuesInTheSquare.add(startVenue);
 			venuesInTheSquare.add(endVenue);
-			
+
 			Context context = new Context();
 			context.setMode(mode);
 			context.setCity("");
@@ -102,40 +137,41 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			context.setTime(availableTime);
 			context.setSunny(Utilities.isSunny(startVenue, availableTime));
 			Scenario scenario = new Scenario(0, context);
-			for (int i=0; i<categories.length; i++)	{
-				if (categories[i].equals("5"))	
-					scenario.setFood(true);
-			}
-			
+
+			if (categories.contains("5"))	
+				scenario.setFood(true);
+
+
+
 			// TODO ricerca dei posti dai LOD invece che con getVenuesWithContextAndCategories(30, categories);
-			
+
 			double lat = middlePoint(startVenue.getLatitude(),endVenue.getLatitude());
-			
+
 			double lng = middlePoint(startVenue.getLongitude(),endVenue.getLongitude());
-		
-			
+
+
 			venuesInTheSquare = JenaManagerForPlace.retrivePlacesNodes(lat, lng, 0.1, categories);
-			
-			
-			
-//			LatLngSquare llSquare = new LatLngSquare(venuesInTheSquare);
-//			VenueSearcher searcher = new VenueSearcher(llSquare, scenario);
-//			venuesInTheSquare = searcher.getVenuesWithContextAndCategories(30, categories);
+
+
+
+			//			LatLngSquare llSquare = new LatLngSquare(venuesInTheSquare);
+			//			VenueSearcher searcher = new VenueSearcher(llSquare, scenario);
+			//			venuesInTheSquare = searcher.getVenuesWithContextAndCategories(30, categories);
 			venuesInTheSquare.add(0, startVenue);
 			venuesInTheSquare.add(endVenue);	
-						
-		
+
+
 			for (Venue venue : venuesInTheSquare) {
 				System.out.println(venue.getName_fq());
 			}
-			
+
 			topKroute = runDijkstraAlgorithm(venuesInTheSquare,
-											mode,
-											availableTime,
-											maxWayPoints,
-											user,
-											scenario.getFood(),
-											google);
+					mode,
+					availableTime,
+					maxWayPoints,
+					user,
+					scenario.getFood(),
+					google);
 			int size = topKroute.size();
 			if (size >= 2) {
 				prossimaPagina = "/findTopKPopularRoutes3.jsp";
@@ -175,16 +211,16 @@ public class FindTopKPopularRoutes extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		this.doGet(request, response);
 	}
-	
-	
-	
+
+
+
 	public static List<Route> runDijkstraAlgorithm(List<Venue> venuesInTheSquare, String mode, int availableTime, int maxWayPoints, User user, boolean food, Google google) {
-		
+
 		List<Node> nodeList = new ArrayList<Node>();
 		for(Venue v: venuesInTheSquare) {
 			nodeList.add(new Node(v));
 		}
-		
+
 		System.out.println("creo i nodi");
 		int time;
 
@@ -210,24 +246,24 @@ public class FindTopKPopularRoutes extends HttpServlet {
 		}*/
 		System.out.println("nodi creati...eseguo router_default");
 		Graph graph = new Graph(nodeList.get(0), nodeList.get(nodeList.size()-1));
-        Router router = new Router_Default(graph, user, availableTime, maxWayPoints, food);
-        router.execute();
-        System.out.println("router_default eseguito...eseguo getTopKRoutes");
-        List<Route> topKRoutes = router.getTopKRoutes(5);	
-        System.out.println("getTopKRoutes eseguito");
-        
-        if (topKRoutes.size() == 0) {
-        	time = google.getTimeBetweenTwoPoints(venuesInTheSquare.get(0), venuesInTheSquare.get(venuesInTheSquare.size()-1), mode);
-        	if (time <= availableTime) {
-        		Route route = new Route();
-        		route.add(new Node(venuesInTheSquare.get(0)));
-        		route.add(new Node(venuesInTheSquare.get(venuesInTheSquare.size()-1)));
-        		topKRoutes.add(route);        		
-        	}        		
-        }
-                
-        
-        return topKRoutes;
+		Router router = new Router_Default(graph, user, availableTime, maxWayPoints, food);
+		router.execute();
+		System.out.println("router_default eseguito...eseguo getTopKRoutes");
+		List<Route> topKRoutes = router.getTopKRoutes(5);	
+		System.out.println("getTopKRoutes eseguito");
+
+		if (topKRoutes.size() == 0) {
+			time = google.getTimeBetweenTwoPoints(venuesInTheSquare.get(0), venuesInTheSquare.get(venuesInTheSquare.size()-1), mode);
+			if (time <= availableTime) {
+				Route route = new Route();
+				route.add(new Node(venuesInTheSquare.get(0)));
+				route.add(new Node(venuesInTheSquare.get(venuesInTheSquare.size()-1)));
+				topKRoutes.add(route);        		
+			}        		
+		}
+
+
+		return topKRoutes;
 	}
-	
+
 }
