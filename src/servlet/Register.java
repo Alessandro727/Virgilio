@@ -76,16 +76,16 @@ public class Register extends HttpServlet {
 				
 				user.setUsername(username);
 				user.setPassword(password);
-				user.setWeight(1, Double.valueOf(request.getParameter("txtArts")));
-				user.setWeight(2, Double.valueOf(request.getParameter("txtEntertainment")));
-				user.setWeight(3, Double.valueOf(request.getParameter("txtMuseum")));
-				user.setWeight(4, Double.valueOf(request.getParameter("txtHistory")));				
-				user.setWeight(5, Double.valueOf(request.getParameter("txtFood")));
-				user.setWeight(6, Double.valueOf(request.getParameter("txtNightlife")));
-				user.setWeight(7, Double.valueOf(request.getParameter("txtOutdoors")));
-				user.setWeight(8, Double.valueOf(request.getParameter("txtAthletics")));
-				user.setWeight(9, Double.valueOf(request.getParameter("txtChurch")));
-				user.setWeight(10, Double.valueOf(request.getParameter("txtShop")));
+				user.setWeight(1, Double.valueOf(request.getParameter("txtMuseum")));
+				user.setWeight(2, Double.valueOf(request.getParameter("txtChurch")));
+				user.setWeight(3, Double.valueOf(request.getParameter("txtHistory")));
+				user.setWeight(4, Double.valueOf(request.getParameter("txtArts")));
+				user.setWeight(5, Double.valueOf(request.getParameter("txtOutdoors")));
+				user.setWeight(6, Double.valueOf(request.getParameter("txtFood")));
+				user.setWeight(7, Double.valueOf(request.getParameter("txtEntertainment")));
+				user.setWeight(8, Double.valueOf(request.getParameter("txtNightlife")));
+				user.setWeight(9, Double.valueOf(request.getParameter("txtShop")));
+				user.setWeight(10, Double.valueOf(request.getParameter("txtAthletics")));
 				user.setGender(gender);
 				user.setAge(age);
 				user.setRole(role);

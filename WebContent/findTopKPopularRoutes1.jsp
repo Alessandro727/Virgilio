@@ -249,26 +249,6 @@
 							</select> Minutes</td>
 						</tr>
 						<tr>
-							<td colspan="2"><br>
-								<div>What categories are you interested?</div> <input
-								type="checkbox" name="cbCategories" value="1" /> Museum <br>
-								<input type="checkbox" name="cbCategories" value="3" /> History
-								&amp; Monuments <br> <input type="checkbox"
-								name="cbCategories" value="2" /> Church <br> <input
-								type="checkbox" name="cbCategories" value="4" /> Arts <br>
-								<input type="checkbox" name="cbCategories" value="7" />
-								Entertainment <br> <input type="checkbox"
-								name="cbCategories" value="5" /> Outdoors &amp; Recreation <br>
-								<!-- <input type="checkbox" name="cbCategories" value="4"/> Event <br> -->
-								<input type="checkbox" name="cbCategories" value="6" /> Food <br>
-								<input type="checkbox" name="cbCategories" value="8" />
-								Nightlife Spot <br> <input type="checkbox"
-								name="cbCategories" value="9" /> Shop &amp; Service <br>
-								<input type="checkbox" name="cbCategories" value="10" />
-								Athletics &amp; Sports <br> <!-- <input type="checkbox" name="cbCategories" value="12"/> Others -->
-							</td>
-						</tr>
-						<tr>
 							<td colspan="2">&nbsp;</td>
 						</tr>
 						<tr>

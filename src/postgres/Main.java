@@ -1,19 +1,15 @@
 package postgres;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
+
 import java.net.URL;
-import java.net.URLConnection;
+
 //import java.text.DateFormat;
 //import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-//import java.util.Calendar;
-//import java.util.Date;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 //import java.util.Random;
 //import java.util.TimeZone;
 
@@ -21,9 +17,7 @@ import javax.xml.parsers.*;
 
 import org.xml.sax.*;
 import org.w3c.dom.*;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 
 //import socialAndServices.Foursquare;
 //import socialAndServices.Google;
@@ -32,7 +26,7 @@ import org.json.JSONObject;
 //import logic.LatLngSquare;
 import model.MacroCategory;
 import model.User;
-import model.Venue;
+
 
 
 
@@ -238,110 +232,6 @@ public class Main {
 			e.printStackTrace();
 		}
 
-	}
-
-
-
-	public static void aggiornaFoursquareId() {
-
-		// 186.936
-		List<Venue> venues;
-		try {		
-
-			venues = VenuePostgres.RetrieveVenuesWIthNullFoursquareId(4501, 5000);
-			System.out.println(venues.size());
-			System.out.print(" --- fino a 5000");
-			VenuePostgres.updateFoursquareId(venues);
-
-		} catch (PersistenceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-
-
-
-
-
-	public static Map<Integer, List<String>> foursquareCategories() {
-		Map<Integer, List<String>> map = new HashMap<Integer, List<String>>();
-
-		try {
-			URL url = new URL("https://api.foursquare.com/v2/venues/categories?locale=en&oauth_token=4SXRSPRRDEUFUOK1SJTKBW0JIC5OX21EOV4JK20MIORNIMTS&v=20140325");
-			URLConnection conn = url.openConnection();                                                                    
-			conn.connect();
-			InputStreamReader isr = new InputStreamReader(conn.getInputStream());
-			StringBuffer sb = new StringBuffer();
-
-			for (int i=0; i!=-1; i=isr.read()) {   
-				sb.append((char)i);
-			}
-			String jsonString = sb.toString().trim();
-
-			JSONObject jsonObject = new JSONObject(jsonString);
-
-			JSONObject response = jsonObject.getJSONObject("response");                             
-			JSONArray macroCategories = response.getJSONArray("categories");
-			JSONArray subCategories;
-			JSONArray subSubCategories;
-			//String cat;
-			String subCat;
-			String subSubCat;
-
-			map.put(1, new ArrayList<String>());
-			map.put(2, new ArrayList<String>());
-			map.put(3, new ArrayList<String>());
-			map.put(4, new ArrayList<String>());
-			map.put(5, new ArrayList<String>());
-			map.put(6, new ArrayList<String>());
-			map.put(7, new ArrayList<String>());
-			map.put(8, new ArrayList<String>());
-			map.put(9, new ArrayList<String>());
-			map.put(10, new ArrayList<String>());
-			for (int i=0; i<macroCategories.length(); i++) {
-				//cat = macroCategories.getJSONObject(i).get("name").toString();
-				subCategories = macroCategories.getJSONObject(i).getJSONArray("categories");
-				for (int j=0; j<subCategories.length(); j++) {
-					subCat = subCategories.getJSONObject(j).get("name").toString();
-					map.get(i+1).add(subCat);
-					subSubCategories = subCategories.getJSONObject(j).getJSONArray("categories");
-					for (int k=0; k<subSubCategories.length(); k++) {
-						subSubCat = subSubCategories.getJSONObject(k).get("name").toString();
-						map.get(i+1).add(subSubCat);                    	
-					}
-				}
-			}
-
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return map;
-	}
-
-
-
-
-
-	public static void spegniPC() {
-		Runtime runtime = Runtime.getRuntime();
-		try {
-			Process process = runtime.exec("C:\\WINDOWS\\system32\\cmd.exe");
-			OutputStream os = process.getOutputStream();
-			os.write("shutdown -s -f -t 0\n\r".getBytes());
-			os.close();
-			try {
-				process.waitFor();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 

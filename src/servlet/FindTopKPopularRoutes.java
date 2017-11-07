@@ -26,8 +26,10 @@ import model.MacroCategory;
 import model.Scenario;
 import model.User;
 import model.Venue;
+import postgres.CheckinPostgres;
 import postgres.PersistenceException;
 import postgres.UserPostgres;
+import postgres.VenuePostgres;
 import socialAndServices.Google;
 import util.KMeans;
 import util.Utilities;
@@ -63,46 +65,12 @@ public class FindTopKPopularRoutes extends HttpServlet {
 		availableTime += Integer.parseInt(request.getParameter("ddlMinutes"));		// minutes
 		int maxWayPoints = Integer.parseInt(request.getParameter("txtMaxWayPoints"));
 
-		Map<Long, Integer> mapUserCluster = new HashMap<>();
-		double[][] centroidCluster= new double[55][10];
-
-		long idUser = 0;
-		try {
-			idUser = UserPostgres.retriveUserIdByUsername(user.getUsername());
-		} catch (PersistenceException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		try {
-			mapUserCluster = KMeans.clusterResult();
-			centroidCluster = KMeans.getFirstCentroids();
-		} catch (PersistenceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		List<String> categories = new ArrayList<>();
-		String[] temp = new String[1];
-		int numCluster = mapUserCluster.get(idUser);
-
-		for (int j=0; j<centroidCluster[numCluster].length; j++)	{
-			if(centroidCluster[numCluster][j]==1)	{
-				temp[0] = String.valueOf(j+1);
-				categories.add(temp[0]);
-			}		
-		}
-
-		//		String[] categories = request.getParameterValues("cbCategories");
-
-
-
+		
+		List<String> categories = userCategory(user);
+		
 		for (String string : categories) {
-			System.out.println(string);
+			System.out.println("Categorie: "+string);
 		}
-
-
-
 
 
 		Google google = new Google();
@@ -138,7 +106,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			context.setSunny(Utilities.isSunny(startVenue, availableTime));
 			Scenario scenario = new Scenario(0, context);
 
-			if (categories.contains("5"))	
+			if (categories.contains("6"))	
 				scenario.setFood(true);
 
 
@@ -151,6 +119,28 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 
 			venuesInTheSquare = JenaManagerForPlace.retrivePlacesNodes(lat, lng, 0.1, categories);
+			List<Venue> venuesInTheSquareTemp = venuesInTheSquare;
+			
+			try {
+				venuesInTheSquareTemp = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
+				venuesInTheSquare = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
+				if (venuesInTheSquareTemp.size()>10)	{
+					for (int i=0; i<venuesInTheSquareTemp.size();i++)	{
+						venuesInTheSquare.add(0, venuesInTheSquareTemp.get(i));
+						if (i==10)
+							break;
+					}
+				}
+				
+				venuesInTheSquare = 	VenuePostgres.retriveAllFriendVenues(venuesInTheSquare, lat, lng, 0.1);
+				
+			} catch (PersistenceException e) {
+				e.printStackTrace();
+			}
+			
+			
+			
+			// TODO Scrematura venues in the square
 
 
 
@@ -163,6 +153,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 			for (Venue venue : venuesInTheSquare) {
 				System.out.println(venue.getName_fq());
+				System.out.println(venue.getId());
 			}
 
 			topKroute = runDijkstraAlgorithm(venuesInTheSquare,
@@ -174,7 +165,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 					google);
 			int size = topKroute.size();
 			if (size >= 2) {
-				prossimaPagina = "/findTopKPopularRoutes3.jsp";
+				prossimaPagina = "/routes.jsp";
 				request.setAttribute("topKroute", topKroute);
 				request.setAttribute("mode", mode);
 			} else {
@@ -195,6 +186,8 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			if (!endVenue.getStatus().equals("OK"))
 				request.setAttribute("error", "End address: " + endVenue.getStatus());
 		}		
+		session.setAttribute("topKroute", topKroute);
+		session.setAttribute("mode", mode);
 		ServletContext application  = getServletContext();
 		RequestDispatcher rd = application.getRequestDispatcher(prossimaPagina);
 		rd.forward(request, response);
@@ -264,6 +257,44 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 
 		return topKRoutes;
+	}
+	
+	public static List<String> userCategory(User user)	{
+		
+		Map<Long, Integer> mapUserCluster = new HashMap<>();
+		double[][] centroidCluster= new double[55][10];
+
+		long idUser = 0;
+		try {
+			System.out.println(user.getUsername());
+			
+			idUser = UserPostgres.retriveUserIdByUsername(user.getUsername());
+		} catch (PersistenceException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		try {
+			mapUserCluster = KMeans.clusterResult();
+			centroidCluster = KMeans.getFirstCentroids();
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		List<String> categories = new ArrayList<>();
+		String[] temp = new String[1];
+		int numCluster = mapUserCluster.get(idUser-1);
+
+		for (int j=0; j<centroidCluster[numCluster].length; j++)	{
+			if(centroidCluster[numCluster][j]==1)	{
+				temp[0] = String.valueOf(j+1);
+				categories.add(temp[0]);
+			}		
+		}
+		
+		return categories;
+		
 	}
 
 }

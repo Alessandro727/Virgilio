@@ -5,20 +5,22 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import socialAndServices.Foursquare;
-import fi.foyt.foursquare.api.FoursquareApiException;
-import fi.foyt.foursquare.api.entities.CompactVenue;
 import logic.LatLngSquare;
 import model.MacroCategory;
+import model.User;
 import model.Venue;
+import util.Utilities;
 
 public class VenuePostgres {
-	
-	
-	
+
+
+
 	public static List<Venue> RetrieveVenuesByDistance(int radius, double lat, double lng) throws PersistenceException {
 		List<Venue> venues = null;
 		Venue venue = null;
@@ -55,76 +57,29 @@ public class VenuePostgres {
 				venues.add(venue);
 			} 
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return venues;
 	}
-	
-	
-	
-	public static List<Venue> RetrieveVenuesWIthNullFoursquareId(int from, int to) throws PersistenceException {
-		List<Venue> venues = null;
-		Venue venue = null;
-		DataSource datasource = new DataSource();
-		Connection connection = null;
-		PreparedStatement statement = null;
-		ResultSet result = null;
-		try {
-			connection = datasource.getConnection();
-			String query = "select * from venues where foursquare_id is null and id >= " + from + " and id <= " + to;
-			statement = connection.prepareStatement(query);
-			result = statement.executeQuery();
-			if (result.next()) {
-				venues = new LinkedList<Venue>();
-				venue = new Venue();
-				venue.setId(result.getLong("id"));				
-				venue.setLatitude(result.getString("latitude"));
-				venue.setLongitude(result.getString("longitude"));
-				venue.setName_fq(result.getString("name_fq"));
-				venues.add(venue);				
-			}
-			while (result.next()) {
-				venue = new Venue();
-				venue.setId(result.getLong("id"));
-				venue.setLatitude(result.getString("latitude"));
-				venue.setLongitude(result.getString("longitude"));
-				venue.setName_fq(result.getString("name_fq"));
-				venues.add(venue);
-			} 
-		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
-		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
-			}
-		return venues;
-	}
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	public static void persistVenues(LinkedList<Venue> venues) throws PersistenceException {
-		
+
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
@@ -153,16 +108,16 @@ public class VenuePostgres {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	public static void deleteVenuesById(List<Venue> venues) {
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
-		
+
 		String delete = "delete from venues_filtered where id = ?";
-		
+
 		try {
 			connection = datasource.getConnection();
 			for (Venue v: venues) {
@@ -187,9 +142,9 @@ public class VenuePostgres {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	public static List<Venue> getVenuesFromVenues(int from, int to) throws PersistenceException {
 		List<Venue> venues = null;
 		Venue venue = null;
@@ -227,59 +182,11 @@ public class VenuePostgres {
 				venues.add(venue);
 			} 
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} catch (PersistenceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
-			}
-		return venues;
-	}
-	
-	
-	
-	// prende i venues dalla tabella venues il cui id � compreso tra idFrom e idTo
-	public static LinkedList<Venue> getVenuesFromVenuesFiltered(int idFrom, int idTo) throws PersistenceException {
-				
-	LinkedList<Venue> venues = null;
-	Venue venue = null;
-	DataSource datasource = new DataSource();
-	Connection connection = null;
-	PreparedStatement statement = null;
-	ResultSet result = null;
-	try {
-		connection = datasource.getConnection();
-		String query = "select * from venues_filtered where id >= " + idFrom + " and id <= " + idTo;
-		statement = connection.prepareStatement(query);
-		result = statement.executeQuery();
-		if (result.next()) {
-			venues = new LinkedList<Venue>();
-			venue = new Venue();
-			venue.setId(result.getLong("id"));
-			venue.setLatitude(result.getString("latitude_or"));
-			venue.setLongitude(result.getString("longitude_or"));
-			venues.add(venue);
-		}
-		while (result.next()) {
-			venue = new Venue();
-			venue.setId(result.getLong("id"));
-			venue.setLatitude(result.getString("latitude_or"));
-			venue.setLongitude(result.getString("longitude_or"));
-			venues.add(venue);		
-		} 
-	} catch (SQLException e) {
-		throw new PersistenceException(e.getMessage());
-	} finally {
 			try {
 				if (result != null)
 					result.close();
@@ -291,10 +198,58 @@ public class VenuePostgres {
 				throw new PersistenceException(e.getMessage());
 			}
 		}
-	return venues;
+		return venues;
 	}
-	
-	
+
+
+
+	// prende i venues dalla tabella venues il cui id � compreso tra idFrom e idTo
+	public static LinkedList<Venue> getVenuesFromVenuesFiltered(int idFrom, int idTo) throws PersistenceException {
+
+		LinkedList<Venue> venues = null;
+		Venue venue = null;
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		try {
+			connection = datasource.getConnection();
+			String query = "select * from venues_filtered where id >= " + idFrom + " and id <= " + idTo;
+			statement = connection.prepareStatement(query);
+			result = statement.executeQuery();
+			if (result.next()) {
+				venues = new LinkedList<Venue>();
+				venue = new Venue();
+				venue.setId(result.getLong("id"));
+				venue.setLatitude(result.getString("latitude_or"));
+				venue.setLongitude(result.getString("longitude_or"));
+				venues.add(venue);
+			}
+			while (result.next()) {
+				venue = new Venue();
+				venue.setId(result.getLong("id"));
+				venue.setLatitude(result.getString("latitude_or"));
+				venue.setLongitude(result.getString("longitude_or"));
+				venues.add(venue);		
+			} 
+		} catch (SQLException e) {
+			throw new PersistenceException(e.getMessage());
+		} finally {
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			}
+		}
+		return venues;
+	}
+
+
 	/**
 	 * 
 	 * @param llSquare
@@ -312,14 +267,14 @@ public class VenuePostgres {
 		try {
 			connection = datasource.getConnection();
 			String query = "select v.id, v.latitude, v.longitude, v.name_fq, v.foursquare_id,"
-						+ " c.id, c.category_fq,"
-						+ " mc.id, mc.macro_category_fq, mc.mrt"
-						
+					+ " c.id, c.category_fq,"
+					+ " mc.id, mc.macro_category_fq, mc.mrt"
+
 						+ " from venues v left outer join categories c"
 						+ " on v.category_fq_id = c.id"
 						+ " left outer join macro_categories mc"
 						+ " on c.macro_category_id = mc.id"
-						
+
 						+ " where v.latitude >= " + llSquare.getMinLat() + " and v.latitude <= " + llSquare.getMaxLat() 
 						+ " and v.longitude >= " + llSquare.getMinLng() + " and v.longitude <= " + llSquare.getMaxLng();
 			System.out.println(query);
@@ -357,25 +312,25 @@ public class VenuePostgres {
 				venues.add(venue);	
 			} 
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} catch (PersistenceException e) {
 			e.printStackTrace();
 		} finally {
-				try {
-					if (result != null)
-						result.close();
-					if (statement != null) 
-						statement.close();
-					if (connection!= null)
-						connection.close();
-				} catch (SQLException e) {
-					throw new PersistenceException(e.getMessage());
-				}
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
 			}
+		}
 		return venues;
 	}
-	
-	
+
+
 	/**
 	 * 
 	 * @param llSquare
@@ -394,16 +349,16 @@ public class VenuePostgres {
 		try {
 			connection = datasource.getConnection();
 			String query = "select v.id, v.latitude, v.longitude, v.name_fq, v.foursquare_id,"
-						+ " c.id, c.category_fq,"
-						+ " mc.id, mc.macro_category_fq, mc.mrt"
-						
+					+ " c.id, c.category_fq,"
+					+ " mc.id, mc.macro_category_fq, mc.mrt"
+
 						+ " from venues v left outer join categories c"
 						+ " on v.category_fq_id = c.id"
 						+ " left outer join macro_categories mc"
 						+ " on c.macro_category_id = mc.id"
-						
+
 						+ " where " + cats
-						
+
 						+ " and v.latitude >= " + llSquare.getMinLat() + " and v.latitude <= " + llSquare.getMaxLat() 
 						+ " and v.longitude >= " + llSquare.getMinLng() + " and v.longitude <= " + llSquare.getMaxLng();
 			System.out.println(query);
@@ -441,10 +396,109 @@ public class VenuePostgres {
 				venues.add(venue);	
 			} 
 		} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
+			throw new PersistenceException(e.getMessage());
 		} catch (PersistenceException e) {
 			e.printStackTrace();
 		} finally {
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			}
+		}
+		return venues;
+	}
+
+
+	public static List<Venue> retriveOnlyNewVenue(List<Venue> venues, User user) throws PersistenceException	{
+
+		List<Long> venueIdVisited = new LinkedList<>();
+		long userId = UserPostgres.retriveUserIdByUsername(user.getUsername());
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		try {
+			connection = datasource.getConnection();
+			String query = "SELECT venue_id FROM checkins WHERE user_id = "+userId;
+			statement = connection.prepareStatement(query);
+			result = statement.executeQuery();
+			while (result.next()) {
+
+				venueIdVisited.add(result.getLong("venue_id"));
+			} 
+
+		} catch (SQLException e) {
+			throw new PersistenceException(e.getMessage());
+		} catch (PersistenceException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (result != null)
+					result.close();
+				if (statement != null) 
+					statement.close();
+				if (connection!= null)
+					connection.close();
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			}
+		}
+
+
+		for (Iterator<Venue> it = venues.iterator(); it.hasNext();) {
+			Venue venue = it.next();
+			if (venueIdVisited.contains(venue.getId()))	{
+				it.remove();
+			}
+		}
+		
+		
+		
+		return venues;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public static  List<Venue>	retriveAllFriendVenues(List<Venue> venues, double lat, double lon, double radius) throws PersistenceException	{
+
+		double  lat1 = lat - radius,
+				lat2 = lat + radius,
+				lon1 = lon - radius,
+				lon2 = lon + radius;
+		
+		Map<Venue, Integer> venueMap = new HashMap<>();
+		
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		for (Venue venue : venues) {
+
+
+			try {
+				connection = datasource.getConnection();
+				String query = "SELECT venue_id FROM checkins, users WHERE checkins.users_id = users.id AND user.residenceLat > "
+						+lat1+" AND user.residenceLat <= "+lat2+" AND residenceLong > "+lon1+" AND residenceLong <= "+lon2+" AND venue_id = "+venue.getId();
+				statement = connection.prepareStatement(query);
+				result = statement.executeQuery();
+				if (result.next()) {
+					Integer count = venueMap.get(venue);
+					if (count == null) {
+					    venueMap.put(venue, 1);
+					}
+					else {
+					    venueMap.put(venue, count + 1);
+					}
+				}
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			} finally {
 				try {
 					if (result != null)
 						result.close();
@@ -456,58 +510,13 @@ public class VenuePostgres {
 					throw new PersistenceException(e.getMessage());
 				}
 			}
-		return venues;
-	}
-	
-	
-	
-	
-
-	public static void updateFoursquareId(List<Venue> venues) throws PersistenceException {
-		
-		DataSource datasource = new DataSource();
-		Connection connection = null;
-		PreparedStatement statement = null;
-		CompactVenue cv;
-		try {
-			connection = datasource.getConnection();
-			String update = "update venues set foursquare_id = ? where id = ?";
-			for (Venue v: venues) {
-				if (v.getFoursquare_id() != null)
-					continue;
-				
-				cv = Foursquare.searchSingleVenueMatch(v);
-				if (cv != null) {
-					if (cv.getName().equals(v.getName_fq())) {
-						statement = connection.prepareStatement(update);
-						statement.setString(1, cv.getId());
-						statement.setLong(2, v.getId());
-						statement.executeUpdate();												
-					}
-					else System.out.println(v.getId() + " - non uguale");
-				}								
-			}			
-		} catch (SQLException e) {
-			throw new PersistenceException(e.getMessage());
-		} catch (PersistenceException e) {
-			throw e;
-		} catch (FoursquareApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			try {
-				if (statement != null) 
-					statement.close();
-				if (connection!= null)
-					connection.close();
-			} catch (SQLException e) {
-				throw new PersistenceException(e.getMessage());
-			}
 		}
+		
+		venueMap = Utilities.sortByValue(venueMap);
+
+		return (List<Venue>) venueMap.keySet();
+
 	}
-	
-	
-	
 
 
 }

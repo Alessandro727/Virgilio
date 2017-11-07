@@ -97,7 +97,7 @@ public class JenaManagerForPlace {
 
 			category = it.next();
 
-			String limitValue = "10";
+			String limitValue = "3";
 
 
 			for (String id : categories) {
@@ -274,25 +274,25 @@ public class JenaManagerForPlace {
 			categoriesMap.put(3,historyAndMonumentsCategory);
 		}
 		if (categories.contains("4"))	{
-			categoriesMap.put(5,artsCategory);
+			categoriesMap.put(4,artsCategory);
 		}
 		if (categories.contains("5"))	{
-			categoriesMap.put(6,outdoorsAndRecreationCategory);
+			categoriesMap.put(5,outdoorsAndRecreationCategory);
 		}
 		if (categories.contains("6"))	{
-			categoriesMap.put(7,foodCategory);
+			categoriesMap.put(6,foodCategory);
 		}
 		if (categories.contains("7"))	{
-			categoriesMap.put(8,entertaimentsCategory);
+			categoriesMap.put(7,entertaimentsCategory);
 		}
 		if (categories.contains("8"))	{
-			categoriesMap.put(9,nightLifeCategory);
+			categoriesMap.put(8,nightLifeCategory);
 		}
 		if (categories.contains("9"))	{
-			categoriesMap.put(10,shopAndServiceCategory);
+			categoriesMap.put(9,shopAndServiceCategory);
 		}
 		if (categories.contains("10"))	{
-			categoriesMap.put(11,athleticsAndSport);
+			categoriesMap.put(10,athleticsAndSport);
 		}
 
 		return categoriesMap;

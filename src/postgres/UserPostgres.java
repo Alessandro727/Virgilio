@@ -12,6 +12,8 @@ import model.Checkin;
 import model.MacroCategory;
 import model.User;
 
+
+
 public class UserPostgres {
 
 
@@ -144,7 +146,7 @@ public class UserPostgres {
 		return usernameExist;
 
 	}
-	
+
 	public static long retriveUserIdByUsername(String username) throws PersistenceException	{
 		long id = 0;
 		DataSource datasource = new DataSource();
@@ -174,7 +176,7 @@ public class UserPostgres {
 			}
 		}
 		return id;
-		
+
 	}
 
 
@@ -629,7 +631,7 @@ public class UserPostgres {
 			statement.setFloat(15, (float)user.getWeigth(8));
 			statement.setFloat(16, (float)user.getWeigth(9));
 			statement.setFloat(17, (float)user.getWeigth(10));
-//			statement.setInt(18, user.getId());
+			//			statement.setInt(18, user.getId());
 			statement.executeUpdate();						
 		} catch (SQLException e) {
 			throw new PersistenceException(e.getMessage());
@@ -708,9 +710,10 @@ public class UserPostgres {
 			}
 		}
 	}
-	
+
 	public static void main(String[] args) throws PersistenceException	{
 		System.out.println(UserPostgres.retriveUserIdByUsername("carlo"));
 	}
+
 
 }

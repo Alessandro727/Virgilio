@@ -180,16 +180,16 @@ public class KMeans
 		Map<Long, Integer> mapUserCluster = new HashMap<>();
 		System.out.println("Label:");
 		for (int i=0; i<_nrows; i++)	{
-//			System.out.println(_label[i]);
+			System.out.println(_label[i]);
 			mapUserCluster.put(Long.valueOf(i), _label[i]);
 		}
-//		System.out.println("Centroids:");
-//		for (int i=0; i<_numClusters; i++){
-//			for(int j=0; j<_ndims; j++)
-//				System.out.print(_centroids[i][j] + " ");
-//
-//			System.out.println();
-//		}
+		System.out.println("Centroids:");
+		for (int i=0; i<_numClusters; i++){
+			for(int j=0; j<_ndims; j++)
+				System.out.print(_centroids[i][j] + " ");
+
+			System.out.println();
+		}
 
 		return mapUserCluster;
 	}
@@ -231,13 +231,13 @@ public class KMeans
 		}
 
 //
-//
-//
-//		for (int l=0; l<55; l++){
-//			for(int m=0; m<10; m++)
-//				System.out.print(centroids[l][m] + " ");
-//			System.out.println();
-//		}
+
+
+		for (int l=0; l<55; l++){
+			for(int m=0; m<10; m++)
+				System.out.print(centroids[l][m] + " ");
+			System.out.println();
+		}
 		
 		return centroids;
 	}
@@ -279,4 +279,10 @@ public class KMeans
 
 
 	}
+	
+	
+	
+	
+	
+	
 }

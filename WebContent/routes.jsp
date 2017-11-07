@@ -25,7 +25,8 @@
 <!-- script for map construction -->
 
 
-<script src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&language=en&key=AIzaSyCM4ZZEHZuIsF-LfxbooRXcsA487D269cc"></script>
+<script
+	src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&language=en&key=AIzaSyCM4ZZEHZuIsF-LfxbooRXcsA487D269cc"></script>
 
 
 
@@ -201,19 +202,26 @@
 		<jsp:include page="menu.jsp" />
 	</div>
 	<br />
-
-	<table>
-		<tr>
-			<td><div id="googleMap"
-					style="width: 800px; height: 700px; position: relative; top: 0; overflow: hidden;"></div></td>
-			<td>
-				<div>
-					<select id="ddlRoutes" onchange="ddlChanged()"></select>
-				</div> <br />
-				<div id="summaryPanel"></div>
-			</td>
-		</tr>
-	</table>
-
+	<form action="Routes" method="post" action="/routes.jsp">
+		<table>
+			<tr>
+				<td><div id="googleMap"
+						style="width: 800px; height: 700px; position: relative; top: 0; overflow: hidden;"></div></td>
+				<td>
+					<div>
+						<select id="ddlRoutes" name="ddlRoutes" onchange="ddlChanged()"></select>
+					</div> <br />
+					<div id="summaryPanel"></div>
+				</td>
+			</tr>
+		</table>
+	
+		<table>
+			<tr>
+				<td colspan="2"><input id="btnSearch" type="submit"
+					value="Choose the route"></td>
+			</tr>
+		</table>
+	</form>
 </body>
 </html>

@@ -24,7 +24,7 @@ public class DataSource {
 	public Connection getConnection() throws PersistenceException {
 		Connection connection;
 
-		String password = null; //this is the key used in the Google API 
+		String password = null; 
 
 		InputStream inputStream = 
 				getClass().getClassLoader().getResourceAsStream("config.txt");
