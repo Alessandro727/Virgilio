@@ -15,6 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -42,6 +43,7 @@ public class JenaManagerForPlace {
 	private final static String historyAndMonumentsCategory = "Courthouse, Artwork, GovermentBuilding, Statue, Tourist, WaterFountain, Souvenir, Souvenirs, TouristShop, Terrace, ArchaeologicalSite, Castle, Monument, HistoricBuilding, HistoricFountain, ProtectedBuilding, HistoricTower, UNESCOWorldHeritage, HistoricPointOfInterest, Tower";
 	private final static String churchCategory = "PlaceOfWorship, Chapel, ChurchHall, Church, Monastery, Synagogue, Temple, Cathedral, Abbey, HistoricChurch, HistoricChapel, HistoricMonastery";
 	private final static String entertaimentsCategory = "AnimalShelter, BicycleRental, ArtsCentre, Cinema, Theatre, Sauna, Shelter, Casino, ConcertHall, MusicVenue, Solarium, Spa, BeautySalon, ThemePark, Zoo, Viewpoint, Castle, LandusePark, Stadium, WaterPark, NatureReserve, Park, Garden, Beach";
+	//Attenzione luoghi all'aperto
 	private final static String foodCategory = "Restaurant, FastFood, Bbq, Pub, Bar, Cafe, Biergarten, IceCream, Brewery, Bakery, CoffeeShop, InternetCafe, Restaurant%3Bpub, TakeAway";
 	private final static String nightLifeCategory = "Pub, Cinema, Nightclub, Stripclub, Theatre, Brothel, Brewery, Casino, byNight, Dance, Bingo";
 	private final static String shopAndServiceCategory = "Marketplace, Brewery, CoffeeShop, Commercial, Florist, Hairdresser, Market, PublicMarket, Shop, Shopping, Shops, Supermarket, AlcoholShop, AnimeShop, ArtShop, Mall, Patisserie, ShoppingCenter, Souvenir";
@@ -61,7 +63,7 @@ public class JenaManagerForPlace {
 			+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n";
 
 
-	public static List<Venue> retrivePlacesNodes(double lat, double lon, double radius, List<String> categories) {
+	public static List<Venue> retriveNodes(double lat, double lon, double radius, List<String> categories) {
 
 
 		Set<String> categoriesSet = createCaretoriesSet(categories);
@@ -97,7 +99,7 @@ public class JenaManagerForPlace {
 
 			category = it.next();
 
-			String limitValue = "3";
+			String limitValue = "100";
 
 
 			for (String id : categories) {
@@ -320,8 +322,16 @@ public class JenaManagerForPlace {
 		
 		cat.add("3");
 
-		JenaManagerForPlace.retrivePlacesNodes(41.89, 12.49, 0.1, cat);
+		JenaManagerForPlace.retriveNodes(41.89, 12.49, 0.1, cat);
 	}
+
+
+
+	
+
+
+
+
 
 
 }

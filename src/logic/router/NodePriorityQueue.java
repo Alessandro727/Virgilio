@@ -2,11 +2,7 @@ package logic.router;
 
 import java.util.Collection;
 import java.util.PriorityQueue;
-/**
- * 
- * @author vsutskever
- * 
- */
+
 public class NodePriorityQueue  {
 	
 	

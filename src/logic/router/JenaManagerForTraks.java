@@ -18,9 +18,10 @@ import org.slf4j.LoggerFactory;
 import de.umass.lastfm.Artist;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
+import model.Object;
 import model.Singer;
 
-public class JenaManagerForTraks {
+public class JenaManagerForTraks implements JenaManager{
 
 	private final static Logger logger = LoggerFactory.getLogger(JenaManagerForTraks.class);
 
@@ -38,7 +39,7 @@ public class JenaManagerForTraks {
 
 	private final static String ontology_serviceTrack =  "https://query.wikidata.org/sparql";
 
-	public static Map<Long, Singer> retriveMusicNodes(double lat, double lon, double radius)	{
+	public Map<Long, Object> retriveNodes(double lat, double lon, double radius)	{
 
 
 		double  lat1 = lat - radius,
@@ -46,7 +47,7 @@ public class JenaManagerForTraks {
 				lon1 = lon - radius,
 				lon2 = lon + radius;
 
-		Map<Long, Singer> singerResult = new HashMap<>();
+		Map<Long, Object> singerResult = new HashMap<>();
 
 		String queryTrack = prefix
 				+"SELECT ?artista ?artistaLabel ?birthPlaceLabel ?lat ?long ?genereLabel WHERE {"+"\n"
@@ -134,7 +135,7 @@ public class JenaManagerForTraks {
 			}
 
 			else {
-				singerResult.get(id).getGenres().add(genre);
+				((Singer) singerResult.get(id)).getGenres().add(genre);
 
 			}
 

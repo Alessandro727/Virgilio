@@ -148,14 +148,14 @@ public class Register extends HttpServlet {
 			simTemp = ( AB / Math.sqrt(A*B) );
 			if (simTemp > sim) {
 				sim = simTemp;
-				id = CheckinPostgres.getUserIdByUsername(u.getUsername());
+				id = CheckinPostgres.getUserIdByUsernameAndPassword(u.getUsername(),u.getPassword());
 				System.out.println("ID primo if: "+id);
 				numCheckins = CheckinPostgres.getNumCheckinsByUser(id);
 			} else {
 				if (simTemp == sim) {
-					int ck = CheckinPostgres.getNumCheckinsByUser(CheckinPostgres.getUserIdByUsername(u.getUsername()));
+					int ck = CheckinPostgres.getNumCheckinsByUser(CheckinPostgres.getUserIdByUsernameAndPassword(u.getUsername(), u.getPassword()));
 					if (ck > numCheckins) {						
-						id = CheckinPostgres.getUserIdByUsername(u.getUsername());
+						id = CheckinPostgres.getUserIdByUsernameAndPassword(u.getUsername(), u.getPassword());
 						System.out.println("ID secondo if: "+id);
 						numCheckins = ck;
 					}

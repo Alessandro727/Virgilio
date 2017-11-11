@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -464,8 +465,8 @@ public class VenuePostgres {
 
 	}
 
-	@SuppressWarnings("unchecked")
-	public static  List<Venue>	retriveAllFriendVenues(List<Venue> venues, double lat, double lon, double radius) throws PersistenceException	{
+
+	public static  List<Venue>	retriveAllResidenceVenues(List<Venue> venues, double lat, double lon, double radius) throws PersistenceException	{
 
 		double  lat1 = lat - radius,
 				lat2 = lat + radius,
@@ -483,8 +484,8 @@ public class VenuePostgres {
 
 			try {
 				connection = datasource.getConnection();
-				String query = "SELECT venue_id FROM checkins, users WHERE checkins.users_id = users.id AND user.residenceLat > "
-						+lat1+" AND user.residenceLat <= "+lat2+" AND residenceLong > "+lon1+" AND residenceLong <= "+lon2+" AND venue_id = "+venue.getId();
+				String query = "SELECT venue_id FROM checkins, users WHERE checkins.user_id = users.id AND user.residenceLat > "
+						+lat1+" AND users.residenceLat <= "+lat2+" AND users.residenceLong > "+lon1+" AND users.residenceLong <= "+lon2+" AND checkins.venue_id = "+venue.getId();
 				statement = connection.prepareStatement(query);
 				result = statement.executeQuery();
 				if (result.next()) {
@@ -514,8 +515,78 @@ public class VenuePostgres {
 		
 		venueMap = Utilities.sortByValue(venueMap);
 
-		return (List<Venue>) venueMap.keySet();
+		return new ArrayList<>(venueMap.keySet());
 
+	}
+	
+
+	public static List<Venue> venuesVisitedFromSimilarUsers(List<Venue> venues, List<Long> similarUsers) throws PersistenceException	{
+		
+		Map<Venue, Integer> venuesMap = new HashMap<>();
+		
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		
+		for (Venue venue : venues) {
+			
+			try {
+				connection = datasource.getConnection();
+				String query = "SELECT venue_id, COUNT(user_id) as userNumber FROM checkins, users WHERE checkins.user_id = users.id AND venue_id = "+venue.getId()
+				+" AND ( ";
+				for (Long long1 : similarUsers) {
+					query = query+"user_id = "+long1+" OR ";
+				}
+				query = query+"false) GROUP BY venue_id";
+				statement = connection.prepareStatement(query);
+				result = statement.executeQuery();
+				if (result.next()) {
+					
+					Integer userNumber = result.getInt("userNumber");
+					venuesMap.put(venue, userNumber);
+				}
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			} finally {
+				try {
+					if (result != null)
+						result.close();
+					if (statement != null) 
+						statement.close();
+					if (connection!= null)
+						connection.close();
+				} catch (SQLException e) {
+					throw new PersistenceException(e.getMessage());
+				}
+			}
+			
+		}
+		
+		venuesMap = Utilities.sortByValue(venuesMap);
+		
+		
+		return new ArrayList<>(venuesMap.keySet());
+		
+		
+	}
+	
+	public static void main(String args[])	{
+		
+		List<Long> similarUsers =  new ArrayList<>();
+		
+		similarUsers.add((long) 123);
+		similarUsers.add((long) 1223);
+		
+		String query = "SELECT venue_id, COUNT(user_id) as userNumber FROM checkins, users WHERE checkins.user_id = users.id AND venue_id = 3440"
+		+" AND ( ";
+		for (Long long1 : similarUsers) {
+			query = query+"user_id = "+long1+" OR ";
+		}
+		query = query+"false) GROUP BY venue_id";
+		
+		System.out.println(query);
+		
 	}
 
 

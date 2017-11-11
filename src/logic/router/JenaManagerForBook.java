@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.jena.query.QueryExecution;
@@ -22,8 +24,9 @@ import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photos.SearchParameters;
 
 import model.Book;
+import model.Object;
 
-public class JenaManagerForBook {
+public class JenaManagerForBook implements JenaManager{
 
 	private final static Logger logger = LoggerFactory.getLogger(JenaManagerForBook.class);
 
@@ -39,7 +42,7 @@ public class JenaManagerForBook {
 
 	private final static String ontology_serviceBook =  "https://query.wikidata.org/sparql";
 
-	public static Map<Long, Book> retriveBooksNodes(double lat, double lon, double radius)	{
+	public  Map<Long, Object> retriveNodes(double lat, double lon, double radius)	{
 
 
 		double  lat1 = lat - radius,
@@ -47,7 +50,7 @@ public class JenaManagerForBook {
 				lon1 = lon - radius,
 				lon2 = lon + radius;
 
-		Map<Long, Book> bookResult = new HashMap<>();
+		Map<Long, Object> bookResult = new HashMap<>();
 
 
 		String queryBook = prefix+"\n"
@@ -108,10 +111,14 @@ public class JenaManagerForBook {
 		}
 
 		while (results.hasNext()) {
+			
+			QuerySolution solution = results.next();
+			
+			
 
 			Book obj = new Book();
 
-			QuerySolution solution = results.next();
+			
 
 			String point = solution.get("_coord").toString().split("\\^")[0].split("\\(")[1].split("\\)")[0];
 			String lat_s = point.split(" ")[1];
@@ -179,7 +186,7 @@ public class JenaManagerForBook {
 			if (!bookResult.containsKey(id))
 				bookResult.put(id, obj);
 			else {
-				bookResult.get(id).getGenres().add(genre);
+				((Book) bookResult.get(id)).getGenres().add(genre);
 
 			}
 
@@ -188,5 +195,15 @@ public class JenaManagerForBook {
 		return bookResult;
 
 	}
+	
+	public static void main(String[] args) {
+
+		List<String> cat = new ArrayList<>();
+		
+		cat.add("3");
+
+//		JenaManagerForBook.retriveNodes(41.89, 12.49, 0.1);
+	}
+
 
 }

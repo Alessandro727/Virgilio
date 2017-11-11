@@ -1,5 +1,6 @@
 package logic.router;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,11 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import model.Movie;
+import model.Object;
 
-public class JenaManagerForMovies {
-	
+public class JenaManagerForMovies implements JenaManager{
+
 	private final static Logger logger = LoggerFactory.getLogger(JenaManagerForMovies.class);
-	
+
 	private final static String prefixes = "PREFIX geo: <http://www.opengis.net/ont/geosparql#>"+"\n"
 			+"PREFIX wdt: <http://www.wikidata.org/prop/direct/>"+"\n"
 			+"PREFIX wikibase: <http://wikiba.se/ontology#>"+"\n"
@@ -28,10 +30,11 @@ public class JenaManagerForMovies {
 			+"PREFIX psv: <http://www.wikidata.org/prop/statement/value/>"+"\n"
 			+"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"+"\n"
 			+"PREFIX wd: <http://www.wikidata.org/entity/>"+"\n";
-	
+
 	private final static String ontology_serviceMovie =  "https://query.wikidata.org/sparql";
 
-	public static Map<Long, Movie> retriveNodes(double lat, double lon, double radius)	{
+	
+	public Map<Long, Object> retriveNodes(double lat, double lon, double radius)	{
 
 
 		double  lat1 = lat - radius,
@@ -39,7 +42,7 @@ public class JenaManagerForMovies {
 				lon1 = lon - radius,
 				lon2 = lon + radius;
 
-		Map<Long, Movie> movieResult = new HashMap<>();
+		Map<Long, Object> movieResult = new HashMap<>();
 
 
 		String queryMovie = prefixes
@@ -63,7 +66,7 @@ public class JenaManagerForMovies {
 				+"}"+"\n"
 				+"GROUP BY ?item ?itemLabel ?auteurLabel ?genreLabel ?officialWebsite ?id_IMDb ?registaLabel ?immagine"+"\n"
 				+"ORDER BY DESC(?link_count)";
-				
+
 
 		QueryExecution queryExecution = QueryExecutionFactory.sparqlService(ontology_serviceMovie,
 				queryMovie);
@@ -88,7 +91,7 @@ public class JenaManagerForMovies {
 			String label = solution.get("itemLabel").toString().split("\\@")[0];
 			String genre = solution.get("genreLabel").toString().split("\\@")[0];
 			String director = solution.get("registaLabel").toString().split("\\@")[0];
-			
+
 			if (solution.get("img")!=null)	{
 				String image = solution.get("img").toString();
 				obj.setImage(image);
@@ -102,10 +105,10 @@ public class JenaManagerForMovies {
 			obj.setId(id);
 			obj.setDirector(director);
 			obj.getGenres().add(genre);
-			
-			
+
+
 			String link = null;
-			
+
 			if (solution.get("officialWebsite")!=null)	{
 				link = solution.get("officialWebsite").toString();
 			}
@@ -113,7 +116,7 @@ public class JenaManagerForMovies {
 				link = solution.get("id_IMDb").toString();
 				link = "https://tools.wmflabs.org/wikidata-externalid-url/?p=345&url_prefix=http://www.imdb.com/&id="+link;
 			}
-			
+
 			obj.setExternalLink(link);
 
 			if (!movieResult.containsKey(id))	{
@@ -123,10 +126,10 @@ public class JenaManagerForMovies {
 			}
 
 			else {
-				movieResult.get(id).getGenres().add(genre);
+				((Movie) movieResult.get(id)).getGenres().add(genre);
 
 			}
-			
+
 			logger.info("NAME FROM IMDb AND WIKI DATA\t"+ label);
 
 		}
@@ -134,6 +137,5 @@ public class JenaManagerForMovies {
 		return movieResult;
 
 	}
-
 
 }

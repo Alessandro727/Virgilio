@@ -123,7 +123,7 @@ public class CheckinPostgres {
 	}
 
 
-	public static long getUserIdByUsername(String username) throws PersistenceException {
+	public static long getUserIdByUsernameAndPassword(String username, String password) throws PersistenceException {
 		long user_id = 0;
 		DataSource datasource = new DataSource();
 		Connection connection = null;
@@ -131,7 +131,7 @@ public class CheckinPostgres {
 		ResultSet result = null;
 		try {
 			connection = datasource.getConnection();
-			String query = "select id from users where username = " + username;
+			String query = "select id from users  where username = '" + username.replace("'", "''") + "' and password = '" + password.replace("'", "''") + "'";
 			statement = connection.prepareStatement(query);
 			result = statement.executeQuery();
 			while (result.next()) {
@@ -651,7 +651,7 @@ public class CheckinPostgres {
 		return lastId;
 	}
 
-	@SuppressWarnings("unchecked")
+
 	public static List<Venue> mostVisitedCheckins(List<Venue> venues) throws PersistenceException	{
 		Map<Venue,Integer>	checkinsPerVenue = new HashMap<>();
 		DataSource datasource = new DataSource();
@@ -687,7 +687,7 @@ public class CheckinPostgres {
 		
 		checkinsPerVenue = Utilities.sortByValue(checkinsPerVenue);
 		
-		return (List<Venue>) checkinsPerVenue.keySet();
+		return new ArrayList<>(checkinsPerVenue.keySet());
 
 	}
 	

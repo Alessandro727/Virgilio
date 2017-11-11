@@ -3,7 +3,7 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Singer {
+public class Singer extends Object{
 
 	private long id;
 	private String latitude;
