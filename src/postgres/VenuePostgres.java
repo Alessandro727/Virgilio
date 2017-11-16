@@ -484,7 +484,7 @@ public class VenuePostgres {
 
 			try {
 				connection = datasource.getConnection();
-				String query = "SELECT venue_id FROM checkins, users WHERE checkins.user_id = users.id AND user.residenceLat > "
+				String query = "SELECT venue_id FROM checkins, users WHERE checkins.user_id = users.id AND users.residenceLat > "
 						+lat1+" AND users.residenceLat <= "+lat2+" AND users.residenceLong > "+lon1+" AND users.residenceLong <= "+lon2+" AND checkins.venue_id = "+venue.getId();
 				statement = connection.prepareStatement(query);
 				result = statement.executeQuery();
@@ -512,6 +512,9 @@ public class VenuePostgres {
 				}
 			}
 		}
+		
+		System.out.println("Dimesione MAPPA luoghi più visitati da utenti esperti = "+venueMap.size());
+		
 		
 		venueMap = Utilities.sortByValue(venueMap);
 
@@ -562,6 +565,9 @@ public class VenuePostgres {
 			}
 			
 		}
+		
+		System.out.println("Dimesione MAPPA luoghi più visitati da utenti più simili = "+venuesMap.size());
+		
 		
 		venuesMap = Utilities.sortByValue(venuesMap);
 		

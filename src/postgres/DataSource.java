@@ -1,13 +1,12 @@
 package postgres;
 
-import java.io.BufferedReader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 
 public class DataSource {
@@ -26,25 +25,29 @@ public class DataSource {
 
 		String password = null; 
 
-		InputStream inputStream = 
-				getClass().getClassLoader().getResourceAsStream("config.txt");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream ));
-
-
-		String sCurrentLine;
+		Properties prop = new Properties();
+		InputStream input = null;
 
 		try {
-			while ((sCurrentLine = reader.readLine()) != null) {
-				if (sCurrentLine.contains("MYSQL_PASSWORD"))	{
-					password =  sCurrentLine.split("MYSQL_PASSWORD=")[1];
+
+			
+
+			prop.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			password = prop.getProperty("MYSQL_PASSWORD");
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-
 
 
 		try {
@@ -66,6 +69,7 @@ public class DataSource {
 		}
 		return connection;
 	}
+
 
 
 

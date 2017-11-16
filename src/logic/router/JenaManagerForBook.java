@@ -1,13 +1,13 @@
 package logic.router;
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -55,7 +55,7 @@ public class JenaManagerForBook implements JenaManager{
 
 		String queryBook = prefix+"\n"
 
-				+"SELECT DISTINCT ?item ?itemLabel  ?auteurLabel ?placeLabel (SAMPLE(?coord) AS ?_coord) (SAMPLE(?linkcount) AS ?link_count) (SAMPLE(?connection) AS ?conn) ?genreLabel (SAMPLE(?image) AS ?img) WHERE {"+"\n"
+				+"SELECT DISTINCT ?item ?itemLabel  ?auteurLabel ?placeLabel (SAMPLE(?coord) AS ?_coord) (SAMPLE(?linkcount) AS ?link_count) (SAMPLE(?connection) AS ?conn) ?genreLabel (SAMPLE(?image) AS ?img) ?ISBN_13 WHERE {"+"\n"
 				+"{?item wdt:P31 wd:Q571 .} UNION {?item wdt:P31 wd:Q7725634}."+"\n"
 				+"?item wdt:P136 ?genre ."+"\n"
 				+"OPTIONAL {  ?item wdt:P18 ?image . } "+"\n"
@@ -71,10 +71,10 @@ public class JenaManagerForBook implements JenaManager{
 				+"}"+"\n"
 
 	  			+"OPTIONAL{ ?item wdt:P953 ?connection . }"+"\n"
-
+	  			+"?item wdt:P212 ?ISBN_13."+"\n"
 
 				+"}"+"\n"
-				+"GROUP BY ?item ?itemLabel ?auteurLabel ?placeLabel ?genreLabel"+"\n"
+				+"GROUP BY ?item ?itemLabel ?auteurLabel ?placeLabel ?genreLabel ?ISBN_13"+"\n"
 				+"ORDER BY DESC(?link_count)";
 
 		QueryExecution queryExecution = QueryExecutionFactory.sparqlService(ontology_serviceBook,
@@ -89,36 +89,39 @@ public class JenaManagerForBook implements JenaManager{
 		String key = null;
 		String secret = null;
 
-		InputStream inputStream = 
-				JenaManagerForBook.class.getClassLoader().getResourceAsStream("config.txt");
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
 
-		String sCurrentLine;
+		Properties prop = new Properties();
+		InputStream input = null;
 
 		try {
-			while ((sCurrentLine = bufferedReader.readLine()) != null) {
-				if (sCurrentLine.contains("FLICKR_KEY"))	{
-					key =  sCurrentLine.split("FLICKR_KEY=")[1];
-				}
-				if (sCurrentLine.contains("FLICKR_SECRET"))	{
-					secret =  sCurrentLine.split("FLICKR_SECRET=")[1];
-				}
 
+
+
+			prop.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			key = prop.getProperty("FLICKR_KEY");
+			secret = prop.getProperty("FLICKR_SECRET");
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
+//		ResultSetFormatter.out(System.out, results);
+
+
 		while (results.hasNext()) {
-			
+
 			QuerySolution solution = results.next();
-			
-			
 
-			Book obj = new Book();
-
-			
 
 			String point = solution.get("_coord").toString().split("\\^")[0].split("\\(")[1].split("\\)")[0];
 			String lat_s = point.split(" ")[1];
@@ -127,8 +130,20 @@ public class JenaManagerForBook implements JenaManager{
 			String autor = solution.get("auteurLabel").toString().split("\\@")[0];
 			String label = solution.get("itemLabel").toString().split("\\@")[0];
 			String genre = solution.get("genreLabel").toString().split("\\@")[0];
+			int popularity = Integer.parseInt(solution.get("link_count").toString().split("\\^")[0]);
+			String isbn = solution.get("ISBN_13").toString().replace("-", "");
+			System.out.println(isbn);
+
+			Book obj = new Book(popularity);
 
 			Flickr flickr = new Flickr(key, secret, new REST());
+
+			if (solution.get("img")!=null)	{
+				String img = solution.get("img").toString();
+				obj.setImage(img);
+			}
+
+			obj.setISBN(isbn);
 
 			label = label.replace("\\\"","");
 			autor = autor.replace("\\\"","");
@@ -139,18 +154,15 @@ public class JenaManagerForBook implements JenaManager{
 			obj.setId(id);
 			obj.setCreator(autor);
 			obj.getGenres().add(genre);
+			obj.setPopularity(popularity);
 
-			if (solution.get("conn")!=null)	{
+			if(solution.get("conn")!=null)	{
 				String link = solution.get("conn").toString();
 				obj.setExternalLink(link);
-
 			}
 
-			if (solution.get("img")!=null)	{
-				String img = solution.get("img").toString();
-				obj.setImage(img);
 
-			}
+
 
 			String[] tags=new String[]{label,"book",autor};
 
@@ -169,12 +181,12 @@ public class JenaManagerForBook implements JenaManager{
 
 			PhotoList<Photo> list = new PhotoList<>();
 
-			try {
-				list = flickr.getPhotosInterface().search(searchParams, 10, 1);
-			} catch (FlickrException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				list = flickr.getPhotosInterface().search(searchParams, 10, 1);
+//			} catch (FlickrException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
 			if (obj.getImage()==null)
 				if (!list.isEmpty()) {
@@ -190,19 +202,25 @@ public class JenaManagerForBook implements JenaManager{
 
 			}
 
+
 		}
 
 		return bookResult;
 
 	}
-	
+
 	public static void main(String[] args) {
 
 		List<String> cat = new ArrayList<>();
-		
-		cat.add("3");
 
-//		JenaManagerForBook.retriveNodes(41.89, 12.49, 0.1);
+		cat.add("3");
+		JenaManagerForBook jBook = new JenaManagerForBook();
+
+		Map<Long, Object> userBooks = jBook.retriveNodes(41.89, 12.49, 0.1);
+
+		Book book =  (Book) Book.weightedChoice(userBooks);
+
+		System.out.println(book.getImage());
 	}
 
 

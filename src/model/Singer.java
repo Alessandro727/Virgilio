@@ -11,14 +11,14 @@ public class Singer extends Object{
 	private String name;
 	private List<String> song;
 	private String externalLink;
-	private int playCount;
+	private int popularity;
 	private String image;
 	private List<String> genres;
 	
-	public Singer()	{
+	public Singer(int popularity)	{
+		super(popularity);
 		this.song = new ArrayList<>();
 		this.setGenres(new ArrayList<>());
-		
 	}
 
 	public long getId() {
@@ -69,12 +69,12 @@ public class Singer extends Object{
 		this.externalLink = externalLink;
 	}
 
-	public int getPlayCount() {
-		return playCount;
+	public int getPopularity() {
+		return popularity;
 	}
 
-	public void setPlayCount(int playCount) {
-		this.playCount = playCount;
+	public void setPopularity(int playCount) {
+		this.popularity = playCount;
 	}
 
 	public String getImage() {
@@ -92,7 +92,6 @@ public class Singer extends Object{
 	public void setGenres(List<String> genres) {
 		this.genres = genres;
 	}
-
-
 	
+
 }

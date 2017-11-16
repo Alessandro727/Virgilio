@@ -34,5 +34,5 @@ buildNumber.properties
 /bin/
 /bin/
 /bin/
-config.txt
+config.properties
 .tern-project

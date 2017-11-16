@@ -6,7 +6,7 @@ import model.Venue;
 
 public class Node implements Comparable<Node> {
 	
-	private Long id;
+	private long id;
 	private Venue venue;
 	private ArrayList<Edge> outGoingEdges = new ArrayList<Edge>();
 	private Integer distance;
@@ -27,7 +27,7 @@ public class Node implements Comparable<Node> {
 	
 	
 	
-	public Long getId() {
+	public long getId() {
 		return this.id;
 	}
 	

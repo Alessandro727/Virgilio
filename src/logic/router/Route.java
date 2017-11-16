@@ -69,10 +69,10 @@ public class Route {
 	}
 	
 	
-	public boolean containsId(Long long1) {
+	public boolean containsId(long long1) {
 		boolean contains = false;
 		for(Node n: route)
-			if (n.getId() == long1) {
+			if (n.getId()==long1) {
 				contains = true;
 				break;
 			}

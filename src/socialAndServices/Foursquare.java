@@ -1,15 +1,15 @@
 package socialAndServices;
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 
 import model.Venue;
 import postgres.DataSource;
@@ -31,25 +31,29 @@ public class Foursquare {
 		String id = null;
 		String secret =null;
 		
-		InputStream inputStream = 
-				Foursquare.class.getClassLoader().getResourceAsStream("config.txt");
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
-
-		String sCurrentLine;
+		Properties prop = new Properties();
+		InputStream input = null;
 
 		try {
-			while ((sCurrentLine = bufferedReader.readLine()) != null) {
-				if (sCurrentLine.contains("FQ_ID"))	{
-					id =  sCurrentLine.split("FQ_ID=")[1];
-				}
-				if (sCurrentLine.contains("FQ_SECRET"))	{
-					secret =  sCurrentLine.split("FQ_SECRET=")[1];
-				}
 
+			
+
+			prop.load(Foursquare.class.getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			id = prop.getProperty("FQ_ID");
+			secret = prop.getProperty("FQ_SECRET");
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 		

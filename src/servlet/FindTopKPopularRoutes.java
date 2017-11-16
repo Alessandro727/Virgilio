@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-
 import logic.router.Route;
 import logic.router.Router_Default;
 import logic.router.Graph;
@@ -115,7 +114,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			venuesInTheSquare = new ArrayList<Venue>();
 			venuesInTheSquare.add(startVenue);
 			venuesInTheSquare.add(endVenue);
-			
+
 			boolean food = false;
 
 			if (categories.contains("6"))	
@@ -138,47 +137,76 @@ public class FindTopKPopularRoutes extends HttpServlet {
 				}
 			}
 
+
+
+			try {
+				venuesInTheSquare = JenaManagerForPlace.retriveNodes(lat, lng, 0.1, categories);
+			} catch (PersistenceException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+//			
+//			List<Venue> venuesInTheSquare2 = venuesInTheSquare;
+			
+			System.out.println("FINALVENUELIST =  "+venuesInTheSquare.size());
 			
 
-			venuesInTheSquare = JenaManagerForPlace.retriveNodes(lat, lng, 0.1, categories);
-			
 			JenaManagerForBook jBook = new JenaManagerForBook();
 			JenaManagerForMovies jMovies = new JenaManagerForMovies();
 			JenaManagerForTraks jTrack = new JenaManagerForTraks();
 			
-			Map<Long, Object> userBooks = jBook.retriveNodes(lat, lng, 0.1);
-			Map<Long, Object> userMovies = jMovies.retriveNodes(lat, lng, 0.1);
-			Map<Long, Object> userTracks = jTrack.retriveNodes(lat, lng, 0.1);
+			Map<Long, Object> userBooks = new HashMap<Long, Object>();
+			Map<Long, Object> userMovies = new HashMap<Long, Object>();
+			Map<Long, Object> userTracks = new HashMap<Long, Object>();
+
+			userBooks = jBook.retriveNodes(lat, lng, 0.1);
+			userMovies = jMovies.retriveNodes(lat, lng, 0.1);
+			userTracks = jTrack.retriveNodes(lat, lng, 0.1);
 			
 			Book book =  (Book) Book.weightedChoice(userBooks);
 			Movie movie = (Movie) Movie.weightedChoice(userMovies);
 			Singer singer = (Singer) Singer.weightedChoice(userTracks);
 			
+			String bookImage = book.getImage();
+			String linkBook = book.getISBN();
+		
+		
 			request.setAttribute("book", book);
+			request.setAttribute("bookImage", bookImage);
+			session.setAttribute("linkBook", linkBook);
 			request.setAttribute("movie",movie);
 			request.setAttribute("singer", singer);
-			
-			
+
+
 			List<Venue> newVenues = new ArrayList<>();
 			List<Venue> popularVenues = new ArrayList<>();
 			List<Venue> venuesOfSimilarUsers = new ArrayList<>();
 			List<Venue> venuesOfExpertUsers = new ArrayList<>();
-			
+
 			List<Venue> finalVenuesList = new ArrayList<>();
-			
+
 			try {
 				newVenues = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
+				
 				popularVenues = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
+				
+				System.out.println("most visited checkins = "+popularVenues.size());
+				
 				venuesOfSimilarUsers = VenuePostgres.venuesVisitedFromSimilarUsers(venuesInTheSquare, similarUsers);
+				
+				System.out.println("venue visited from similar user = "+venuesOfSimilarUsers.size());
+				
 				venuesOfExpertUsers = VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
 				
+				System.out.println("venue expert users = "+venuesOfExpertUsers.size());
+
 			} catch (PersistenceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 			int k = 0;
-			
+
 			for (Venue venue : popularVenues) {
 				if (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue))	{
 					finalVenuesList.add(venue);
@@ -186,51 +214,81 @@ public class FindTopKPopularRoutes extends HttpServlet {
 				}
 			}
 			
-			for (int f = k; f<10; f++)	{
-				finalVenuesList.add(newVenues.get(f-k));
+			if(finalVenuesList.size()<15)	{
+				for (int q =0; q<10 && q<popularVenues.size() && q<venuesOfSimilarUsers.size() && q<venuesOfExpertUsers.size(); q++)	{
+					finalVenuesList.add(popularVenues.get(q));
+					finalVenuesList.add(venuesOfSimilarUsers.get(q));
+					finalVenuesList.add(venuesOfExpertUsers.get(q));
+				}
 			}
 			
-//			List<Venue> venuesInTheSquareTemp = venuesInTheSquare;
-
-//			try {
-//				venuesInTheSquareTemp = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
-//				venuesInTheSquare = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
-//				if (venuesInTheSquareTemp.size()>10)	{
-//					for (int i=0; i<venuesInTheSquareTemp.size();i++)	{
-//						venuesInTheSquare.add(0, venuesInTheSquareTemp.get(i));
-//						if (i==10)
-//							break;
-//					}
-//				}
-//				venuesInTheSquareTemp = VenuePostgres.venuesVisitedFromSimilarUsers(venuesInTheSquare, similarUsers);
-//				int cont = 0;
-//				for (Venue venue : venuesInTheSquareTemp) {
-//					if (!venuesInTheSquare.contains(venue))	{
-//						venuesInTheSquare.add(0,venue);
-//						cont++;
-//					}
-//					if (cont == 10)
-//						break;
-//				}
-//
-//				venuesInTheSquareTemp = 	VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
-//				cont = 0;
-//				for (Venue venue : venuesInTheSquareTemp) {
-//					if (!venuesInTheSquare.contains(venue))	{
-//						venuesInTheSquare.add(0,venue);
-//						cont++;
-//					}
-//					if (cont == 10)
-//						break;
-//				}
-//
-//
-//			} catch (PersistenceException e) {
-//				e.printStackTrace();
-//			}
-
 			
 			
+			
+			if (maxWayPoints*5-k>5)	{
+				for (int f = k; f<maxWayPoints*5; f++)	{
+					if (newVenues.size()<=f-k)	{
+						break;
+					}
+					finalVenuesList.add(newVenues.get(f-k));
+				}
+			}
+			else	 {
+				for (int h = 0; h<maxWayPoints*5-finalVenuesList.size(); h++)	{
+					if (newVenues.size()<=h)	{
+						break;
+					}
+						
+					finalVenuesList.add(newVenues.get(h));
+				}
+			}
+			
+			System.out.println("FINALVENUELIST =  "+finalVenuesList.size());
+			System.out.println(maxWayPoints);
+			System.out.println(venuesInTheSquare.size());
+			
+
+			//			List<Venue> venuesInTheSquareTemp = venuesInTheSquare;
+
+			//			try {
+			//				venuesInTheSquareTemp = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
+			//				venuesInTheSquare = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
+			//				if (venuesInTheSquareTemp.size()>10)	{
+			//					for (int i=0; i<venuesInTheSquareTemp.size();i++)	{
+			//						venuesInTheSquare.add(0, venuesInTheSquareTemp.get(i));
+			//						if (i==10)
+			//							break;
+			//					}
+			//				}
+			//				venuesInTheSquareTemp = VenuePostgres.venuesVisitedFromSimilarUsers(venuesInTheSquare, similarUsers);
+			//				int cont = 0;
+			//				for (Venue venue : venuesInTheSquareTemp) {
+			//					if (!venuesInTheSquare.contains(venue))	{
+			//						venuesInTheSquare.add(0,venue);
+			//						cont++;
+			//					}
+			//					if (cont == 10)
+			//						break;
+			//				}
+			//
+			//				venuesInTheSquareTemp = 	VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
+			//				cont = 0;
+			//				for (Venue venue : venuesInTheSquareTemp) {
+			//					if (!venuesInTheSquare.contains(venue))	{
+			//						venuesInTheSquare.add(0,venue);
+			//						cont++;
+			//					}
+			//					if (cont == 10)
+			//						break;
+			//				}
+			//
+			//
+			//			} catch (PersistenceException e) {
+			//				e.printStackTrace();
+			//			}
+
+
+
 
 
 			// TODO Scrematura venues in the square
@@ -240,15 +298,20 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			//			LatLngSquare llSquare = new LatLngSquare(venuesInTheSquare);
 			//			VenueSearcher searcher = new VenueSearcher(llSquare, scenario);
 			//			venuesInTheSquare = searcher.getVenuesWithContextAndCategories(30, categories);
-			venuesInTheSquare.add(0, startVenue);
-			venuesInTheSquare.add(endVenue);	
+			finalVenuesList.add(0, startVenue);
+			finalVenuesList.add(endVenue);	
 
-
-			for (Venue venue : venuesInTheSquare) {
+			
+			for (Venue venue : finalVenuesList) {
 				System.out.println(venue.getName_fq());
 			}
+			
+//			List<Venue> list = new ArrayList<>();
+//			for(int g =0; g<6;g++)	{
+//				list.add(finalVenuesList.get(g));
+//			}
 
-			topKroute = runDijkstraAlgorithm(venuesInTheSquare,
+			topKroute = runDijkstraAlgorithm(finalVenuesList,
 					mode,
 					availableTime,
 					maxWayPoints,
@@ -256,6 +319,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 					food,
 					google);
 			int size = topKroute.size();
+		
 			if (size >= 2) {
 				prossimaPagina = "/routes.jsp";
 				request.setAttribute("topKroute", topKroute);
@@ -404,8 +468,8 @@ public class FindTopKPopularRoutes extends HttpServlet {
 		return tupla;
 
 	}
-	
-	
+
+
 
 
 

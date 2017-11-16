@@ -1,10 +1,8 @@
 package logic.router;
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -15,7 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Properties;
 
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -33,6 +31,8 @@ import com.flickr4java.flickr.photos.SearchParameters;
 
 import model.MacroCategory;
 import model.Venue;
+import postgres.CheckinPostgres;
+import postgres.PersistenceException;
 
 public class JenaManagerForPlace {
 
@@ -46,9 +46,9 @@ public class JenaManagerForPlace {
 	//Attenzione luoghi all'aperto
 	private final static String foodCategory = "Restaurant, FastFood, Bbq, Pub, Bar, Cafe, Biergarten, IceCream, Brewery, Bakery, CoffeeShop, InternetCafe, Restaurant%3Bpub, TakeAway";
 	private final static String nightLifeCategory = "Pub, Cinema, Nightclub, Stripclub, Theatre, Brothel, Brewery, Casino, byNight, Dance, Bingo";
-	private final static String shopAndServiceCategory = "Marketplace, Brewery, CoffeeShop, Commercial, Florist, Hairdresser, Market, PublicMarket, Shop, Shopping, Shops, Supermarket, AlcoholShop, AnimeShop, ArtShop, Mall, Patisserie, ShoppingCenter, Souvenir";
-	private final static String outdoorsAndRecreationCategory = "AnimalShelter, Biergarten, FastFood, IceCream, BicycleRental, ArtsCentre, Campsite, Farm, Picknick, PicnicSite, ThemePark, Zoo, Viewpoint, ArchaeologicalSite, Castle, UNESCOWorldHeritage, LandusePark, Volcano, Glacier, Peak, Grassland, Tree, Wood, CaveEntrance, Beach, Cape, Crater, Fjord, Island, Hill, Island, NaturalWaterfall, ProtectedArea, featuresSport, DogPark, WaterPark, NatureReserve, Park, Garden";
-	private final static String athleticsAndSport = "Gym, Sport, SportsCentre, SwimmingPool, SportShop, Stadium";
+	private final static String shopAndServiceCategory = "Marketplace, Brewery, CoffeeShop, Commercial, Florist, Hairdresser, Market, PublicMarket, Shop, Shopping, Shops, Supermarket, AnimeShop, ArtShop, Mall, Patisserie, ShoppingCenter, Souvenir";
+	private final static String outdoorsAndRecreationCategory = "AnimalShelter, Biergarten, BicycleRental, Campsite, Farm, Picknick, PicnicSite, ThemePark, Zoo, Viewpoint, ArchaeologicalSite, Castle, UNESCOWorldHeritage, LandusePark, Volcano, Glacier, Peak, Grassland, Tree, Wood, CaveEntrance, Beach, Cape, Crater, Fjord, Island, Hill, Island, NaturalWaterfall, ProtectedArea, featuresSport, DogPark, WaterPark, NatureReserve, Park, Garden";
+	private final static String athleticsAndSport = "Gym, Sport, SportsCentre, SportShop, Stadium";
 
 	private final static String ontology_service =  "http://linkedgeodata.org/sparql";
 
@@ -63,10 +63,10 @@ public class JenaManagerForPlace {
 			+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n";
 
 
-	public static List<Venue> retriveNodes(double lat, double lon, double radius, List<String> categories) {
+	public static List<Venue> retriveNodes(double lat, double lon, double radius, List<String> categories) throws PersistenceException {
 
 
-		Set<String> categoriesSet = createCaretoriesSet(categories);
+		Set<String> categoriesSet = createCategoriesSet(categories);
 
 		double  lat1 = lat - radius,
 				lat2 = lat + radius,
@@ -144,25 +144,27 @@ public class JenaManagerForPlace {
 		String key = null;
 		String secret = null;
 
-		InputStream inputStream = 
-				JenaManagerForPlace.class.getClassLoader().getResourceAsStream("config.txt");
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
-
-		String sCurrentLine;
+		Properties prop = new Properties();
+		InputStream input = null;
 
 		try {
-			while ((sCurrentLine = bufferedReader.readLine()) != null) {
-				if (sCurrentLine.contains("FLICKR_KEY"))	{
-					key =  sCurrentLine.split("FLICKR_KEY=")[1];
-				}
-				if (sCurrentLine.contains("FLICKR_SECRET"))	{
-					secret =  sCurrentLine.split("FLICKR_SECRET=")[1];
-				}
+			
+			prop.load(JenaManagerForPlace.class.getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
 
+			key = prop.getProperty("FLICKR_KEY");
+			secret = prop.getProperty("FLICKR_SECRET");
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 		while (results.hasNext()) {
@@ -194,12 +196,12 @@ public class JenaManagerForPlace {
 
 			PhotoList<Photo> list = new PhotoList<>();
 
-			try {
-				list = flickr.getPhotosInterface().search(searchParams, 10, 1);
-			} catch (FlickrException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				list = flickr.getPhotosInterface().search(searchParams, 10, 1);
+//			} catch (FlickrException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
 
 			String link = getWikiPage(label);
@@ -234,9 +236,13 @@ public class JenaManagerForPlace {
 			if (!list.isEmpty()) {
 				obj.setMediaUrl(list.get(0).getLargeUrl());
 			}
+			
+			CheckinPostgres.getCheckinsNumbersByVenueId(obj);
 
 			logger.info("NAME FROM LINKED GEO DATA\t"+ label);
 			result.add(obj);
+			
+			
 
 
 		}
@@ -246,7 +252,7 @@ public class JenaManagerForPlace {
 
 
 
-	private static Set<String> createCaretoriesSet(List<String> categories) {
+	private static Set<String> createCategoriesSet(List<String> categories) {
 
 		List<String> userCategoriesLGD = new ArrayList<>();
 
@@ -316,13 +322,15 @@ public class JenaManagerForPlace {
 		return s;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws PersistenceException {
 
 		List<String> cat = new ArrayList<>();
 		
 		cat.add("3");
 
-		JenaManagerForPlace.retriveNodes(41.89, 12.49, 0.1, cat);
+		List<Venue> venues = JenaManagerForPlace.retriveNodes(41.89, 12.49, 0.1, cat);
+		
+		System.out.println(venues.size());
 	}
 
 

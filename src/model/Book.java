@@ -14,20 +14,23 @@ public class Book extends Object{
 	private String externalLink;
 	private int linkCount;
 	private String image;
+	private int popularity;
+	private String ISBN;
 	
 	
-	public Book()	{
+	public Book(int popularity)	{
+		super(popularity);
 		this.genres = new ArrayList<>();
 		
 	}
 	
-	public Book(long id, String latitude, String longitude, String name)	{
-		this.id = id;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.name = name;
-		
-	}
+//	public Book(long id, String latitude, String longitude, String name)	{
+//		this.id = id;
+//		this.latitude = latitude;
+//		this.longitude = longitude;
+//		this.name = name;
+//		
+//	}
 
 
 	public long getId() {
@@ -112,6 +115,22 @@ public class Book extends Object{
 
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+	public int getPopularity() {
+		return popularity;
+	}
+
+	public void setPopularity(int popularity) {
+		this.popularity = popularity;
+	}
+
+	public String getISBN() {
+		return ISBN;
+	}
+
+	public void setISBN(String iSBN) {
+		ISBN = iSBN;
 	}
 
 }

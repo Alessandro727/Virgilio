@@ -14,9 +14,11 @@ public class Movie extends Object{
 	private String externalLink;
 	private int linkCount;
 	private String image;
+	private int popularity;
 	
 	
-	public Movie()	{
+	public Movie(int popularity)	{
+		super(popularity);
 		this.genres = new ArrayList<>();
 	}
 	
@@ -74,6 +76,16 @@ public class Movie extends Object{
 	}
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+
+	public int getPopularity() {
+		return popularity;
+	}
+
+
+	public void setPopularity(int popularity) {
+		this.popularity = popularity;
 	}
 
 }

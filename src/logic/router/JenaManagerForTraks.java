@@ -1,12 +1,11 @@
 package logic.router;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import de.umass.lastfm.Artist;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
+import de.umass.lastfm.User;
 import model.Object;
 import model.Singer;
 
@@ -71,7 +71,7 @@ public class JenaManagerForTraks implements JenaManager{
 
 		while (results.hasNext()) {
 
-			Singer obj = new Singer();
+
 
 			QuerySolution solution = results.next();
 
@@ -84,65 +84,91 @@ public class JenaManagerForTraks implements JenaManager{
 
 			label = label.replace("\\\"","");
 
-			obj.setName(label);
-			obj.setLatitude(lat_s);	
-			obj.setLongitude(long_s);
-			obj.setId(id);
-
-			obj.getGenres().add(genre);
-			logger.info("NAME FROM LAST.FM AND WIKI DATA\t"+ label);
-
 			String key = null; //this is the key used in the Last.fm API 
 
-			InputStream inputStream = 
-					JenaManagerForTraks.class.getClassLoader().getResourceAsStream("config.txt");
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
-
-			String sCurrentLine;
+			Properties prop = new Properties();
+			InputStream input = null;
 
 			try {
-				while ((sCurrentLine = bufferedReader.readLine()) != null) {
-					if (sCurrentLine.contains("LAST.FM_KEY"))	{
-						key =  sCurrentLine.split("LAST.FM_KEY=")[1];
+
+
+
+				prop.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
+				// get the property value and print it out
+
+				key = prop.getProperty("LAST.FM_KEY");
+
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} finally {
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+			Collection<User> fan = Artist.getTopFans(label, key);
+
+			
+
+				Singer obj = new Singer(fan.size());
+
+				obj.setName(label);
+				obj.setLatitude(lat_s);	
+				obj.setLongitude(long_s);
+				obj.setId(id);
+				obj.getGenres().add(genre);
+				logger.info("NAME FROM LAST.FM AND WIKI DATA\t"+ label);
+
+
+
+
+
+				if (!singerResult.containsKey(id))	{
+
+
+					Collection<Track> topTracks = Artist.getTopTracks(label, key);
+
+					System.out.println("Top Tracks for "+label+":");
+
+
+					for (Track track : topTracks) {
+
+						System.out.println(track.getName());
+
+						obj.getSong().add(track.getName()); 
+						obj.setPopularity(track.getPlaycount()); 
+						obj.setExternalLink(track.getUrl()); 
+						obj.setImage(track.getImageURL(ImageSize.LARGE));
 					}
 
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-
-
-			if (!singerResult.containsKey(id))	{
-
-
-				Collection<Track> topTracks = Artist.getTopTracks(label, key);
-				System.out.println("Top Tracks for "+label+":");
-
-
-				for (Track track : topTracks) {
-
-					System.out.println(track.getName());
-
-					obj.getSong().add(track.getName()); 
-					obj.setPlayCount(track.getPlaycount()); 
-					obj.setExternalLink(track.getUrl()); 
-					obj.setImage(track.getImageURL(ImageSize.LARGE));
+					singerResult.put(id, obj);
 				}
 
-				singerResult.put(id, obj);
-			}
+				else {
+					((Singer) singerResult.get(id)).getGenres().add(genre);
 
-			else {
-				((Singer) singerResult.get(id)).getGenres().add(genre);
-
-			}
-
+				}
+			
 		}
 
 		return singerResult;
 
+	}
+	
+	public static void main(String[] args)	{
+		
+		JenaManagerForTraks jTraks = new JenaManagerForTraks();
+		
+		Map<Long, Object> userTracks = jTraks.retriveNodes(41.89, 12.49, 0.1);
+		
+		Singer singer = (Singer) Singer.weightedChoice(userTracks);
+		
+		System.out.println(singer.getPopularity());
+		
 	}
 
 }

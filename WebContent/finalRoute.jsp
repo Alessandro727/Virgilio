@@ -1,7 +1,7 @@
 <%@ page import="java.util.*"%>
 <%@ page import="model.Venue"%>
 <%@ page import="logic.router.Route"%>
-
+<%@ page import="model.Book"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -16,6 +16,7 @@
 	Venue startVenue = topKroute.get(0).getNode(0).getVenue();
 	Venue endVenue = topKroute.get(0).getNode(topKroute.get(0).getSize()-1).getVenue();
 	String mode = (String)request.getAttribute("mode");
+	//String link = (String) request.getAttribute("linkBook");
 	%>
 
 <!-- script for Google Maps API -->
@@ -23,8 +24,42 @@
 <!--  <script
 	src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&language=en&key=AIzaSyCM4ZZEHZuIsF-LfxbooRXcsA487D269cc"></script>
 <!-- script for map construction -->
+<body>
+
+	<div>
+		<jsp:include page="menu.jsp" />
+	</div>
+	<br />
+	<table>
+		<tr>
+			<td><div id="googleMap"
+					style="width: 800px; height: 700px; position: relative; top: 0; overflow: hidden;"></div></td>
+			<td>
+				<div id="summaryPanel"></div>
+			</td>
 
 
+
+		</tr>
+	</table>
+	<br />
+	<div></div>
+				<p>Potresti essere interessato al seguente libro. &Egrave;
+					ambientato nel posto che stai visitando.</p>
+	<table>
+		<tr>
+			<td>
+				
+				<div></div>
+				<div id="bookImage" class="message">
+					<img src="" id="image" />
+				</div>
+			</td>
+		</tr>
+	</table>
+
+
+</body>
 <script
 	src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&language=en&key=AIzaSyCM4ZZEHZuIsF-LfxbooRXcsA487D269cc"></script>
 
@@ -84,7 +119,7 @@
 			
 			// Map visualization options
 			var mapOptions = {
-					mapTypeId: google.maps.MapTypeId.ROADMAP,	//displays a normal street map (sennò c'è HYBRID, SATELLITE, o TERRAIN')
+					mapTypeId: google.maps.MapTypeId.ROADMAP,	//displays a normal street map (sennï¿½ c'ï¿½ HYBRID, SATELLITE, o TERRAIN')
 					mapTypeControl: false
 			};
 			
@@ -171,6 +206,7 @@
 				summaryPanel += Math.floor(totTime/3660) + ' h ';
 				summaryPanel += Math.floor((totTime/60)%60) + ' min<br>';
 				document.getElementById('summaryPanel').innerHTML = summaryPanel;
+				
 			}
 			else {
 				alert("Problema nella ricerca del percorso: " + status);
@@ -181,26 +217,23 @@
 		
 		google.maps.event.addDomListener(window, 'load', initialize);	// equivale a scrivere <body onload="initialize()">
 		
+		
 
+		function linker()   {
+				console.log(<%=(String)session.getAttribute("linkBook")%>)
+				var test = <%=(String)session.getAttribute("linkBook")%>
+		        var text = ''
+		        text += 'http://covers.openlibrary.org/b/isbn/'
+		        text += <%=(String)session.getAttribute("linkBook")%>;
+		        console.log(test.parameter)
+		        text += '-L.jpg'
+		        document.getElementById('image').src = text;
+		}
+
+		linker()
 		
 	</script>
 
 </head>
-<body>
 
-	<div>
-		<jsp:include page="menu.jsp" />
-	</div>
-	<br />
-		<table>
-			<tr>
-				<td><div id="googleMap"
-						style="width: 800px; height: 700px; position: relative; top: 0; overflow: hidden;"></div></td>
-				<td>
-					<div id="summaryPanel"></div>
-				</td>
-			</tr>
-		</table>
-
-</body>
 </html>

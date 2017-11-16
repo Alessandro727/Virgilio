@@ -1,12 +1,12 @@
 package socialAndServices;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Properties;
 
 import model.Venue;
 
@@ -23,22 +23,27 @@ public class Google {
 	public Google() {
 		String key = null; //this is the key used in the Google API 
 
-		InputStream inputStream = 
-				getClass().getClassLoader().getResourceAsStream("config.txt");
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
-
-		String sCurrentLine;
+		Properties prop = new Properties();
+		InputStream input = null;
 
 		try {
-			while ((sCurrentLine = bufferedReader.readLine()) != null) {
-				if (sCurrentLine.contains("GOOGLE_KEY_1"))	{
-					key =  sCurrentLine.split("GOOGLE_KEY_1=")[1];
-				}
 
+			prop.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			key = prop.getProperty("GOOGLE_KEY_1");
+			
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 		this.key = key;
@@ -53,25 +58,27 @@ public class Google {
 		String key_1 = null; //this is the key used in the Google API 
 		String key_2 = null;
 
-		InputStream inputStream = 
-				getClass().getClassLoader().getResourceAsStream("config.txt");
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
-
-		String sCurrentLine;
+		Properties prop = new Properties();
+		InputStream input = null;
 
 		try {
-			while ((sCurrentLine = bufferedReader.readLine()) != null) {
-				if (sCurrentLine.contains("GOOGLE_KEY_1"))	{
-					key_1 =  sCurrentLine.split("GOOGLE_KEY_1=")[1];
-				}
-				if (sCurrentLine.contains("GOOGLE_KEY_2"))	{
-					key_2 =  sCurrentLine.split("GOOGLE_KEY_2=")[1];
-				}
 
+			prop.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			key_1 = prop.getProperty("GOOGLE_KEY_1");
+			key_2 = prop.getProperty("GOOGLE_KEY_2");
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		if (this.getKey().equals(key_1))
 			this.key = key_2;

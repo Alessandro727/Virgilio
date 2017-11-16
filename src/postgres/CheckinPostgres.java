@@ -685,6 +685,8 @@ public class CheckinPostgres {
 			}
 		}
 		
+		System.out.println("Dimesione MAPPA luoghi più visitati = "+checkinsPerVenue.size());
+		
 		checkinsPerVenue = Utilities.sortByValue(checkinsPerVenue);
 		
 		return new ArrayList<>(checkinsPerVenue.keySet());

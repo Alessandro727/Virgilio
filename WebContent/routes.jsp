@@ -17,14 +17,104 @@
 	Venue endVenue = topKroute.get(0).getNode(topKroute.get(0).getSize()-1).getVenue();
 	String mode = (String)request.getAttribute("mode");
 	%>
+	
+	<script src="jquery-3.2.1.min.js"></script>
+	
+<style>
+html {
+	height: 100%
+}
 
+body {
+	height: 100%;
+	margin: 100%;
+	padding: -100%
+}
+
+#container {
+	width: 100%;
+	height: 100%;
+	top: 50px;
+}
+
+#googleMap {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+}
+
+#form {
+	position: absolute;
+	z-index: 90;
+	width: 456px;
+	height: 50%;
+	left: 40px;
+	top: 50px;
+	left: 50px;
+	}
+
+#background {
+	position: absolute;
+	z-index: 90;
+	width: 456px;
+	height: 100%;
+	top: 54px; background-color : #F7F7F7;
+	opacity: 0.5;
+	background-color: #F7F7F7;
+}
+
+
+</style>
 <!-- script for Google Maps API -->
 <!-- sensor=true for using gps sensor on PC -->
 <!--  <script
 	src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&language=en&key=AIzaSyCM4ZZEHZuIsF-LfxbooRXcsA487D269cc"></script>
 <!-- script for map construction -->
 
+</head>
+<body id="body">
 
+	<div>
+		<jsp:include page="menu.jsp" />
+	</div>
+	<div id="container">
+
+
+		<div id="background"></div>
+		<form id="form" action="Routes" method="post" action="/routes.jsp">
+			<p></p>
+			<p></p>
+			<p></p>
+			<p></p>
+			<p></p>
+			<p></p>
+			<table id="table">
+				<tr>
+
+					<td>
+						<div>
+							<select id="ddlRoutes" name="ddlRoutes" onchange="ddlChanged()"></select>
+						</div> <br />
+						<div id="summaryPanel"></div>
+					</td>
+				</tr>
+			</table>
+			<p></p>
+			<p></p>
+			<p></p>
+			<p></p>
+			<p></p>
+			<p></p>
+			<table>
+				<tr>
+					<td colspan="2"><input id="btnSearch" type="submit"
+						value="Choose the route"></td>
+				</tr>
+			</table>
+		</form>
+		<div id="googleMap"></div>
+	</div>
+</body>
 <script
 	src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&language=en&key=AIzaSyCM4ZZEHZuIsF-LfxbooRXcsA487D269cc"></script>
 
@@ -181,6 +271,13 @@
 			else {
 				alert("Problema nella ricerca del percorso: " + status);
 			}
+
+			var result = $("#table").height();
+			$("#body").height(result);
+			$("#form").height(result);
+			$("#background").height(result);
+			$("#googleMap").height(result);
+			
 			
 		}
 				
@@ -192,36 +289,10 @@
 			var k = document.getElementById("ddlRoutes").selectedIndex;
 			calcRoute(k);			
 		}
+
+		
 		
 	</script>
 
-</head>
-<body>
 
-	<div>
-		<jsp:include page="menu.jsp" />
-	</div>
-	<br />
-	<form action="Routes" method="post" action="/routes.jsp">
-		<table>
-			<tr>
-				<td><div id="googleMap"
-						style="width: 800px; height: 700px; position: relative; top: 0; overflow: hidden;"></div></td>
-				<td>
-					<div>
-						<select id="ddlRoutes" name="ddlRoutes" onchange="ddlChanged()"></select>
-					</div> <br />
-					<div id="summaryPanel"></div>
-				</td>
-			</tr>
-		</table>
-	
-		<table>
-			<tr>
-				<td colspan="2"><input id="btnSearch" type="submit"
-					value="Choose the route"></td>
-			</tr>
-		</table>
-	</form>
-</body>
 </html>

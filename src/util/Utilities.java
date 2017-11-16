@@ -1,6 +1,5 @@
 package util;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.json.JSONException;
@@ -57,27 +57,30 @@ public class Utilities {
         String clientID = null;
         String clientSecret = null;
 
-        InputStream inputStream = 
-				Utilities.class.getClassLoader().getResourceAsStream("config.txt");
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
-
-		String sCurrentLine;
+        Properties prop = new Properties();
+		InputStream input = null;
 
 		try {
-			while ((sCurrentLine = bufferedReader.readLine()) != null) {
-				if (sCurrentLine.contains("FQ_CLIENT_ID"))	{
-					clientID =  sCurrentLine.split("FQ_CLIENT_ID=")[1];
-				}
-				if (sCurrentLine.contains("FQ_CLIENT_SECRET"))	{
-					clientSecret =  sCurrentLine.split("FQ_CLIENT_SECRET=")[1];
-				}
 
+		
+
+			prop.load(Utilities.class.getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			clientID = prop.getProperty("FQ_CLIENT_ID");
+			clientSecret = prop.getProperty("FQ_CLIENT_SECRET");
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-
         
         try {        	
         	url = "https://api.foursquare.com/v2/venues/"
@@ -177,23 +180,28 @@ public class Utilities {
 		
 		String owmKey = null;
 
-		InputStream inputStream = 
-				Utilities.class.getClassLoader().getResourceAsStream("config.txt");
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream ));
-
-		String sCurrentLine;
+		Properties prop = new Properties();
+		InputStream input = null;
 
 		try {
-			while ((sCurrentLine = bufferedReader.readLine()) != null) {
-				if (sCurrentLine.contains("OWM_KEY"))	{
-					owmKey =  sCurrentLine.split("OWM_KEY=")[1];
-				}
-				
 
+
+			prop.load(Utilities.class.getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			owmKey = prop.getProperty("OWM_KEY");
+			
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		OpenWeatherMap opw = new OpenWeatherMap(owmKey);
@@ -205,7 +213,7 @@ public class Utilities {
 			HourlyForecast fwd = opw.hourlyForecastByCoordinates(Float.valueOf(v.getLatitude()), Float.valueOf(v.getLongitude()));
 			System.out.println(fwd.getForecastCount());
 			Weather w;
-			for (int i=1; i<=limit; i++) {
+			for (int i=1; i<=limit && i<=fwd.getForecastCount(); i++) {
 				w = fwd.getForecastInstance(i).getWeatherInstance(0);
 				System.out.println(w.getWeatherCode() + " " + w.getWeatherName() + " " + w.getWeatherDescription());
 				switch(w.getWeatherCode()) {

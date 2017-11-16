@@ -33,7 +33,7 @@ public class JenaManagerForMovies implements JenaManager{
 
 	private final static String ontology_serviceMovie =  "https://query.wikidata.org/sparql";
 
-	
+
 	public Map<Long, Object> retriveNodes(double lat, double lon, double radius)	{
 
 
@@ -79,7 +79,6 @@ public class JenaManagerForMovies implements JenaManager{
 
 		while (results.hasNext()) {
 
-			Movie obj = new Movie();
 
 			QuerySolution solution = results.next();
 
@@ -91,46 +90,50 @@ public class JenaManagerForMovies implements JenaManager{
 			String label = solution.get("itemLabel").toString().split("\\@")[0];
 			String genre = solution.get("genreLabel").toString().split("\\@")[0];
 			String director = solution.get("registaLabel").toString().split("\\@")[0];
+			int popularity = Integer.parseInt(solution.get("link_count").toString().split("\\^")[0]);
+
+			Movie obj = new Movie(popularity);
 
 			if (solution.get("img")!=null)	{
 				String image = solution.get("img").toString();
 				obj.setImage(image);
+
+
+				label = label.replace("\\\"","");
+
+				obj.setName(label);
+				obj.setLatitude(lat_s);	
+				obj.setLongitude(long_s);
+				obj.setId(id);
+				obj.setDirector(director);
+				obj.getGenres().add(genre);
+				obj.setPopularity(popularity);
+
+				String link = null;
+
+				if (solution.get("officialWebsite")!=null)	{
+					link = solution.get("officialWebsite").toString();
+				}
+				else	{
+					link = solution.get("id_IMDb").toString();
+					link = "https://tools.wmflabs.org/wikidata-externalid-url/?p=345&url_prefix=http://www.imdb.com/&id="+link;
+				}
+
+				obj.setExternalLink(link);
+
+				if (!movieResult.containsKey(id))	{
+					//this is the key used in the Last.fm API examples
+
+					movieResult.put(id, obj);
+				}
+
+				else {
+					((Movie) movieResult.get(id)).getGenres().add(genre);
+
+				}
+
+				logger.info("NAME FROM IMDb AND WIKI DATA\t"+ label);
 			}
-
-			label = label.replace("\\\"","");
-
-			obj.setName(label);
-			obj.setLatitude(lat_s);	
-			obj.setLongitude(long_s);
-			obj.setId(id);
-			obj.setDirector(director);
-			obj.getGenres().add(genre);
-
-
-			String link = null;
-
-			if (solution.get("officialWebsite")!=null)	{
-				link = solution.get("officialWebsite").toString();
-			}
-			else	{
-				link = solution.get("id_IMDb").toString();
-				link = "https://tools.wmflabs.org/wikidata-externalid-url/?p=345&url_prefix=http://www.imdb.com/&id="+link;
-			}
-
-			obj.setExternalLink(link);
-
-			if (!movieResult.containsKey(id))	{
-				//this is the key used in the Last.fm API examples
-
-				movieResult.put(id, obj);
-			}
-
-			else {
-				((Movie) movieResult.get(id)).getGenres().add(genre);
-
-			}
-
-			logger.info("NAME FROM IMDb AND WIKI DATA\t"+ label);
 
 		}
 

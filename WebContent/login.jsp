@@ -1,47 +1,53 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<!DOCTYPE html>
+<html >
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Login</title>
-</head>
-<body>
+    <meta charset="UTF-8">
+    <title>Virgilio</title>
 
-	<jsp:include page="menu.jsp" />
-	
-	<br><br>
-	
-	<form action="Login" method="post">
-		<table style="border:2px solid #003399; border-collapse:separate; font-family:Calibri" cellpadding="5" cellspacing="0"  width="260px">
-			<tr style="padding-bottom:10px">
-				<th colspan="2" align="left" bgcolor="#3366CC" style="font-size:30px; color:white">&nbsp;&nbsp;&nbsp;Log in</th>
-			</tr>
-			<tr>
-				<td align="right">Username:</td>
-				<td style="padding-top:15px" width="60%"><input id="txtUsername" name="txtUsername" type="text" /> </td>
-			</tr>
-			<tr>
-				<td align="right">Password:</td>
-				<td><input id="txtPassword" name="txtPassword" type="password" /></td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-				<td><input id="btnLogin" name="btnLogin" value="Login" type="submit" /></td>
-			</tr>
-			<tr>
-				<td colspan="2"><hr style="border:1px solid #3366CC"></td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-				<td style="padding-bottom:10px"><input id="btnLogin" name="btnLogin" value="Login as a guest" type="submit" /></td>
-			</tr>
-		</table>
-		
-		<br/>
-		<% if (request.getAttribute("error") != null) { %>
-		<div><span style="color:red"><%= request.getAttribute("error") %></span></div>
-		<% } %>
-	</form>
+
+
+    <link rel="stylesheet" href="css/style.css">
+
+
+</head>
+
+<body background="background.jpg">
+<hgroup>
+    <h1>Virgilio</h1>
+    <h3>By Alessandro Fogli</h3>
+</hgroup>
+<form action="Login" method="post">
+    <div class="group">
+        <input id="txtUsername" name="txtUsername" type="text" /><span class="highlight"></span><span class="bar"></span>
+        <label>Username</label>
+    </div>
+    <div class="group">
+        <input id="txtPassword" name="txtPassword" type="password" /><span class="highlight"></span><span class="bar"></span>
+        <label>Password</label>
+    </div>
+    <button id="btnLogin" name="btnLogin" value="Login" type="submit" class="button buttonBlue">Login
+        <div class="ripples buttonRipples"><span class="ripplesCircle"></span></div>
+    </button>
+    <button id="btnRegister" name="btnRegister" onclick="register()" class="button buttonBlue">Register
+        <div class="ripples buttonRipples"><span class="ripplesCircle"></span></div>
+    </button>
+
+
+
+</form>
+
+<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+<script  src="js/index.js"></script>
+
+<script>
+    function register() {
+        window.open("./register1.jsp")
+    }
+
+</script>
+
 </body>
 </html>
