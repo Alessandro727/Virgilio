@@ -40,6 +40,7 @@ body {
 #googleMap {
 	width: 100%;
 	height: 100%;
+	top: 50px;
 	position: absolute;
 }
 
@@ -273,10 +274,12 @@ body {
 			}
 
 			var result = $("#table").height();
-			$("#body").height(result);
-			$("#form").height(result);
-			$("#background").height(result);
-			$("#googleMap").height(result);
+			$("#body").height(result+100);
+			$("#form").height(result+50);
+			$("#background").height(result+54);
+			$("#googleMap").height(result+54);
+
+			google.maps.event.trigger(map, 'resize');
 			
 			
 		}
@@ -290,8 +293,7 @@ body {
 			calcRoute(k);			
 		}
 
-		
-		
+	
 	</script>
 
 

@@ -2,180 +2,289 @@
 	pageEncoding="ISO-8859-1"%>
 <!-- <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Registration Poll</title>
+    <title>Register Form</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://s.codepen.io/assets/libs/modernizr.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.4.5/js/bootstrapvalidator.min.js" type="text/javascript"></script>
+    <script
+            src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&language=en&key=AIzaSyCM4ZZEHZuIsF-LfxbooRXcsA487D269cc"></script>
 
-<script
-	src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true&language=en&key=AIzaSyCM4ZZEHZuIsF-LfxbooRXcsA487D269cc"></script>
+
+    <style>
+    #success_message{ display: none;}
+
+    /* active */
 
 
+
+
+    .buttonBlue {
+        background: #4a89dc;
+        text-shadow: 1px 1px 0 rgba(39, 110, 204, .5);
+    }
+
+    .buttonBlue:hover { background: #357bd8; }
+
+    .button {
+        position: relative;
+        display: inline-block;
+        padding: 12px 24px;
+        margin: .3em 0 1em 0;
+        width: 100%;
+        vertical-align: middle;
+        color: #fff;
+        font-size: 16px;
+        line-height: 20px;
+        -webkit-font-smoothing: antialiased;
+        text-align: center;
+        letter-spacing: 1px;
+        border: 0;
+        border-bottom: 2px solid #3160B6;
+        cursor: pointer;
+        -webkit-transition:all 0.15s ease;
+        transition: all 0.15s ease;
+    }
+    .button:focus { outline: 0; }
+
+
+
+
+    </style>
 </head>
 <body>
 
-	<br />
 
-	<form action="Register" method="post">
-		<div
-			style="width: 430px; align: center; margin-left: auto; margin-right: auto">
-			<div style="background-color: #3366CC; font-size: 30px; color: white">Insert
-				your information</div>
-			<br>
-			<% if (request.getAttribute("error") != null) { %>
-			<div>
-				<span style="color: red"><%= request.getAttribute("error") %></span>
-			</div>
-			<% } %>
-			<div style="background-color: #CCFFFF">Username:</div>
-			<div>
-				<input id="txtUsername" name="txtUsername" type="text" />
-			</div>
-			<br>
-			<br>
 
-			<div style="background-color: #CCFFFF">Password:</div>
-			<div>
-				<input id="txtPassword" name="txtPassword" type="text" />
-			</div>
-			<br>
-			<br>
+<div class="container">
 
-			<div style="background-color: #CCFFFF">Gender:</div>
-			<div>
-				<input type="radio" name="rdGender" value="male">Male
-				&nbsp;&nbsp; <input type="radio" name="rdGender" value="female">Female
-			</div>
-			<br>
-			<br>
+    <form class="well form-horizontal" action="Register" method="post"  id="contact_form">
+        <fieldset>
 
-			<div style="background-color: #CCFFFF">Age:</div>
-			<div>
-				<input id="txtAge" name="txtAge" type="text" size="2" maxlength="2" />
-			</div>
-			<br>
-			<br>
+            <!-- Form Name -->
+            <legend><center><h2><b>Registration Form</b></h2></center></legend><br>
 
-			<div style="background-color: #CCFFFF">Role:</div>
-			<div>
-				<select name="ddlRole">
-					<option value="Student">Student</option>
-					<option value="Teacher">Teacher</option>
-					<option value="Employee">Employee</option>
-					<option value="Freelancer">Freelancer</option>
-					<option value="Currently Unoccupied">Currently Unoccupied
-					</option>
-				</select>
-			</div>
-			<br>
-			<br>
+            <% if (request.getAttribute("error") != null) { %>
+            <div>
+                <span style="color: red"><%= request.getAttribute("error") %></span>
+            </div>
+            <% } %>
+            <div class="form-group">
+                <label class="col-md-4 control-label">Username</label>
+                <div class="col-md-4 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <input id="txtUsername" name="txtUsername" placeholder="Username" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
 
-			<div style="background-color: #CCFFFF">Residence:</div>
-			
-					<input id="autocomplete" name="residence"
-						placeholder="Enter your address"
-						onFocus="enableDisableInput(false)" type="text"></input>
+            <!-- Text input-->
 
-			<br>
-			<br>
-			<div style="background-color: #CCFFFF">Assign a weight to each
-				category, based on your preference:</div>
-			<table>
-				<tr>
-					<td>Museum</td>
-					<td><input size="2" maxlength="4" type="text" name="txtMuseum"
-						placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Art Museum \n History Museum \n Museum \n Planetarium \n Science Museum');return false;">Vedi</a>
-					</td>
-				</tr>
-				<tr>
-					<td>History &amp; Monuments</td>
-					<td><input size="2" maxlength="4" type="text"
-						name="txtHistory" placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Historic Site \n	Monument / Landmark \n Outdoor Sculpture \n Pedestrian Plazas');return false;">Vedi</a>
-					</td>
-				</tr>
-				<tr>
-					<td>Church</td>
-					<td><input size="2" maxlength="4" type="text" name="txtChurch"
-						placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Church');return false;">Vedi</a></td>
-				</tr>
-				<tr>
-					<td>Arts</td>
-					<td><input size="2" maxlength="4" type="text" name="txtArts"
-						placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Art Gallery \n Arts & Entertainment \n Performing Arts Venue');return false;">Vedi</a>
-					</td>
-				</tr>
-				<tr>
-					<td>Entertainment</td>
-					<td><input size="2" maxlength="4" type="text"
-						name="txtEntertainment" placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Aquarium \n Arcade \n Baseball Stadium \n Basketball Stadium \n Bowling Alley \n Casino \n Circus \n Country Dance Club \n Cricket Ground \n Disc Golf \n Football Stadium \n General Entertainment \n Go Kart Track \n Hockey Arena \n Theater \n Jazz Club \n Laser Tag \n Mini Golf \n Multiplex \n Music Venue \n Opera House \n Piano Bar \n Pool Hall \n Public Art \n Racetrack \n Rock Club \n Roller Rink \n Salsa Club \n Soccer Stadium \n Stadium \n Street Art \n Tennis \n Theater \n Theme Park \n Theme Park Ride / Attraction \n Track Stadium \n Water Park \n Zoo');return false;">Vedi</a>
-					</td>
-				</tr>
-				<tr>
-					<td>Outdoors &amp; Recreation</td>
-					<td><input size="2" maxlength="4" type="text"
-						name="txtOutdoors" placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Botanical Gardens \n Bridge \n Campground \n Castle \n Cemetery \n Field \n Garden \n Harbor / Marina \n Hot Spring \n Island \n Lake \n Lighthouse \n Mountain \n National Parks \n Palaces \n Park \n Playground \n Plaza \n River \n Rugby Pitches \n Scenic Lookout \n Sculpture Garden \n Stables \n Towns \n Trail \n Trees \n Villages \n Vineyard \n Volcano \n Well');return false;">Vedi</a>
-					</td>
-				</tr>
-				<tr>
-					<td>Food</td>
-					<td><input size="2" maxlength="4" type="text" name="txtFood"
-						placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Acai House \n Restaurant \n BBQ Joint \n Bagel Shop \n Bakery \n Bar \n Bistro \n Breakfast Spot \n Bubble Tea Shop \n Buffet \n Burger Joint \n Burrito Place \n Cafeteria \n Café \n Churrascaria \n Coffee Shop \n Creperie \n Cupcake Shop \n Deli / Bodega \n Dessert Shop \n Diner \n Distillery \n Donut Shop \n Fish & Chips Shop \n Food \n Fried Chicken Joint \n Frozen Yogurt \n Gastropub \n Hot Dog Joint \n Ice Cream Shop \n Irish Pub \n Juice Bar \n Mac & Cheese Joint \n Meatball Place \n Meyhane \n Pastelaria \n Pie Shop \n Pizza Place \n Ramen / Noodle House \n Salad Place \n Sandwich Place \n Snack Place \n Soup Place \n Souvlaki Shop \n Steakhouse \n Taco Place \n Tea Room \n Winery \n Wings Joint');return false;">Vedi</a>
-					</td>
-				</tr>
-				<tr>
-					<td>Nightlife Spot</td>
-					<td><input size="2" maxlength="4" type="text"
-						name="txtNightlife" placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Beach Bar \n Beer Garden \n Brewery \n Champagne Bar \n Cocktail Bar \n Dive Bar \n Hookah Bar \n Hotel Bar \n Karaoke Bar \n Lounge \n Nightlife Spot \n Other Nightlife \n Pub \n Sake Bar \n Speakeasy \n Sports Bar \n Strip Club \n Whisky Bar \n Wine Bar');return false;">Vedi</a>
-					</td>
-				</tr>
-				<tr>
-					<td>Shop &amp; Service</td>
-					<td><input size="2" maxlength="4" type="text" name="txtShop"
-						placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Accessories Store \n Adult Boutique \n Antique Shop \n Arts & Crafts Store \n Automotive Shop \n Baby Store \n Big Box Store \n Bike Shop \n Board Shop \n Bookstore \n Boutique \n Bridal Shop \n Butcher \n Camera Store \n Candy Store \n Car Dealership \n Cheese Shop \n Chocolate Shop \n Christmas Market \n Climbing Gym \n Clothing Store \n Comic Shop \n Convenience Store \n Cosmetics Shop \n Credit Union \n Cycle Studio \n Daycare \n Department Store \n Discount Store \n Drugstore / Pharmacy \n Dry Cleaner \n Electronics Store \n EV Charging Station \n Fabric Shop \n Farmers Market \n Financial or Legal Service \n Fish Market \n Flea Market \n Flower Shop \n Food & Drink Shop \n Food Court \n Fruit & Vegetable Store \n Furniture / Home Store \n Gaming Cafe \n Garden Center \n Gift Shop \n Gourmet Shop \n Grocery Store \n Gun Shop \n Hardware Store \n Health Food Store \n Herbs & Spices Store \n Hobby Shop \n Hunting Supply \n Internet Cafe \n IT Services \n Jewelry Store \n Kids Store \n Laundromat \n Laundry Service \n Lingerie Store \n Liquor Store \n Locksmith \n Lottery Retailer \n Mall \n Marijuana Dispensary \n Market \n Martial Arts Dojo \n Massage Studio \n Men\'s Store \n Miscellaneous Shop \n Mobile Phone Shop \n Motorcycle Shop \n Music Store \n Nail Salon \n Newsstand \n Optical Shop \n Organic Grocery \n Paper / Office Supplies Store \n Photography Lab \n Print Shop \n Real Estate Office \n Record Shop \n Recording Studio \n Recycling Facility \n Salon / Barbershop \n Shipping Store \n Shoe Repair \n Shoe Store \n Shop & Service \n Smoke Shop \n Souvenir Shop \n Spa \n Sporting Goods Shop \n Storage Facility \n Supermarket \n Tailor Shop \n Tanning Salon \n Tattoo Parlor \n Thrift / Vintage Store \n Toy / Game Store \n Track \n Used Bookstore \n Video Game Store \n Video Store \n Warehouse Store \n Wine Shop \n Women\'s Store \n Yoga Studio');return false;">Vedi</a>
-					</td>
-				</tr>
-				<tr>
-					<td>Athletics &amp; Sports</td>
-					<td><input size="2" maxlength="4" type="text"
-						name="txtAthletics" placeholder="0.5"> <a href="#"
-						onclick="javascript:alert('Apres Ski Bar \n Athletics & Sports \n Baseball Field \n Basketball Court \n Beach \n Golf Course \n Hockey Field \n Rafting Spots \n Rock Climbing Spot \n Skate Park \n Skating Rink \n Ski Area \n Ski Chairlift \n Ski Chalet \n Ski Lodge \n Ski Trail \n Soccer Field \n Surf Spot \n Tennis Court \n Volleyball Court');return false;">Vedi</a>
-					</td>
-				</tr>
-			</table>
+            <div class="form-group">
+                <label class="col-md-4 control-label" >Password</label>
+                <div class="col-md-4 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <input id="txtPassword" name="txtPassword" placeholder="Password" class="form-control" type="password">
+                    </div>
+                </div>
+            </div>
 
-			<br>
-			<br>
-			<div style="text-align: right">
-				<input id="btnRegister" name="btnRegister" value=" Register "
-					style="font-size: 18px; color: blue" type="submit" />
-			</div>
-		</div>
-	</form>
+            <div class="form-group">
+                <label class="col-md-4 control-label" >Confirm Password</label>
+                <div class="col-md-4 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <input name="confirm_password" placeholder="Confirm Password" class="form-control"  type="password">
+                    </div>
+                </div>
+            </div>
 
-	<script>
+            <!-- Text input-->
 
-function initialize() {
 
-var input = document.getElementById('autocomplete');
-var autocomplete = new google.maps.places.Autocomplete(input);
-}
+            <div class="form-group">
+                <label class="col-md-4 control-label">Role</label>
+                <div class="col-md-4 selectContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-list"></i></span>
+                        <select name="ddlRole" class="form-control selectpicker">
+                            <option value="">Select your Role</option>
+                            <option>Student</option>
+                            <option>Teacher</option>
+                            <option >Employee</option>
+                            <option >Freelancer</option>
+                            <option >Currently Unoccupied</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-function enableDisableInput(value) {
-	document.getElementById('btnRegister').disabled = value;
-}
+            <!-- Text input-->
 
-google.maps.event.addDomListener(window, 'load', initialize);
+
+
+
+
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label">Age</label>
+                <div class="col-md-4 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <input name="txtAge" placeholder="Age" class="form-control"  type="text">
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Text input-->
+
+            <div class="form-group">
+                <label class="col-md-4 control-label">Gender</label>
+                <div class="col-md-4 inputGroupContainer">
+                    <div class="input-group" style="top: 8px">
+                        &nbsp;&nbsp;
+                        <input type="radio" name="rdGender" value="male">Male
+                        &nbsp;&nbsp; <input type="radio" name="rdGender" value="female">Female
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label">Residence</label>
+                <div class="col-md-4 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-road"></i></span>
+                        <input id="autocomplete" name="residence"
+                               placeholder="Enter your address"
+                               onFocus="enableDisableInput(false)" class="form-control" type="text"></input>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Select Basic -->
+
+            <!-- Success message -->
+            <div class="alert alert-success" role="alert" id="success_message">Success <i class="glyphicon glyphicon-thumbs-up"></i> Success!.</div>
+
+            <!-- Button -->
+            <div class="form-group" id="button">
+                <label class="col-md-4 control-label"></label>
+                <div class="col-md-4"><br>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button type="submit" class="button buttonBlue" >&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspSUBMIT <span class="glyphicon glyphicon-send"></span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<div class="ripples buttonRipples"><span class="ripplesCircle"></span></div></button>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+
+</div><!-- /.container -->
+
+</body>
+
+<script>
+    $(document).ready(function() {
+        $('#contact_form').bootstrapValidator({
+            // To use feedback icons, ensure that you use Bootstrap v3.1.0 or later
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+
+                txtUsername: {
+                    validators: {
+                        stringLength: {
+                            min: 2,
+                        },
+                        notEmpty: {
+                            message: 'Please enter your Username'
+                        }
+                    }
+                },
+                txtPassword: {
+                    validators: {
+                        stringLength: {
+                            min: 2,
+                        },
+                        notEmpty: {
+                            message: 'Please enter your Password'
+                        }
+                    }
+                },
+                confirm_password: {
+                    validators: {
+                        stringLength: {
+                            min: 2,
+                        },
+                        notEmpty: {
+                            message: 'Please confirm your Password'
+                        }
+                    }
+                },
+                txtAge: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Please enter your Age'
+                        },
+                        integer: {
+                            message: 'The value is not a number'
+                        }
+                    }
+                },
+                ddlRole: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Please select your Role'
+                        }
+                    }
+                },
+            }
+
+         })
+            .on('success.form.bv', function(e) {
+                $('#success_message').slideDown({ opacity: "show" }, "slow") // Do something ...
+                $('#contact_form').data('bootstrapValidator').resetForm();
+
+                // Prevent form submission
+                e.preventDefault();
+
+                // Get the form instance
+                var $form = $(e.target);
+
+                // Get the BootstrapValidator instance
+                var bv = $form.data('bootstrapValidator');
+
+                // Use Ajax to submit form data
+                $.post($form.attr('action'), $form.serialize(), function(result) {
+                    console.log(result);
+                }, 'json');
+            });
+    });
+
+    function initialize() {
+
+        var input = document.getElementById('autocomplete');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+    }
+
+    function enableDisableInput(value) {
+        document.getElementById('btnRegister').disabled = value;
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
 
 </script>
 
-</body>
 </html>
