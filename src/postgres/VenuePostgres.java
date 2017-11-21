@@ -450,9 +450,11 @@ public class VenuePostgres {
 				throw new PersistenceException(e.getMessage());
 			}
 		}
+		
+		List<Venue> newVenue = venues;
 
 
-		for (Iterator<Venue> it = venues.iterator(); it.hasNext();) {
+		for (Iterator<Venue> it = newVenue.iterator(); it.hasNext();) {
 			Venue venue = it.next();
 			if (venueIdVisited.contains(venue.getId()))	{
 				it.remove();
@@ -461,7 +463,7 @@ public class VenuePostgres {
 		
 		
 		
-		return venues;
+		return newVenue;
 
 	}
 
@@ -527,12 +529,14 @@ public class VenuePostgres {
 		
 		Map<Venue, Integer> venuesMap = new HashMap<>();
 		
+		List<Venue> venuesVisited = new ArrayList<>(venues);
+		
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
 		ResultSet result = null;
 		
-		for (Venue venue : venues) {
+		for (Venue venue : venuesVisited) {
 			
 			try {
 				connection = datasource.getConnection();

@@ -17,9 +17,9 @@
 	Venue endVenue = topKroute.get(0).getNode(topKroute.get(0).getSize()-1).getVenue();
 	String mode = (String)request.getAttribute("mode");
 	%>
-	
-	<script src="jquery-3.2.1.min.js"></script>
-	
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
 <style>
 html {
 	height: 100%
@@ -52,19 +52,18 @@ body {
 	left: 40px;
 	top: 50px;
 	left: 50px;
-	}
+}
 
 #background {
 	position: absolute;
 	z-index: 90;
 	width: 456px;
 	height: 100%;
-	top: 54px; background-color : #F7F7F7;
+	top: 54px;
+	background-color: #F7F7F7;
 	opacity: 0.5;
 	background-color: #F7F7F7;
 }
-
-
 </style>
 <!-- script for Google Maps API -->
 <!-- sensor=true for using gps sensor on PC -->
@@ -274,12 +273,16 @@ body {
 			}
 
 			var result = $("#table").height();
+			var result2 = $("#body").height();
+			if(result>result2)	{
 			$("#body").height(result+100);
 			$("#form").height(result+50);
 			$("#background").height(result+54);
 			$("#googleMap").height(result+54);
 
 			google.maps.event.trigger(map, 'resize');
+
+			}
 			
 			
 		}

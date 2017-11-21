@@ -1,6 +1,7 @@
 package logic.router;
 
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,11 +9,14 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import model.Movie;
 import model.Object;
+import util.JsonReader;
 
 public class JenaManagerForMovies implements JenaManager{
 
@@ -65,7 +69,8 @@ public class JenaManagerForMovies implements JenaManager{
 				+"OPTIONAL { ?item wdt:P18 ?immagine. }"+"\n"
 				+"}"+"\n"
 				+"GROUP BY ?item ?itemLabel ?auteurLabel ?genreLabel ?officialWebsite ?id_IMDb ?registaLabel ?immagine"+"\n"
-				+"ORDER BY DESC(?link_count)";
+				+"ORDER BY DESC(?link_count)"+"\n"
+				+"LIMIT 25";
 
 
 		QueryExecution queryExecution = QueryExecutionFactory.sparqlService(ontology_serviceMovie,
@@ -73,9 +78,12 @@ public class JenaManagerForMovies implements JenaManager{
 
 
 
+
 		System.out.println(queryExecution.getQuery().toString());
 
 		ResultSet results = queryExecution.execSelect();
+
+//		ResultSetFormatter.out(System.out, results);
 
 		while (results.hasNext()) {
 
@@ -94,51 +102,67 @@ public class JenaManagerForMovies implements JenaManager{
 
 			Movie obj = new Movie(popularity);
 
-			if (solution.get("img")!=null)	{
-				String image = solution.get("img").toString();
-				obj.setImage(image);
 
+			label = label.replace("\\\"","");
 
-				label = label.replace("\\\"","");
+			obj.setName(label);
+			obj.setLatitude(lat_s);	
+			obj.setLongitude(long_s);
+			obj.setId(id);
+			obj.setDirector(director);
+			obj.getGenres().add(genre);
+			obj.setPopularity(popularity);
 
-				obj.setName(label);
-				obj.setLatitude(lat_s);	
-				obj.setLongitude(long_s);
-				obj.setId(id);
-				obj.setDirector(director);
-				obj.getGenres().add(genre);
-				obj.setPopularity(popularity);
+			String link = null;
 
-				String link = null;
+			link = solution.get("id_IMDb").toString();
 
-				if (solution.get("officialWebsite")!=null)	{
-					link = solution.get("officialWebsite").toString();
-				}
-				else	{
-					link = solution.get("id_IMDb").toString();
-					link = "https://tools.wmflabs.org/wikidata-externalid-url/?p=345&url_prefix=http://www.imdb.com/&id="+link;
-				}
-
-				obj.setExternalLink(link);
-
-				if (!movieResult.containsKey(id))	{
-					//this is the key used in the Last.fm API examples
-
-					movieResult.put(id, obj);
-				}
-
-				else {
-					((Movie) movieResult.get(id)).getGenres().add(genre);
-
-				}
-
-				logger.info("NAME FROM IMDb AND WIKI DATA\t"+ label);
+			try {
+				obj.setImage(JsonReader.getPosterUrl(link));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
+			if (solution.get("officialWebsite")!=null)	{
+				link = solution.get("officialWebsite").toString();
+			}
+			else	{
+
+				link = "https://tools.wmflabs.org/wikidata-externalid-url/?p=345&url_prefix=http://www.imdb.com/&id="+link;
+
+
+			}
+
+			obj.setExternalLink(link);
+
+			if (!movieResult.containsKey(id))	{
+				//this is the key used in the Last.fm API examples
+
+				movieResult.put(id, obj);
+			}
+
+			else {
+				((Movie) movieResult.get(id)).getGenres().add(genre);
+
+			}
+
+			logger.info("NAME FROM IMDb AND WIKI DATA\t"+ label);
 		}
 
-		return movieResult;
 
+
+		return movieResult;
+	}
+
+
+
+	public static void main(String[] args)	{
+		JenaManagerForMovies jMovies = new JenaManagerForMovies();
+		jMovies.retriveNodes(41.89, 12.49, 0.1);
 	}
 
 }

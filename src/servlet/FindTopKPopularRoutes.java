@@ -41,6 +41,7 @@ import postgres.UserPostgres;
 import postgres.VenuePostgres;
 import scala.Tuple2;
 import socialAndServices.Google;
+import util.JsonReader;
 import util.KMeans;
 import util.Utilities;
 
@@ -167,15 +168,32 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			Movie movie = (Movie) Movie.weightedChoice(userMovies);
 			Singer singer = (Singer) Singer.weightedChoice(userTracks);
 			
-			String bookImage = book.getImage();
-			String linkBook = book.getISBN();
+			
+			String linkBook = JsonReader.getBookImage(book.getISBN());
+			
+			while (linkBook.equals("not found"))	{
+				book =  (Book) Book.weightedChoice(userBooks);
+				linkBook = JsonReader.getBookImage(book.getISBN());
+			}
+			
+			String textBook = "https://www.bookfinder.com/search/?author=&title=&lang=en&isbn="+book.getISBN()+"&new_used=*&destination=it&currency=EUR&mode=basic&st=sr&ac=qr";
+			
+			String linkMovie = movie.getExternalLink();
+			String posterUrl = movie.getImage();
+			
+			String singerCover = singer.getImage();
+			String singerAlbum = singer.getExternalLink();
 		
+			String singerName = singer.getName();
 		
-			request.setAttribute("book", book);
-			request.setAttribute("bookImage", bookImage);
+			
 			session.setAttribute("linkBook", linkBook);
-			request.setAttribute("movie",movie);
-			request.setAttribute("singer", singer);
+			session.setAttribute("posterUrl", posterUrl);
+			session.setAttribute("textBook", textBook);
+			session.setAttribute("linkMovie", linkMovie);
+			session.setAttribute("singerCover", singerCover);
+			session.setAttribute("singerAlbum", singerAlbum);
+			session.setAttribute("singerName", singerName);
 
 
 			List<Venue> newVenues = new ArrayList<>();
@@ -186,7 +204,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			List<Venue> finalVenuesList = new ArrayList<>();
 
 			try {
-				newVenues = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
+				
 				
 				popularVenues = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
 				
@@ -199,6 +217,10 @@ public class FindTopKPopularRoutes extends HttpServlet {
 				venuesOfExpertUsers = VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
 				
 				System.out.println("venue expert users = "+venuesOfExpertUsers.size());
+				
+				newVenues = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
+				
+				System.out.println("venue expert users = "+newVenues.size());
 
 			} catch (PersistenceException e) {
 				// TODO Auto-generated catch block
@@ -215,10 +237,9 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			}
 			
 			if(finalVenuesList.size()<15)	{
-				for (int q =0; q<10 && q<popularVenues.size() && q<venuesOfSimilarUsers.size() && q<venuesOfExpertUsers.size(); q++)	{
+				for (int q =0; q<5 && q<popularVenues.size(); q++)	{
 					finalVenuesList.add(popularVenues.get(q));
-					finalVenuesList.add(venuesOfSimilarUsers.get(q));
-					finalVenuesList.add(venuesOfExpertUsers.get(q));
+					
 				}
 			}
 			
@@ -226,10 +247,8 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			
 			
 			if (maxWayPoints*5-k>5)	{
-				for (int f = k; f<maxWayPoints*5; f++)	{
-					if (newVenues.size()<=f-k)	{
-						break;
-					}
+				for (int f = k; f<maxWayPoints*5 && (f-k)<newVenues.size(); f++)	{
+					
 					finalVenuesList.add(newVenues.get(f-k));
 				}
 			}

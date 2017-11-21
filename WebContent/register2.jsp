@@ -70,7 +70,7 @@
         }
 
         :checked + label:before {
-            content: "✓";
+            content: "\2713";
             background-color: dodgerblue;
             transform: scale(1.2);
         }

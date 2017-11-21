@@ -9,13 +9,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import model.User;
-import model.Venue;
+
 import postgres.PersistenceException;
 import postgres.UserPostgres;
-import socialAndServices.Google;
+
 
 @WebServlet("/CategoryImages")
 public class CategoryImages extends HttpServlet {
@@ -40,82 +39,74 @@ public class CategoryImages extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
-		
+
 		User user = (User) request.getAttribute("user"); 
 		String[] arrayData = request.getParameterValues("hiddenArray");
-		
-		for (int i=0; i<arrayData.length;i++)
-			System.out.println(arrayData[i]);
-		
+
+		String[] categories = arrayData[0].split(",");
+
+
 		double[] weights = new double[]{10};
+
+		for (int i=0; i<categories.length;i++)	{
+			System.out.println(categories[i]);
+			switch(categories[i]) {
+			case "museum1": case "museum2": case "museum3": 	weights[0]=weights[0]+0.3; break;		
+
+			case "chiesa1": case "chiesa2": case "chiesa3": 	weights[1]=weights[1]+0.3; break;
+
+			case "monument1": case "monument2": case "monument3": 	weights[2]=weights[2]+0.3; break;	
+
+			case "art2": case "art3": 	weights[3]=weights[3]+0.3; break;
+
+			case "outdoors1": case "outdoors2": case "outdoors3": 	weights[4]=weights[4]+0.3; break;	
+
+			case "food1": case "food3": 	weights[5]=weights[5]+0.3; break;
+
+			case "entertaiment1": case "entertaiment2": case "entertaiment3": 	weights[6]=weights[6]+0.3; break;
+
+			case "night1": case "night3": 	weights[7]=weights[7]+0.3; break;
+
+			case "shop1": case "shop2": case "shop3": 	weights[8]=weights[8]+0.3; break;
+
+			case "sport1": case "sport3": 	weights[9]=weights[9]+0.3; break;
+
+			case "sport2": weights[9]=weights[9]+0.3; weights[6]=weights[6]+0.1; break;
+
+			case "art1": weights[3]=weights[3]+0.3; weights[2]=weights[2]+0.1; break;
+
+			case "night2": weights[7]=weights[7]+0.3; weights[6]=weights[6]+0.1; break;
+
+			case "food2": weights[5]=weights[5]+0.3; weights[7]=weights[7]+0.1; break;
+
+			default: break;
+			}
+		}
+
+		user.setWeight(1, weights[0]);
+		user.setWeight(2, weights[1]);
+		user.setWeight(3, weights[2]);
+		user.setWeight(4, weights[3]);
+		user.setWeight(5, weights[4]);
+		user.setWeight(6, weights[5]);
+		user.setWeight(7, weights[6]);
+		user.setWeight(8, weights[7]);
+		user.setWeight(9, weights[8]);
+		user.setWeight(10, weights[9]);
 		
+		try {
+			UserPostgres.persistUser(user);
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		
-//		String prossimaPagina = "";
-//
-//		String username = request.getParameter("txtUsername");
-//		String password = request.getParameter("txtPassword");
-//		String gender = request.getParameter("rdGender");
-//		int age = Integer.valueOf(request.getParameter("txtAge"));
-//		String role = request.getParameter("ddlRole");
-//		String residence = request.getParameter("residence");
-//		System.out.println(residence);
-//		Google google = new Google();
-//		Venue venue = google.getCoordinatesFromAddress(residence);
-//
-//		String residenceLat = venue.getLatitude();
-//		String residenceLong = venue.getLongitude();
-//		User user = new User();
-//
-//		try {
-//			if (UserPostgres.RetriveUsername(username)) {
-//				prossimaPagina = "/register1.jsp";
-//				request.setAttribute("error", "User already exists");
-//			}
-//			else {
-//				//				String gender = request.getParameter("rdGender");
-//				//				int age = Integer.parseInt(request.getParameter("txtAge"));
-//				//				String role = request.getParameter("ddlRole");
-//
-//
-//				user.setUsername(username);
-//				user.setPassword(password);
-//				//				user.setWeight(1, Double.valueOf(request.getParameter("txtMuseum")));
-//				//				user.setWeight(2, Double.valueOf(request.getParameter("txtChurch")));
-//				//				user.setWeight(3, Double.valueOf(request.getParameter("txtHistory")));
-//				//				user.setWeight(4, Double.valueOf(request.getParameter("txtArts")));
-//				//				user.setWeight(5, Double.valueOf(request.getParameter("txtOutdoors")));
-//				//				user.setWeight(6, Double.valueOf(request.getParameter("txtFood")));
-//				//				user.setWeight(7, Double.valueOf(request.getParameter("txtEntertainment")));
-//				//				user.setWeight(8, Double.valueOf(request.getParameter("txtNightlife")));
-//				//				user.setWeight(9, Double.valueOf(request.getParameter("txtShop")));
-//				//				user.setWeight(10, Double.valueOf(request.getParameter("txtAthletics")));
-//				user.setGender(gender);
-//				user.setAge(age);
-//				user.setRole(role);
-//				user.setResidenceLat(residenceLat);
-//				user.setResidenceLong(residenceLong);
-//
-//
-//				//				user.setId(retrieveMostSmilarUser(user));
-//
-//				//				UserPostgres.persistUser(user);
-//				prossimaPagina = "/register2.jsp";
-//				request.setAttribute("user", user);
-//			}
-//		} catch (PersistenceException e) {
-//			e.printStackTrace();
-//		}	
-//
-//		System.out.println(prossimaPagina);
-//
-//		for(int i=0; i<user.getWeigths().length; i++)	{
-//			System.out.println(user.getWeigth(i));
-//		}
-//
-//		ServletContext application  = getServletContext();
-//		RequestDispatcher rd = application.getRequestDispatcher(prossimaPagina);
-//		rd.forward(request, response);
+		request.setAttribute("user", user);
+
+		ServletContext application  = getServletContext();
+		RequestDispatcher rd = application.getRequestDispatcher("/findTopKPopularRoutes1.jsp");
+		rd.forward(request, response);
+
 	}
 
 

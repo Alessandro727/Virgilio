@@ -654,11 +654,14 @@ public class CheckinPostgres {
 
 	public static List<Venue> mostVisitedCheckins(List<Venue> venues) throws PersistenceException	{
 		Map<Venue,Integer>	checkinsPerVenue = new HashMap<>();
+		
+		List<Venue> venuesVisited = new ArrayList<>(venues);
+		
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
 		ResultSet result = null;
-		for (Venue venue : venues) {
+		for (Venue venue : venuesVisited) {
 
 
 			try {

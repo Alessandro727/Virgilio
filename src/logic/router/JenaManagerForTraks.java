@@ -2,8 +2,10 @@ package logic.router;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -14,6 +16,7 @@ import org.apache.jena.query.ResultSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.umass.lastfm.Album;
 import de.umass.lastfm.Artist;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
@@ -67,6 +70,8 @@ public class JenaManagerForTraks implements JenaManager{
 
 		System.out.println(queryExecution.getQuery().toString());
 
+
+
 		ResultSet results = queryExecution.execSelect();
 
 		while (results.hasNext()) {
@@ -112,63 +117,80 @@ public class JenaManagerForTraks implements JenaManager{
 
 			Collection<User> fan = Artist.getTopFans(label, key);
 
-			
-
-				Singer obj = new Singer(fan.size());
-
-				obj.setName(label);
-				obj.setLatitude(lat_s);	
-				obj.setLongitude(long_s);
-				obj.setId(id);
-				obj.getGenres().add(genre);
-				logger.info("NAME FROM LAST.FM AND WIKI DATA\t"+ label);
 
 
+			Singer obj = new Singer(fan.size());
+
+			obj.setName(label);
+			obj.setLatitude(lat_s);	
+			obj.setLongitude(long_s);
+			obj.setId(id);
+			obj.getGenres().add(genre);
+			logger.info("NAME FROM LAST.FM AND WIKI DATA\t"+ label);
 
 
 
-				if (!singerResult.containsKey(id))	{
 
 
-					Collection<Track> topTracks = Artist.getTopTracks(label, key);
-
-					System.out.println("Top Tracks for "+label+":");
+			if (!singerResult.containsKey(id))	{
 
 
-					for (Track track : topTracks) {
+				Collection<Track> topTracks = Artist.getTopTracks(label, key);
 
-						System.out.println(track.getName());
+				System.out.println("Top Tracks for "+label+":");
 
-						obj.getSong().add(track.getName()); 
-						obj.setPopularity(track.getPlaycount()); 
-						obj.setExternalLink(track.getUrl()); 
+				Collection<Album> albums = Artist.getTopAlbums(label, key);
+
+				List<Album> albums2 = new ArrayList<>(albums);
+
+				if (albums2.size()>0)	{
+
+					String image = albums2.get(0).getImageURL(ImageSize.LARGE);
+
+					obj.setImage(image);
+
+				}
+				
+				
+
+				for (Track track : topTracks) {
+
+					System.out.println(track.getName());
+
+					obj.getSong().add(track.getName()); 
+					obj.setPopularity(track.getPlaycount()); 
+					obj.setExternalLink(track.getUrl()); 
+					
+					if (obj.getImage()==null)	{
 						obj.setImage(track.getImageURL(ImageSize.LARGE));
 					}
 
-					singerResult.put(id, obj);
 				}
 
-				else {
-					((Singer) singerResult.get(id)).getGenres().add(genre);
+				singerResult.put(id, obj);
+			}
 
-				}
-			
+			else {
+				((Singer) singerResult.get(id)).getGenres().add(genre);
+
+			}
+
 		}
 
 		return singerResult;
 
 	}
-	
+
 	public static void main(String[] args)	{
-		
+
 		JenaManagerForTraks jTraks = new JenaManagerForTraks();
-		
+
 		Map<Long, Object> userTracks = jTraks.retriveNodes(41.89, 12.49, 0.1);
-		
+
 		Singer singer = (Singer) Singer.weightedChoice(userTracks);
-		
+
 		System.out.println(singer.getPopularity());
-		
+
 	}
 
 }
