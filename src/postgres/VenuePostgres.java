@@ -426,7 +426,7 @@ public class VenuePostgres {
 		ResultSet result = null;
 		try {
 			connection = datasource.getConnection();
-			String query = "SELECT venue_id FROM checkins WHERE user_id = "+userId;
+			String query = "SELECT venue_id FROM checkins WHERE checkins.user_id = "+userId;
 			statement = connection.prepareStatement(query);
 			result = statement.executeQuery();
 			while (result.next()) {
@@ -477,6 +477,12 @@ public class VenuePostgres {
 		
 		Map<Venue, Integer> venueMap = new HashMap<>();
 		
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("POSTI VISITATI DA UTENTI ESPERTI LISTA PARTENZA SIZE: "+venues.size());
+		System.out.println("\n");
+		System.out.println("\n");
+		
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
@@ -488,6 +494,7 @@ public class VenuePostgres {
 				connection = datasource.getConnection();
 				String query = "SELECT venue_id FROM checkins, users WHERE checkins.user_id = users.id AND users.residenceLat > "
 						+lat1+" AND users.residenceLat <= "+lat2+" AND users.residenceLong > "+lon1+" AND users.residenceLong <= "+lon2+" AND checkins.venue_id = "+venue.getId();
+				
 				statement = connection.prepareStatement(query);
 				result = statement.executeQuery();
 				if (result.next()) {
@@ -529,6 +536,12 @@ public class VenuePostgres {
 		
 		Map<Venue, Integer> venuesMap = new HashMap<>();
 		
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("POSTI VISITATI DA UTENTI SIMILI LISTA PARTENZA SIZE: "+venues.size());
+		System.out.println("\n");
+		System.out.println("\n");
+		
 		List<Venue> venuesVisited = new ArrayList<>(venues);
 		
 		DataSource datasource = new DataSource();
@@ -540,10 +553,10 @@ public class VenuePostgres {
 			
 			try {
 				connection = datasource.getConnection();
-				String query = "SELECT venue_id, COUNT(user_id) as userNumber FROM checkins, users WHERE checkins.user_id = users.id AND venue_id = "+venue.getId()
+				String query = "SELECT venue_id, COUNT(user_id) as userNumber FROM checkins, users WHERE checkins.user_id = users.id AND checkins.venue_id = "+venue.getId()
 				+" AND ( ";
 				for (Long long1 : similarUsers) {
-					query = query+"user_id = "+long1+" OR ";
+					query = query+"checkins.user_id = "+long1+" OR ";
 				}
 				query = query+"false) GROUP BY venue_id";
 				statement = connection.prepareStatement(query);
@@ -580,6 +593,62 @@ public class VenuePostgres {
 		
 		
 	}
+	
+	public static List<Venue> sameAgeUserVenues(List<Venue> venues, int age) throws PersistenceException	{
+		
+		Map<Venue, Integer> venuesMap = new HashMap<>();
+		
+		int maxAge = age+3;
+		int minAge = age-3;
+		
+		List<Venue> venuesVisited = new ArrayList<>(venues);
+		
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		
+		for (Venue venue : venuesVisited) {
+			
+			try {
+				connection = datasource.getConnection();
+				String query = "SELECT venue_id, COUNT(user_id) as userNumber FROM checkins, users WHERE checkins.user_id = users.id AND checkins.venue_id = "+venue.getId()
+				+" AND users.age >= "+minAge+" AND users.age <= "+maxAge+" GROUP BY venue_id";
+				
+				statement = connection.prepareStatement(query);
+				result = statement.executeQuery();
+				if (result.next()) {
+					
+					Integer userNumber = result.getInt("userNumber");
+					venuesMap.put(venue, userNumber);
+				}
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			} finally {
+				try {
+					if (result != null)
+						result.close();
+					if (statement != null) 
+						statement.close();
+					if (connection!= null)
+						connection.close();
+				} catch (SQLException e) {
+					throw new PersistenceException(e.getMessage());
+				}
+			}
+			
+		}
+		
+
+		venuesMap = Utilities.sortByValue(venuesMap);
+		
+		
+		return new ArrayList<>(venuesMap.keySet());
+	}
+	
+	
+	
+	
 	
 	public static void main(String args[])	{
 		

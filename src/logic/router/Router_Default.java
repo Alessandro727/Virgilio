@@ -50,7 +50,7 @@ public class Router_Default extends Router {
 		if (this.includeFood) {
 			Node foodNode = null;
 			for(Node n: this.graph.getAllNodes())
-				if(n.getId() > 0 && n.getVenue().getMacro_category().getId() == 5) {
+				if(n.getId() > 0 && n.getVenue().getMacro_category().getId() == 6) {
 
 					foodNode = new Node(n.getVenue());
 					foodNode.SetOutgoingEdge(n.getOutGoingEdges());
@@ -314,7 +314,7 @@ public class Router_Default extends Router {
 				for (Route route: map.get(d)) {
 					if (addedRoutes >= k)
 						break;
-					if (!containsSameElementsOrIsSubset(route, topKRoutes)) {
+					if (!containsSameElementsOrIsSubset(route, topKRoutes) && noMoreOneFood(route)) {
 						topKRoutes.add(route);
 						addedRoutes++;
 					}
@@ -324,6 +324,20 @@ public class Router_Default extends Router {
 
 
 		return topKRoutes;
+	}
+
+
+
+	private boolean noMoreOneFood(Route route) {
+		int cont = 0;
+		for (Node node : route.getNodes()) {
+			if (node.getVenue().getMacro_category().getId()==6) {
+				cont ++;
+			}
+		}
+		if (cont>1)
+			return false;
+		return true;
 	}
 
 
@@ -341,7 +355,7 @@ public class Router_Default extends Router {
 				for (Node n: route.getNodes()) {
 					if (!r.containsId(n.getId())) {
 						j++;
-						if(j>3)	{
+						if(j>2)	{
 							sameElements = false;
 							break;
 						}

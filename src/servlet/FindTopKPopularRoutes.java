@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import logic.router.Route;
 import logic.router.Router_Default;
+import logic.router.FoursquareManagerForPlace;
 import logic.router.Graph;
 import logic.router.JenaManagerForBook;
 import logic.router.JenaManagerForMovies;
@@ -40,6 +41,7 @@ import postgres.PersistenceException;
 import postgres.UserPostgres;
 import postgres.VenuePostgres;
 import scala.Tuple2;
+
 import socialAndServices.Google;
 import util.JsonReader;
 import util.KMeans;
@@ -79,17 +81,8 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 		Tuple2<List<String>, List<Long>> categoriesAndSameUsers = userCategoryAndSameUsers(user);
 
-		if (categoriesAndSameUsers==null)	
-			System.out.println("NULL");
 
 		List<String> categories = categoriesAndSameUsers._1();
-
-
-
-		for (String string : categories) {
-			System.out.println("Categorie: "+string);
-		}
-
 		List<Long> similarUsers = categoriesAndSameUsers._2();
 
 		Google google = new Google();
@@ -113,31 +106,12 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 		if (startVenue.getStatus().equals("OK") && endVenue.getStatus().equals("OK")) {
 			venuesInTheSquare = new ArrayList<Venue>();
-			venuesInTheSquare.add(startVenue);
-			venuesInTheSquare.add(endVenue);
 
-			boolean food = false;
+			double lat = Utilities.middlePoint(startVenue.getLatitude(),endVenue.getLatitude());
 
-			if (categories.contains("6"))	
-				food=true;
+			double lng = Utilities.middlePoint(startVenue.getLongitude(),endVenue.getLongitude());
 
-
-
-			// TODO ricerca dei posti dai LOD invece che con getVenuesWithContextAndCategories(30, categories);
-
-			double lat = middlePoint(startVenue.getLatitude(),endVenue.getLatitude());
-
-			double lng = middlePoint(startVenue.getLongitude(),endVenue.getLongitude());
-
-			if (!Utilities.isSunny(startVenue, availableTime)	)	{
-				for (Iterator<String> it = categories.iterator(); it.hasNext();) {
-					String cat = it.next();
-					if (cat.equals("3") || cat.equals("5") || cat.equals("10"))	{
-						it.remove();
-					}
-				}
-			}
-
+			boolean food = setCategoryWithContextAndCheckFood(categories, startVenue, availableTime);
 
 
 			try {
@@ -146,189 +120,41 @@ public class FindTopKPopularRoutes extends HttpServlet {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			
+//			String ll = String.valueOf(lat)+","+String.valueOf(lng);
 //			
-//			List<Venue> venuesInTheSquare2 = venuesInTheSquare;
-			
+//			venuesInTheSquare = FoursquareManagerForPlace.searchVenues(ll, categories);
+
+
 			System.out.println("FINALVENUELIST =  "+venuesInTheSquare.size());
-			
-
-			JenaManagerForBook jBook = new JenaManagerForBook();
-			JenaManagerForMovies jMovies = new JenaManagerForMovies();
-			JenaManagerForTraks jTrack = new JenaManagerForTraks();
-			
-			Map<Long, Object> userBooks = new HashMap<Long, Object>();
-			Map<Long, Object> userMovies = new HashMap<Long, Object>();
-			Map<Long, Object> userTracks = new HashMap<Long, Object>();
-
-			userBooks = jBook.retriveNodes(lat, lng, 0.1);
-			userMovies = jMovies.retriveNodes(lat, lng, 0.1);
-			userTracks = jTrack.retriveNodes(lat, lng, 0.1);
-			
-			Book book =  (Book) Book.weightedChoice(userBooks);
-			Movie movie = (Movie) Movie.weightedChoice(userMovies);
-			Singer singer = (Singer) Singer.weightedChoice(userTracks);
-			
-			
-			String linkBook = JsonReader.getBookImage(book.getISBN());
-			
-			while (linkBook.equals("not found"))	{
-				book =  (Book) Book.weightedChoice(userBooks);
-				linkBook = JsonReader.getBookImage(book.getISBN());
-			}
-			
-			String textBook = "https://www.bookfinder.com/search/?author=&title=&lang=en&isbn="+book.getISBN()+"&new_used=*&destination=it&currency=EUR&mode=basic&st=sr&ac=qr";
-			
-			String linkMovie = movie.getExternalLink();
-			String posterUrl = movie.getImage();
-			
-			String singerCover = singer.getImage();
-			String singerAlbum = singer.getExternalLink();
-		
-			String singerName = singer.getName();
-		
-			
-			session.setAttribute("linkBook", linkBook);
-			session.setAttribute("posterUrl", posterUrl);
-			session.setAttribute("textBook", textBook);
-			session.setAttribute("linkMovie", linkMovie);
-			session.setAttribute("singerCover", singerCover);
-			session.setAttribute("singerAlbum", singerAlbum);
-			session.setAttribute("singerName", singerName);
 
 
-			List<Venue> newVenues = new ArrayList<>();
-			List<Venue> popularVenues = new ArrayList<>();
-			List<Venue> venuesOfSimilarUsers = new ArrayList<>();
-			List<Venue> venuesOfExpertUsers = new ArrayList<>();
 
-			List<Venue> finalVenuesList = new ArrayList<>();
+			addBookMovieSingerForUserAndPlaceWithoutContext(lat, lng, session);
 
-			try {
-				
-				
-				popularVenues = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
-				
-				System.out.println("most visited checkins = "+popularVenues.size());
-				
-				venuesOfSimilarUsers = VenuePostgres.venuesVisitedFromSimilarUsers(venuesInTheSquare, similarUsers);
-				
-				System.out.println("venue visited from similar user = "+venuesOfSimilarUsers.size());
-				
-				venuesOfExpertUsers = VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
-				
-				System.out.println("venue expert users = "+venuesOfExpertUsers.size());
-				
-				newVenues = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
-				
-				System.out.println("venue expert users = "+newVenues.size());
+			System.out.println("FINALVENUELIST =  "+venuesInTheSquare.size());
 
-			} catch (PersistenceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 
-			int k = 0;
+			List<Venue> finalVenuesList = filterVenueWithRecommendationAlgorithm(venuesInTheSquare, similarUsers, user, lat, lng, maxWayPoints);
 
-			for (Venue venue : popularVenues) {
-				if (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue))	{
-					finalVenuesList.add(venue);
-					k++;
-				}
-			}
-			
-			if(finalVenuesList.size()<15)	{
-				for (int q =0; q<5 && q<popularVenues.size(); q++)	{
-					finalVenuesList.add(popularVenues.get(q));
-					
-				}
-			}
-			
-			
-			
-			
-			if (maxWayPoints*5-k>5)	{
-				for (int f = k; f<maxWayPoints*5 && (f-k)<newVenues.size(); f++)	{
-					
-					finalVenuesList.add(newVenues.get(f-k));
-				}
-			}
-			else	 {
-				for (int h = 0; h<maxWayPoints*5-finalVenuesList.size(); h++)	{
-					if (newVenues.size()<=h)	{
-						break;
-					}
-						
-					finalVenuesList.add(newVenues.get(h));
-				}
-			}
-			
+
+
 			System.out.println("FINALVENUELIST =  "+finalVenuesList.size());
-			System.out.println(maxWayPoints);
-			System.out.println(venuesInTheSquare.size());
-			
-
-			//			List<Venue> venuesInTheSquareTemp = venuesInTheSquare;
-
-			//			try {
-			//				venuesInTheSquareTemp = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
-			//				venuesInTheSquare = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
-			//				if (venuesInTheSquareTemp.size()>10)	{
-			//					for (int i=0; i<venuesInTheSquareTemp.size();i++)	{
-			//						venuesInTheSquare.add(0, venuesInTheSquareTemp.get(i));
-			//						if (i==10)
-			//							break;
-			//					}
-			//				}
-			//				venuesInTheSquareTemp = VenuePostgres.venuesVisitedFromSimilarUsers(venuesInTheSquare, similarUsers);
-			//				int cont = 0;
-			//				for (Venue venue : venuesInTheSquareTemp) {
-			//					if (!venuesInTheSquare.contains(venue))	{
-			//						venuesInTheSquare.add(0,venue);
-			//						cont++;
-			//					}
-			//					if (cont == 10)
-			//						break;
-			//				}
-			//
-			//				venuesInTheSquareTemp = 	VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
-			//				cont = 0;
-			//				for (Venue venue : venuesInTheSquareTemp) {
-			//					if (!venuesInTheSquare.contains(venue))	{
-			//						venuesInTheSquare.add(0,venue);
-			//						cont++;
-			//					}
-			//					if (cont == 10)
-			//						break;
-			//				}
-			//
-			//
-			//			} catch (PersistenceException e) {
-			//				e.printStackTrace();
-			//			}
 
 
+			finalVenuesList = JsonReader.filterClosedVenue(finalVenuesList, categories);
 
+			System.out.println("FINALVENUELIST =  "+finalVenuesList.size());
 
-
-			// TODO Scrematura venues in the square
-
-
-
-			//			LatLngSquare llSquare = new LatLngSquare(venuesInTheSquare);
-			//			VenueSearcher searcher = new VenueSearcher(llSquare, scenario);
-			//			venuesInTheSquare = searcher.getVenuesWithContextAndCategories(30, categories);
 			finalVenuesList.add(0, startVenue);
 			finalVenuesList.add(endVenue);	
 
-			
+
+
+
 			for (Venue venue : finalVenuesList) {
 				System.out.println(venue.getName_fq());
 			}
-			
-//			List<Venue> list = new ArrayList<>();
-//			for(int g =0; g<6;g++)	{
-//				list.add(finalVenuesList.get(g));
-//			}
 
 			topKroute = runDijkstraAlgorithm(finalVenuesList,
 					mode,
@@ -338,7 +164,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 					food,
 					google);
 			int size = topKroute.size();
-		
+
 			if (size >= 2) {
 				prossimaPagina = "/routes.jsp";
 				request.setAttribute("topKroute", topKroute);
@@ -369,12 +195,6 @@ public class FindTopKPopularRoutes extends HttpServlet {
 	}
 
 
-
-
-	private double middlePoint(String v1, String v2) {
-		double middlePoint = Double.valueOf(v1)+Double.valueOf(v2);
-		return middlePoint/2.0;
-	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -475,8 +295,6 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 		List<Long> usersSameCluster = new ArrayList<>();
 
-
-
 		for (Entry<Long, Integer> entry : mapUserCluster.entrySet()) {
 			if (Objects.equals(numCluster, entry.getValue())) {
 				usersSameCluster.add(entry.getKey());
@@ -489,6 +307,205 @@ public class FindTopKPopularRoutes extends HttpServlet {
 	}
 
 
+	public static void addBookMovieSingerForUserAndPlaceWithoutContext(double lat, double lng, HttpSession session) throws IOException	{
+
+		JenaManagerForBook jBook = new JenaManagerForBook();
+		JenaManagerForMovies jMovies = new JenaManagerForMovies();
+		JenaManagerForTraks jTrack = new JenaManagerForTraks();
+
+		Map<Long, Object> userBooks = new HashMap<Long, Object>();
+		Map<Long, Object> userMovies = new HashMap<Long, Object>();
+		Map<Long, Object> userTracks = new HashMap<Long, Object>();
+
+		userBooks = jBook.retriveNodes(lat, lng, 0.2);
+		userMovies = jMovies.retriveNodes(lat, lng, 0.2);
+		userTracks = jTrack.retriveNodes(lat, lng, 0.2);
+
+		Book book =  (Book) Book.weightedChoice(userBooks);
+		Movie movie = (Movie) Movie.weightedChoice(userMovies);
+		Singer singer = (Singer) Singer.weightedChoice(userTracks);
+
+
+		String linkBook = JsonReader.getBookImage(book.getISBN());
+
+		while (linkBook.equals("not found"))	{
+			book =  (Book) Book.weightedChoice(userBooks);
+			linkBook = JsonReader.getBookImage(book.getISBN());
+		}
+
+		String textBook = "https://www.bookfinder.com/search/?author=&title=&lang=en&isbn="+book.getISBN()+"&new_used=*&destination=it&currency=EUR&mode=basic&st=sr&ac=qr";
+
+		String linkMovie = movie.getExternalLink();
+		String posterUrl = movie.getImage();
+
+		String singerCover = singer.getImage();
+		String singerAlbum = singer.getExternalLink();
+
+		String singerName = singer.getName();
+
+
+		session.setAttribute("linkBook", linkBook);
+		session.setAttribute("posterUrl", posterUrl);
+		session.setAttribute("textBook", textBook);
+		session.setAttribute("linkMovie", linkMovie);
+		session.setAttribute("singerCover", singerCover);
+		session.setAttribute("singerAlbum", singerAlbum);
+		session.setAttribute("singerName", singerName);
+	}
+
+	public static boolean setCategoryWithContextAndCheckFood(List<String> categories, Venue startVenue, int availableTime)	{
+
+		boolean food = false;
+
+		if (categories.contains("6"))	
+			food=true;
+		
+		
+		if (categories.contains("6") && categories.size()==1)	{
+			categories.add("1");
+			categories.add("5");
+		}
+
+		if (!Utilities.isSunny(startVenue, availableTime)	)	{
+			for (Iterator<String> it = categories.iterator(); it.hasNext();) {
+				String cat = it.next();
+				if (cat.equals("3") || cat.equals("5") || cat.equals("10"))	{
+					it.remove();
+				}
+			}
+		}
+
+		if (categories.size()==0)	{
+			categories.add("7");
+			categories.add("1");
+			categories.add("4");
+		}
+
+		if (Utilities.isFoodTime(String.valueOf(startVenue.getLatitude()), String.valueOf(startVenue.getLongitude())) && !categories.contains("6"))	{
+
+			categories.add("6");
+			food=true;
+		}
+
+		if (Utilities.isNightTime(String.valueOf(startVenue.getLatitude()), String.valueOf(startVenue.getLongitude())) && !categories.contains("6"))	{
+
+			categories.add("8");
+		}
+
+		return food;
+
+	}
+
+	public static List<Venue> filterVenueWithRecommendationAlgorithm(List<Venue> venuesInTheSquare, List<Long> similarUsers, User user, double lat, double lng, int maxWayPoints) 		{
+
+
+		List<Venue> newVenues = new ArrayList<>();
+		List<Venue> popularVenues = new ArrayList<>();
+		List<Venue> venuesOfSimilarUsers = new ArrayList<>();
+		List<Venue> venuesOfExpertUsers = new ArrayList<>();
+		List<Venue> sameAgeUserVenues = new ArrayList<>();
+
+		List<Venue> finalVenuesList = new ArrayList<>();
+
+		try {
+
+
+			popularVenues = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
+
+			System.out.println("most visited checkins = "+popularVenues.size());
+
+			venuesOfSimilarUsers = VenuePostgres.venuesVisitedFromSimilarUsers(venuesInTheSquare, similarUsers);
+
+			System.out.println("venue visited from similar user = "+venuesOfSimilarUsers.size());
+
+			venuesOfExpertUsers = VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
+
+			System.out.println("venue expert users = "+venuesOfExpertUsers.size());
+
+			sameAgeUserVenues = VenuePostgres.sameAgeUserVenues(venuesInTheSquare, user.getAge());
+
+			System.out.println("\n");
+			System.out.println("\n");
+			System.out.println("POPULAR VENUE DOPO SAME AGE: "+popularVenues.size());
+			System.out.println("\n");
+			System.out.println("\n");
+
+			newVenues = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
+
+			System.out.println("\n");
+			System.out.println("\n");
+			System.out.println("POPULAR VENUE DOPO NEW VENUE: "+popularVenues.size());
+			System.out.println("\n");
+			System.out.println("\n");
+
+			System.out.println("venue expert users = "+newVenues.size());
+
+
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		int k = 0;
+
+		for (Venue venue : popularVenues) {
+			if (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue) && sameAgeUserVenues.contains(venue)
+					|| (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue)) || (venuesOfExpertUsers.contains(venue) && sameAgeUserVenues.contains(venue))
+					|| (venuesOfSimilarUsers.contains(venue) && sameAgeUserVenues.contains(venue)))	{
+				finalVenuesList.add(venue);
+				k++;
+			}
+		}
+
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("FINAL VENUE DOPO 1: "+finalVenuesList.size());
+		System.out.println("\n");
+		System.out.println("\n");
+
+		int q =0;
+		int w =0;
+		if(finalVenuesList.size()<25)	{
+			while (w<20 && q<popularVenues.size())	{
+				if (!finalVenuesList.contains(popularVenues.get(q)))	{
+					finalVenuesList.add(popularVenues.get(q));
+					w++;
+
+				}
+				q++;
+
+			}
+		}
+
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("FINAL VENUE DOPO 2: "+finalVenuesList.size());
+		System.out.println("\n");
+		System.out.println("\n");
+
+		int cont=0;
+		int f=0;
+
+
+		while (f<newVenues.size() && cont<10)	{
+			if (!finalVenuesList.contains(newVenues.get(f)))	{
+				finalVenuesList.add(newVenues.get(f));
+				cont++;
+			}
+			f++;
+		}
+
+
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("FINAL VENUE DOPO 3: "+finalVenuesList.size());
+		System.out.println("\n");
+		System.out.println("\n");
+
+
+		return finalVenuesList;
+
+	}
 
 
 

@@ -2,10 +2,8 @@ package logic.router;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -16,7 +14,6 @@ import org.apache.jena.query.ResultSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.umass.lastfm.Album;
 import de.umass.lastfm.Artist;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
@@ -63,7 +60,8 @@ public class JenaManagerForTraks implements JenaManager{
 				+"?coordinate_node wikibase:geoLatitude ?lat."+"\n"
 				+"?artista wdt:P136 ?genere."+"\n"
 				+"FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
-				+"}"+"\n";
+				+"}"+"\n"
+				+"LIMIT 5";
 
 		QueryExecution queryExecution = QueryExecutionFactory.sparqlService(ontology_serviceTrack,
 				queryTrack);
@@ -136,34 +134,24 @@ public class JenaManagerForTraks implements JenaManager{
 
 
 				Collection<Track> topTracks = Artist.getTopTracks(label, key);
+				
+				
 
 				System.out.println("Top Tracks for "+label+":");
 
-				Collection<Album> albums = Artist.getTopAlbums(label, key);
 
-				List<Album> albums2 = new ArrayList<>(albums);
 
-				if (albums2.size()>0)	{
 
-					String image = albums2.get(0).getImageURL(ImageSize.LARGE);
-
-					obj.setImage(image);
-
-				}
-				
-				
 
 				for (Track track : topTracks) {
 
 					System.out.println(track.getName());
 
 					obj.getSong().add(track.getName()); 
+					obj.setExternalLink(track.getUrl());
 					obj.setPopularity(track.getPlaycount()); 
-					obj.setExternalLink(track.getUrl()); 
-					
-					if (obj.getImage()==null)	{
-						obj.setImage(track.getImageURL(ImageSize.LARGE));
-					}
+					obj.setImage(track.getImageURL(ImageSize.LARGE));
+
 
 				}
 

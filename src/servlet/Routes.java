@@ -50,7 +50,8 @@ public class Routes extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		request.setAttribute("topKroute", finalRoute);
+		
+		session.setAttribute("finalRoute", finalRoute);
 		ServletContext application  = getServletContext();
 		RequestDispatcher requestDispatcher = application.getRequestDispatcher("/finalRoute.jsp");
 	    requestDispatcher.forward(request, response);

@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import model.User;
 
@@ -40,13 +41,14 @@ public class CategoryImages extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
 
-		User user = (User) request.getAttribute("user"); 
+		HttpSession session = request.getSession(false);
+		User user = (User) session.getAttribute("user"); 
 		String[] arrayData = request.getParameterValues("hiddenArray");
 
 		String[] categories = arrayData[0].split(",");
 
 
-		double[] weights = new double[]{10};
+		double[] weights = new double[10];
 
 		for (int i=0; i<categories.length;i++)	{
 			System.out.println(categories[i]);

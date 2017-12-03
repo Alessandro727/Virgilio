@@ -1,8 +1,11 @@
 package logic.router;
 
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -12,6 +15,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -19,6 +24,7 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +39,8 @@ import model.MacroCategory;
 import model.Venue;
 import postgres.CheckinPostgres;
 import postgres.PersistenceException;
+import util.JsonReader;
+
 
 public class JenaManagerForPlace {
 
@@ -42,7 +50,7 @@ public class JenaManagerForPlace {
 	private final static String museumCategory ="Museum, HistoricMuseum";
 	private final static String historyAndMonumentsCategory = "Courthouse, Artwork, GovermentBuilding, Statue, Tourist, WaterFountain, Souvenir, Souvenirs, TouristShop, Terrace, ArchaeologicalSite, Castle, Monument, HistoricBuilding, HistoricFountain, ProtectedBuilding, HistoricTower, UNESCOWorldHeritage, HistoricPointOfInterest, Tower";
 	private final static String churchCategory = "PlaceOfWorship, Chapel, ChurchHall, Church, Monastery, Synagogue, Temple, Cathedral, Abbey, HistoricChurch, HistoricChapel, HistoricMonastery";
-	private final static String entertaimentsCategory = "AnimalShelter, BicycleRental, ArtsCentre, Cinema, Theatre, Sauna, Shelter, Casino, ConcertHall, MusicVenue, Solarium, Spa, BeautySalon, ThemePark, Zoo, Viewpoint, Castle, LandusePark, Stadium, WaterPark, NatureReserve, Park, Garden, Beach";
+	private final static String entertainmentsCategory = "AnimalShelter, BicycleRental, ArtsCentre, Cinema, Theatre, Sauna, Shelter, Casino, ConcertHall, MusicVenue, Solarium, Spa, BeautySalon, ThemePark, Zoo, Viewpoint, Castle, LandusePark, Stadium, WaterPark, NatureReserve, Park, Garden, Beach";
 	//Attenzione luoghi all'aperto
 	private final static String foodCategory = "Restaurant, FastFood, Bbq, Pub, Bar, Cafe, Biergarten, IceCream, Brewery, Bakery, CoffeeShop, InternetCafe, Restaurant%3Bpub, TakeAway";
 	private final static String nightLifeCategory = "Pub, Cinema, Nightclub, Stripclub, Theatre, Brothel, Brewery, Casino, byNight, Dance, Bingo";
@@ -60,7 +68,8 @@ public class JenaManagerForPlace {
 			+"PREFIX lgdp: <http://linkedgeodata.org/property/>"+"\n"
 			+"PREFIX geo: <http://www.opengis.net/ont/geosparql#>"+"\n"
 			+"PREFIX  g: <http://www.w3.org/2003/01/geo/wgs84_pos#>"+"\n"
-			+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n";
+			+"PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>"+"\n"
+			+"PREFIX lgd-addr:  <http://linkedgeodata.org/ontology/addr%3A>"+"\n";
 
 
 	public static List<Venue> retriveNodes(double lat, double lon, double radius, List<String> categories) throws PersistenceException {
@@ -80,7 +89,7 @@ public class JenaManagerForPlace {
 
 		String category = categoriesSet.iterator().next();
 
-		String query = "{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) (SAMPLE(?tipo) as ?category) WHERE {"+"\n"
+		String query = "{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) (SAMPLE(?tipo) as ?category) (SAMPLE(?street) AS ?s) (SAMPLE(?number) AS ?numb) WHERE {"+"\n"
 				+"?obj rdf:type ?tipo ."+"\n"
 				+"FILTER regex(str(?tipo), \"http://linkedgeodata.org/ontology/"+category+"\") "+"\n"
 				+"?obj a lgdo:"+category+" ."+"\n"
@@ -90,6 +99,8 @@ public class JenaManagerForPlace {
 				+"g:long ?long ."+"\n"
 				+"OPTIONAL { ?obj lgdo:cuisine ?cuisine } ."+"\n"
 				+"OPTIONAL { ?obj lgdo:opening_hours ?openHours } ."+"\n"
+				+"OPTIONAL { ?obj lgd-addr:street ?street . } "+"\n"
+				+"OPTIONAL { ?obj lgd-addr:housenumber ?number . } "+"\n"
 				+ "FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
 				+"} "+"\n"
 				+"GROUP BY ?obj"+"\n"
@@ -112,7 +123,7 @@ public class JenaManagerForPlace {
 			}
 
 
-			query += "UNION "+"\n"+"{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) (SAMPLE(?tipo) as ?category) WHERE {"
+			query += "UNION "+"\n"+"{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) (SAMPLE(?tipo) as ?category) (SAMPLE(?street) AS ?s) (SAMPLE(?number) AS ?numb) WHERE {"
 					+"?obj rdf:type ?tipo ."+"\n"
 					+"FILTER regex(str(?tipo), \"http://linkedgeodata.org/ontology/"+category+"\") "+"\n"
 					+"?obj a lgdo:"+category+" ."+"\n"
@@ -122,6 +133,8 @@ public class JenaManagerForPlace {
 					+"g:long ?long ."+"\n"
 					+"OPTIONAL { ?obj lgdo:cuisine ?cuisine } ."+"\n"
 					+"OPTIONAL { ?obj lgdo:opening_hours ?openHours } ."+"\n"
+					+"OPTIONAL { ?obj lgd-addr:street ?street . } "+"\n"
+					+"OPTIONAL { ?obj lgd-addr:housenumber ?number . } "+"\n"
 					+ "FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
 					+"} "+"\n"
 					+"GROUP BY ?obj"+"\n"
@@ -148,7 +161,7 @@ public class JenaManagerForPlace {
 		InputStream input = null;
 
 		try {
-			
+
 			prop.load(JenaManagerForPlace.class.getClassLoader().getResourceAsStream("config.properties"));
 			// get the property value and print it out
 
@@ -166,6 +179,8 @@ public class JenaManagerForPlace {
 				}
 			}
 		}
+
+//		ResultSetFormatter.out(System.out, results);
 
 		while (results.hasNext()) {
 
@@ -196,12 +211,12 @@ public class JenaManagerForPlace {
 
 			PhotoList<Photo> list = new PhotoList<>();
 
-//			try {
-//				list = flickr.getPhotosInterface().search(searchParams, 10, 1);
-//			} catch (FlickrException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			//			try {
+			//				list = flickr.getPhotosInterface().search(searchParams, 10, 1);
+			//			} catch (FlickrException e) {
+			//				// TODO Auto-generated catch block
+			//				e.printStackTrace();
+			//			}
 
 
 			String link = getWikiPage(label);
@@ -232,21 +247,28 @@ public class JenaManagerForPlace {
 			if(solution.get("open")!=null)	{
 				obj.setOpenHours(solution.get("open").toString());
 			}
+			
+			if(solution.get("s")!=null && solution.get("numb")!=null)	{
+				String street = solution.get("s").toString();
+				String number = solution.get("numb").toString();
+				String address = street.concat(number);
+				obj.setAddress(address.toLowerCase());
+			}
 
 			if (!list.isEmpty()) {
 				obj.setMediaUrl(list.get(0).getLargeUrl());
 			}
-			
-			CheckinPostgres.getCheckinsNumbersByVenueId(obj);
+
+//			CheckinPostgres.getCheckinsNumbersByVenueId(obj);
 
 			logger.info("NAME FROM LINKED GEO DATA\t"+ label);
 			result.add(obj);
-			
-			
+
+
 
 
 		}
-		
+
 		return result;
 	}
 
@@ -271,7 +293,7 @@ public class JenaManagerForPlace {
 
 		Map<Integer, String> categoriesMap = new HashMap<>();
 
-				
+
 		if (categories.contains("1"))	{
 			categoriesMap.put(1,museumCategory);
 		}
@@ -291,7 +313,7 @@ public class JenaManagerForPlace {
 			categoriesMap.put(6,foodCategory);
 		}
 		if (categories.contains("7"))	{
-			categoriesMap.put(7,entertaimentsCategory);
+			categoriesMap.put(7,entertainmentsCategory);
 		}
 		if (categories.contains("8"))	{
 			categoriesMap.put(8,nightLifeCategory);
@@ -322,24 +344,39 @@ public class JenaManagerForPlace {
 		return s;
 	}
 
-	public static void main(String[] args) throws PersistenceException {
+	public static void main(String[] args) throws PersistenceException, FileNotFoundException {
 
 		List<String> cat = new ArrayList<>();
-		
-		cat.add("3");
+
+
+		cat.add("1");
 
 		List<Venue> venues = JenaManagerForPlace.retriveNodes(41.89, 12.49, 0.1, cat);
 		
 		System.out.println(venues.size());
+		
+
+//		PrintStream out = new PrintStream(new FileOutputStream("/Users/mac/Desktop/output.txt"));
+//		System.setOut(out);
+		
+//		JsonReader.filterClosedVenue(venues, cat);
+		
+		
+
 	}
-
-
-
+	
 	
 
 
-
-
-
-
 }
+
+
+
+
+
+
+
+
+
+
+

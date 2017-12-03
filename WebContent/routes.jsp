@@ -47,7 +47,7 @@ body {
 #form {
 	position: absolute;
 	z-index: 90;
-	width: 456px;
+	width: 420px;
 	height: 50%;
 	left: 40px;
 	top: 50px;

@@ -6,13 +6,19 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.json.JSONException;
@@ -23,6 +29,7 @@ import model.Venue;
 import net.aksingh.owmjapis.AbstractWeather.Weather;
 import net.aksingh.owmjapis.HourlyForecast;
 import net.aksingh.owmjapis.OpenWeatherMap;
+import socialAndServices.Google;
 
 public class Utilities {
 	
@@ -347,6 +354,72 @@ public class Utilities {
 	                (e1, e2) -> e1, 
 	                LinkedHashMap::new
 	              ));
+	}
+	
+	public static boolean isFoodTime(String lat, String lon)	{
+		Date date = new Date();
+		DateFormat df = new SimpleDateFormat("HH:mm:ss");
+
+		Google google = new Google();
+		String timezone = google.getTimezoneFromLatitudeAndLongitude(lat, lon);
+		df.setTimeZone(TimeZone.getTimeZone(timezone));
+
+		String time = df.format(date);
+		return checkTime("11:30:00", "13:30:00", time) || checkTime("19:00:00", "23:00:00", time);
+		
+	}
+	
+	public static boolean isNightTime(String lat, String lon)	{
+		Date date = new Date();
+		DateFormat df = new SimpleDateFormat("HH:mm:ss");
+
+		Google google = new Google();
+		String timezone = google.getTimezoneFromLatitudeAndLongitude(lat, lon);
+		df.setTimeZone(TimeZone.getTimeZone(timezone));
+
+		String time = df.format(date);
+		return checkTime("22:00:00", "03:00:00", time);
+		
+	}
+	
+	public static boolean checkTime(String start, String stop, String time)	{
+		try {
+		    
+		    Date time1 = new SimpleDateFormat("HH:mm:ss").parse(start);
+		    Calendar calendar1 = Calendar.getInstance();
+		    calendar1.setTime(time1);
+
+		    Date time2 = new SimpleDateFormat("HH:mm:ss").parse(stop);
+		    Calendar calendar2 = Calendar.getInstance();
+		    calendar2.setTime(time2);
+		    
+
+		    Date d = new SimpleDateFormat("HH:mm:ss").parse(time);
+		    Calendar calendar3 = Calendar.getInstance();
+		    calendar3.setTime(d);
+		    
+
+		    Date x = calendar3.getTime();
+		    if (x.after(calendar1.getTime()) && x.before(calendar2.getTime())) {
+		        //checkes whether the current time is between 14:49:00 and 20:11:13.
+		        return true;
+		    }
+		} catch (ParseException e) {
+		    e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static double middlePoint(String v1, String v2) {
+		double middlePoint = Double.valueOf(v1)+Double.valueOf(v2);
+		return middlePoint/2.0;
+	}
+	
+public static void main(String[] args)	{
+		
+		
+		Utilities.isFoodTime("37.733795","-122.446747");
+		
 	}
 	
 	

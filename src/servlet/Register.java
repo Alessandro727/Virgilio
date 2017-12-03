@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import postgres.CheckinPostgres;
 import postgres.PersistenceException;
@@ -48,7 +49,7 @@ public class Register extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String prossimaPagina = "";
-		
+		HttpSession session = request.getSession(false);
 		String username = request.getParameter("txtUsername");
 		String password = request.getParameter("txtPassword");
 		String gender = request.getParameter("rdGender");
@@ -97,7 +98,7 @@ public class Register extends HttpServlet {
 				
 //				UserPostgres.persistUser(user);
 				prossimaPagina = "/register2.jsp";
-				request.setAttribute("user", user);
+				session.setAttribute("user", user);
 			}
 		} catch (PersistenceException e) {
 			e.printStackTrace();

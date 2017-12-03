@@ -128,12 +128,12 @@ pageEncoding="ISO-8859-1"%>
 <table>
     <tr>
         <td style="padding-right: 200px"><h5>Potresti essere interessato al seguente libro.</h5></td>
-        <td style="padding-right: 100px"><h5>Se ti &egrave;  piaciuto l'itinerario potresti  voler guardare il seguente film.</h5></td>
+        <td style="padding-right: 150px"><h5>Se ti &egrave;  piaciuto l'itinerario potresti  voler guardare il seguente film.</h5></td>
         <td style="padding-right: 150px"><h5>Immergiti al massimo all'interno dei luoghi che stai visitando accompagnando l'itinerario con della buona musica.</h5></td>
     </tr>
     <tr>
         <td style="padding-right: 200px"><h5> &Egrave; ambientato nel posto che stai visitando.</h5></td>
-        <td style="padding-right: 100px"><h5>&Egrave; stato girato nella stesa citt&agrave; che stai visitando.</h5></td>
+        <td style="padding-right: 150px"><h5>&Egrave; stato girato nella stesa citt&agrave; che stai visitando.</h5></td>
         <td style="padding-right: 150px"><h5>Il cantante &egrave; nativo del posto. Ascolta qualche brano di <%=(String)session.getAttribute("singerName")%>. </h5></td>
     </tr>
 </table>
@@ -197,6 +197,11 @@ pageEncoding="ISO-8859-1"%>
 </table>
 
 </div>
+
+
+ <button style="margin:auto; display:block;" id="btnLogin" name="btnLogin" onclick="window.location='./evaluation.jsp'" type="button" class="button buttonBlue">Done
+        <div class="ripples buttonRipples"><span class="ripplesCircle"></span></div> 
+    </button>
 
 
 </body>

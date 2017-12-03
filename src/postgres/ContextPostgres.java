@@ -14,8 +14,8 @@ public class ContextPostgres {
 	public static Context RetrieveRandomContext() throws PersistenceException {
 		Random random = new Random();
 		//nextInt(int n): ritorna un numero pseudocasuale tra 0 (incluso) ed n (escluso)
-	    int randomNum = random.nextInt(5) + 1;
-		
+	    int randomNum = random.nextInt(1);
+		randomNum = 0;
 		Context context = null;
 		DataSource datasource = new DataSource();
 		Connection connection = null;

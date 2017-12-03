@@ -284,7 +284,7 @@ body {
 	var myVar;
 
 	function myFunction() {
-		myVar = setTimeout(showPage, 6500);
+		myVar = setTimeout(showPage, 5500);
 	}
 
 	function showPage() {

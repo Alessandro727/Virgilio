@@ -19,9 +19,11 @@ import fi.foyt.foursquare.api.FoursquareApiException;
 import fi.foyt.foursquare.api.entities.CompactVenue;
 import socialAndServices.Foursquare;
 import socialAndServices.Google;
+import util.Utilities;
 import logic.LatLngSquare;
 import logic.VenueSearcher;
 import logic.router.Graph;
+import logic.router.JenaManagerForPlace;
 import logic.router.Node;
 import logic.router.Route;
 import logic.router.Router;
@@ -38,14 +40,14 @@ import model.Venue;
 @WebServlet("/Test2")
 public class Test2 extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public Test2() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public Test2() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -56,59 +58,102 @@ public class Test2 extends HttpServlet {
 		Scenario scenario = (Scenario)session.getAttribute("scenario");
 		scenario.setFood(Boolean.parseBoolean(request.getParameter("rbFood")));
 		Context context = scenario.getContext();
-		try {
-			long idPadre = retrieveMostSmilarUserInContext(user, context.getCity());
-			UserPostgres.updateIdPadre(user, idPadre);
-			user.setId(idPadre);
-			UserPostgres.RetrieveFriends(user);
-		} catch (PersistenceException e) {
-			e.printStackTrace();
-		}
-		
+		String prossimaPagina;
+		//		try {
+		//			long idPadre = retrieveMostSmilarUserInContext(user, context.getCity());
+		//			UserPostgres.updateIdPadre(user, idPadre);
+		//			user.setId(idPadre);
+		//			UserPostgres.RetrieveFriends(user);
+		//		} catch (PersistenceException e) {
+		//			e.printStackTrace();
+		//		}
+		//		
 		if (context.getMode().equals("a piedi"))
 			context.setMode("walking");
 		else
 			context.setMode("driving");
-		
+
 		Google google = new Google();
-		
+
 		MacroCategory mc = new MacroCategory();
 		mc.setId(0);	// 0 = id fittizio (non corrisponde a nessuna)
 		mc.setMrt(0);
-		
+
 		Venue startVenue = google.getCoordinatesFromAddress(context.getStart() + ", " + context.getCity());
 		startVenue.setId(0);	// 0 is the id of the source node of Router algorithm
 		startVenue.setName_fq(context.getStart());
 		startVenue.setMacro_category(mc);
-		
+
 		Venue endVenue = google.getCoordinatesFromAddress(context.getEnd() + ", " + context.getCity());
 		endVenue.setId(-1);		// -1 is the id of the destination node of Router algorithm
 		endVenue.setName_fq(context.getEnd());
 		endVenue.setMacro_category(mc);
-		
+
 		List<Venue> venuesStartEnd = new ArrayList<Venue>();
 		venuesStartEnd.add(startVenue);
 		venuesStartEnd.add(endVenue);
 		LatLngSquare llSquare = new LatLngSquare(venuesStartEnd);
 		VenueSearcher searcher = new VenueSearcher(llSquare, scenario);
-		
-		List<Venue> venuesWithContext = searcher.getVenuesWithContext(25);
+
+		List<String> categories = new ArrayList<>();
+		categories.add("1");
+		categories.add("2");
+		categories.add("2");
+		categories.add("4");
+		categories.add("5");
+		categories.add("6");
+		categories.add("7");
+		categories.add("8");
+		categories.add("9");
+		categories.add("10");
+
+		double lat = Utilities.middlePoint(startVenue.getLatitude(),endVenue.getLatitude());
+
+		double lng = Utilities.middlePoint(startVenue.getLongitude(),endVenue.getLongitude());
+
+		List<Venue> venuesWithContext = new ArrayList<>();
+		try {
+			venuesWithContext = JenaManagerForPlace.retriveNodes(lat, lng, 0.1, categories);
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		venuesWithContext.add(0, startVenue);
 		venuesWithContext.add(endVenue);
-		
-		System.out.println("GRAFO SENZA CONTESTO CREATO");
-		Graph graphWithContext = createGraph(venuesWithContext, context.getMode(), google);
-		
-		List<Route> top10routes = runRouterDefaultAlgorithm(venuesWithContext, scenario, user, graphWithContext);
-		for (Route r: top10routes)
-			System.out.println("Score: " + r.getScore());
-		
-		request.setAttribute("severalRoutes", top10routes);
-		request.setAttribute("mode", context.getMode());
-		request.setAttribute("scenario", scenario);
+
+		//		System.out.println("GRAFO SENZA CONTESTO CREATO");
+		//		Graph graphWithContext = createGraph(venuesWithContext, context.getMode(), google);
+		//		
+		//		List<Route> top10routes = runRouterDefaultAlgorithm(venuesWithContext, scenario, user, graphWithContext);
+		//		for (Route r: top10routes)
+		//			System.out.println("Score: " + r.getScore());
+
+		List<Route> topKroute = FindTopKPopularRoutes.runDijkstraAlgorithm(venuesWithContext, context.getMode(), context.getTime()/60, 4, user, scenario.getFood(), google);
+
+		int size = topKroute.size();
+
+		if (size >= 2) {
+			prossimaPagina = "/routes.jsp";
+			request.setAttribute("topKroute", topKroute);
+			request.setAttribute("mode", context.getMode());
+		} else {
+			if (size == 1) {
+				prossimaPagina = "/findTopKPopularRoutes2.jsp";
+				request.setAttribute("topKroute", topKroute);
+				request.setAttribute("mode", context.getMode());
+			} else {	// size = 0
+				prossimaPagina = "/findTopKPopularRoutes1.jsp";
+				request.setAttribute("error", "no venues found or time too short");
+			}
+		}						
+
+
+		session.setAttribute("topKroute", topKroute);
+		session.setAttribute("mode", context.getMode());
 		ServletContext application  = getServletContext();
-		RequestDispatcher rd = application.getRequestDispatcher("/test2.jsp");
+		RequestDispatcher rd = application.getRequestDispatcher(prossimaPagina);
 		rd.forward(request, response);
+
 	}
 
 	/**
@@ -117,16 +162,16 @@ public class Test2 extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		this.doGet(request, response);
 	}
-	
-	
-	
-	
+
+
+
+
 	public static Graph createGraph(List<Venue> venues, String mode, Google google) {
 		List<Node> nodeList = new ArrayList<Node>();
 		for(Venue v: venues) {
 			nodeList.add(new Node(v));
 		}
-		
+
 		System.out.println("creo i nodi");
 		int time;
 		/*for(Node n1: nodeList) {
@@ -151,57 +196,57 @@ public class Test2 extends HttpServlet {
 		}
 		System.out.println("nodi creati...eseguo router_default");
 		Graph graph = new Graph(nodeList.get(0), nodeList.get(nodeList.size()-1));
-		
+
 		return graph;
 	}
-	
-	
+
+
 	// algoritmo router_default, con contesto, personalizzazione e sociale	
 	public static List<Route> runRouterDefaultAlgorithm(List<Venue> venues, Scenario scenario, User user, Graph graph) {
 		Router router = new Router_Default(graph, user, scenario.getContext().getTime(), 7, scenario.getFood());
-        router.execute();
-        System.out.println("router_default eseguito...eseguo getTopKRoutes");
-        List<Route> topKRoutes = router.getTopKRoutes(10);	// la prima route
-        System.out.println("getTopKRoutes eseguito");
-        
-        if (topKRoutes.size() == 0) {
-        	Route route = new Route();
-        	route.add(new Node(venues.get(0)));
-        	route.add(new Node(venues.get(venues.size()-1)));
-        	topKRoutes.add(route);        		
-        }
-        
-        CompactVenue cv;
-        try {
-            for (Venue v: topKRoutes.get(0).getVenueList())
-            	if (v.getFoursquare_id() == null) {
-            		cv = Foursquare.searchSingleVenueMatch(v);
-            		if (cv != null)
-            			v.setFoursquare_id(cv.getId());
-            	}
-        } catch (FoursquareApiException e) {
+		router.execute();
+		System.out.println("router_default eseguito...eseguo getTopKRoutes");
+		List<Route> topKRoutes = router.getTopKRoutes(10);	// la prima route
+		System.out.println("getTopKRoutes eseguito");
+
+		if (topKRoutes.size() == 0) {
+			Route route = new Route();
+			route.add(new Node(venues.get(0)));
+			route.add(new Node(venues.get(venues.size()-1)));
+			topKRoutes.add(route);        		
+		}
+
+		CompactVenue cv;
+		try {
+			for (Venue v: topKRoutes.get(0).getVenueList())
+				if (v.getFoursquare_id() == null) {
+					cv = Foursquare.searchSingleVenueMatch(v);
+					if (cv != null)
+						v.setFoursquare_id(cv.getId());
+				}
+		} catch (FoursquareApiException e) {
 			e.printStackTrace();
 		}        
-        
-        return topKRoutes;
+
+		return topKRoutes;
 	}
-	
-	
-	
+
+
+
 	public static long retrieveMostSmilarUserInContext(User user, String context) throws PersistenceException {
 		List<User> users = UserPostgres.getAllFriendByContext(context);
 		long id = -1;
-				
+
 		double AB;		// A�B
 		double A = 0;	// A
 		double B;		// B^2
 		double sim = 0;
 		double simTemp;
-		
+
 		for (int i=1; i<user.getWeigths().length; i++) {
 			A += Math.pow(user.getWeigth(i), 2);
 		}
-		
+
 		for (User u: users) {
 			AB = 0;
 			B = 0;			
@@ -215,9 +260,9 @@ public class Test2 extends HttpServlet {
 				id = u.getId();				
 			} 
 		}
-		
+
 		return id;
 	}
-	
-	
+
+
 }

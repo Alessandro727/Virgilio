@@ -666,7 +666,7 @@ public class CheckinPostgres {
 
 			try {
 				connection = datasource.getConnection();
-				String query = "SELECT COUNT(venue_id) as count FROM checkins WHERE venue_id = "+venue.getId();
+				String query = "SELECT COUNT(venue_id) as count FROM checkins WHERE checkins.venue_id = "+venue.getId();
 				statement = connection.prepareStatement(query);
 				result = statement.executeQuery();
 				if (result.next()) {

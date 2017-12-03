@@ -6,10 +6,13 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Timestamp;
 import java.util.Properties;
 
 import model.Venue;
+import scala.annotation.StaticAnnotation;
 
+import org.apache.thrift.transport.TSaslClientTransport;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,10 +21,12 @@ public class Google {
 
 
 	private String key;
+	private String timezoneKey;
 	//	private int count = 0; never used
 
 	public Google() {
 		String key = null; //this is the key used in the Google API 
+		String timezoneKey = null;
 
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -32,6 +37,8 @@ public class Google {
 			// get the property value and print it out
 
 			key = prop.getProperty("GOOGLE_KEY_1");
+			timezoneKey = prop.getProperty("TIMEZONE_KEY");
+
 			
 
 		} catch (IOException ex) {
@@ -47,6 +54,7 @@ public class Google {
 		}
 
 		this.key = key;
+		this.timezoneKey = timezoneKey;
 	}
 
 	public String getKey() {
@@ -207,8 +215,46 @@ public class Google {
 			return this.getTimeBetweenTwoPoints(from, to, mode);
 		}
 	}
+	
+	
 
+		public String getTimezoneFromLatitudeAndLongitude(String lat, String lon) {
+		String res = null;
+		try {
+			URL url = new URL("https://maps.googleapis.com/maps/api/timezone/json?location="+lat+","+lon+"&timestamp=1458000000&key="+timezoneKey);
+			URLConnection conn = url.openConnection();                                                                    
+			conn.connect();
+			InputStreamReader isr = new InputStreamReader(conn.getInputStream());
+			StringBuffer sb = new StringBuffer();
 
+			for (int i=0; i!=-1; i=isr.read()) {   
+				sb.append((char)i);
+			}
+			String jsonString = sb.toString().trim();
+
+			JSONObject jsonObject = new JSONObject(jsonString);
+			String status = jsonObject.getString("status");
+
+			if (status.equals("OK")) {
+				res = jsonObject.get("timeZoneId").toString();
+				
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return res;
+	}
+		
+	public static void main(String[] args)	{
+		
+		
+		
+	}
 
 
 }

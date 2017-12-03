@@ -22,6 +22,7 @@ public class Venue {
 	private String source;
 	private String externalLink;
 	private String description;
+	private String address;
 	private List<Checkin> checkins;
 	
 	public Venue() {
@@ -175,6 +176,14 @@ public class Venue {
 
 	public void setOpenHours(String openHours) {
 		this.openHours = openHours;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 	
 }
