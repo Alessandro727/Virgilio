@@ -74,7 +74,9 @@ public class Router_Default extends Router {
 					start_end.add(end);
 					break;
 				}
-		} else {
+		} 
+		
+		if (start_end.getSize()==0)	{
 			start.setSucc(end);
 			start.setCostToSucc(INFINITY);
 			start_end.add(start);
@@ -314,7 +316,7 @@ public class Router_Default extends Router {
 				for (Route route: map.get(d)) {
 					if (addedRoutes >= k)
 						break;
-					if (!containsSameElementsOrIsSubset(route, topKRoutes) && noMoreOneFood(route)) {
+					if (!containsSameElementsOrIsSubset(route, topKRoutes)) {
 						topKRoutes.add(route);
 						addedRoutes++;
 					}
@@ -355,7 +357,7 @@ public class Router_Default extends Router {
 				for (Node n: route.getNodes()) {
 					if (!r.containsId(n.getId())) {
 						j++;
-						if(j>2)	{
+						if(j>1)	{
 							sameElements = false;
 							break;
 						}
@@ -416,6 +418,7 @@ public class Router_Default extends Router {
 		List<Route> list;
 
 		for (Route route: this.routeList) {
+			route.calculateScoreWithoutSocial(user);
 			score = route.getScore();
 			if (map.containsKey(score)) {
 				list = map.get(score);
@@ -434,8 +437,18 @@ public class Router_Default extends Router {
 			return null;
 	}	
 
+	
+	public List<Route> getRouteList() {
+		return routeList;
+	}
 
 
+
+	public void setRouteList(List<Route> routeList) {
+		this.routeList = routeList;
+	}
+
+	
 
 
 

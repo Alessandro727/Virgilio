@@ -1,15 +1,16 @@
 package servlet;
 
+
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -19,8 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+
 import logic.router.Route;
 import logic.router.Router_Default;
+import logic.Filter;
 import logic.router.FoursquareManagerForPlace;
 import logic.router.Graph;
 import logic.router.JenaManagerForBook;
@@ -113,17 +116,18 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 			boolean food = setCategoryWithContextAndCheckFood(categories, startVenue, availableTime);
 
+			//
+//			try {
+//				venuesInTheSquare = JenaManagerForPlace.retriveNodes(lat, lng, 0.1, categories);
+//			} catch (PersistenceException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
 
-			try {
-				venuesInTheSquare = JenaManagerForPlace.retriveNodes(lat, lng, 0.1, categories);
-			} catch (PersistenceException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-//			String ll = String.valueOf(lat)+","+String.valueOf(lng);
-//			
-//			venuesInTheSquare = FoursquareManagerForPlace.searchVenues(ll, categories);
+			String ll = String.valueOf(lat)+","+String.valueOf(lng);
+									
+			venuesInTheSquare = FoursquareManagerForPlace.searchVenues(ll, categories);
+
 
 
 			System.out.println("FINALVENUELIST =  "+venuesInTheSquare.size());
@@ -135,7 +139,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			System.out.println("FINALVENUELIST =  "+venuesInTheSquare.size());
 
 
-			List<Venue> finalVenuesList = filterVenueWithRecommendationAlgorithm(venuesInTheSquare, similarUsers, user, lat, lng, maxWayPoints);
+			List<Venue> finalVenuesList = Filter.filterVenueWithRecommendationAlgorithm(venuesInTheSquare, similarUsers, user, lat, lng, maxWayPoints);
 
 
 
@@ -145,6 +149,15 @@ public class FindTopKPopularRoutes extends HttpServlet {
 			finalVenuesList = JsonReader.filterClosedVenue(finalVenuesList, categories);
 
 			System.out.println("FINALVENUELIST =  "+finalVenuesList.size());
+
+			finalVenuesList = finalVenuesList.subList(1, 15);
+
+			Filter.filterFoodVenues(finalVenuesList);
+
+			Collections.shuffle(finalVenuesList);
+
+
+
 
 			finalVenuesList.add(0, startVenue);
 			finalVenuesList.add(endVenue);	
@@ -196,6 +209,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 
 
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -240,6 +254,7 @@ public class FindTopKPopularRoutes extends HttpServlet {
 		Router router = new Router_Default(graph, user, availableTime, maxWayPoints, food);
 		router.execute();
 		System.out.println("router_default eseguito...eseguo getTopKRoutes");
+		System.out.println("NUMERO DI ROTTE PRIMA DELLA TOP K: "+router.getRouteList().size());
 		List<Route> topKRoutes = router.getTopKRoutes(5);	
 		System.out.println("getTopKRoutes eseguito");
 
@@ -255,6 +270,23 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 
 		return topKRoutes;
+	}
+
+	public static void makeNodes(List<Venue> venuesInTheSquare, String mode, Google google)	{
+		List<Node> nodeList = new ArrayList<Node>();
+		for(Venue v: venuesInTheSquare) {
+			nodeList.add(new Node(v));
+		}
+		int time;
+		for(Node n1: nodeList) {
+			for(Node n2: nodeList) {
+				if ((n1.getId()!=-1) && (n2.getId()!=0) && (n1.getId() != n2.getId())) {
+					time = google.getTimeBetweenTwoPoints(n1.getVenue(), n2.getVenue(), mode);	//minutes
+					if ((time != -1) && !(n1.getId()==0 && n2.getId()==-1))
+						n1.AddOutgoingEdge(n2, time);
+				}
+			}
+		}
 	}
 
 
@@ -353,15 +385,27 @@ public class FindTopKPopularRoutes extends HttpServlet {
 		session.setAttribute("singerName", singerName);
 	}
 
-	public static boolean setCategoryWithContextAndCheckFood(List<String> categories, Venue startVenue, int availableTime)	{
+	public static synchronized boolean setCategoryWithContextAndCheckFood(List<String> categories, Venue startVenue, int availableTime)	{
 
 		boolean food = false;
 
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("\n");
+		for (String string : categories) {
+			System.out.println("CATEGORIE: "+string);	
+		}
+
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("\n");
+
 		if (categories.contains("6"))	
 			food=true;
-		
-		
+
+
 		if (categories.contains("6") && categories.size()==1)	{
+			categories.add("2");
 			categories.add("1");
 			categories.add("5");
 		}
@@ -371,7 +415,16 @@ public class FindTopKPopularRoutes extends HttpServlet {
 				String cat = it.next();
 				if (cat.equals("3") || cat.equals("5") || cat.equals("10"))	{
 					it.remove();
+
 				}
+			}
+		}
+		if (!Utilities.isSunny(startVenue, availableTime)	)	{
+			if(!categories.contains("1")) {
+				categories.add("1");
+			}
+			if(!categories.contains("2")) {
+				categories.add("2");
 			}
 		}
 
@@ -391,121 +444,24 @@ public class FindTopKPopularRoutes extends HttpServlet {
 
 			categories.add("8");
 		}
+		
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("\n");
+		for (String string : categories) {
+			System.out.println("CATEGORIE: "+string);	
+		}
+
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("\n");
+
 
 		return food;
 
 	}
 
-	public static List<Venue> filterVenueWithRecommendationAlgorithm(List<Venue> venuesInTheSquare, List<Long> similarUsers, User user, double lat, double lng, int maxWayPoints) 		{
-
-
-		List<Venue> newVenues = new ArrayList<>();
-		List<Venue> popularVenues = new ArrayList<>();
-		List<Venue> venuesOfSimilarUsers = new ArrayList<>();
-		List<Venue> venuesOfExpertUsers = new ArrayList<>();
-		List<Venue> sameAgeUserVenues = new ArrayList<>();
-
-		List<Venue> finalVenuesList = new ArrayList<>();
-
-		try {
-
-
-			popularVenues = CheckinPostgres.mostVisitedCheckins(venuesInTheSquare);
-
-			System.out.println("most visited checkins = "+popularVenues.size());
-
-			venuesOfSimilarUsers = VenuePostgres.venuesVisitedFromSimilarUsers(venuesInTheSquare, similarUsers);
-
-			System.out.println("venue visited from similar user = "+venuesOfSimilarUsers.size());
-
-			venuesOfExpertUsers = VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
-
-			System.out.println("venue expert users = "+venuesOfExpertUsers.size());
-
-			sameAgeUserVenues = VenuePostgres.sameAgeUserVenues(venuesInTheSquare, user.getAge());
-
-			System.out.println("\n");
-			System.out.println("\n");
-			System.out.println("POPULAR VENUE DOPO SAME AGE: "+popularVenues.size());
-			System.out.println("\n");
-			System.out.println("\n");
-
-			newVenues = VenuePostgres.retriveOnlyNewVenue(venuesInTheSquare, user);
-
-			System.out.println("\n");
-			System.out.println("\n");
-			System.out.println("POPULAR VENUE DOPO NEW VENUE: "+popularVenues.size());
-			System.out.println("\n");
-			System.out.println("\n");
-
-			System.out.println("venue expert users = "+newVenues.size());
-
-
-		} catch (PersistenceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		int k = 0;
-
-		for (Venue venue : popularVenues) {
-			if (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue) && sameAgeUserVenues.contains(venue)
-					|| (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue)) || (venuesOfExpertUsers.contains(venue) && sameAgeUserVenues.contains(venue))
-					|| (venuesOfSimilarUsers.contains(venue) && sameAgeUserVenues.contains(venue)))	{
-				finalVenuesList.add(venue);
-				k++;
-			}
-		}
-
-		System.out.println("\n");
-		System.out.println("\n");
-		System.out.println("FINAL VENUE DOPO 1: "+finalVenuesList.size());
-		System.out.println("\n");
-		System.out.println("\n");
-
-		int q =0;
-		int w =0;
-		if(finalVenuesList.size()<25)	{
-			while (w<20 && q<popularVenues.size())	{
-				if (!finalVenuesList.contains(popularVenues.get(q)))	{
-					finalVenuesList.add(popularVenues.get(q));
-					w++;
-
-				}
-				q++;
-
-			}
-		}
-
-		System.out.println("\n");
-		System.out.println("\n");
-		System.out.println("FINAL VENUE DOPO 2: "+finalVenuesList.size());
-		System.out.println("\n");
-		System.out.println("\n");
-
-		int cont=0;
-		int f=0;
-
-
-		while (f<newVenues.size() && cont<10)	{
-			if (!finalVenuesList.contains(newVenues.get(f)))	{
-				finalVenuesList.add(newVenues.get(f));
-				cont++;
-			}
-			f++;
-		}
-
-
-		System.out.println("\n");
-		System.out.println("\n");
-		System.out.println("FINAL VENUE DOPO 3: "+finalVenuesList.size());
-		System.out.println("\n");
-		System.out.println("\n");
-
-
-		return finalVenuesList;
-
-	}
+	
 
 
 

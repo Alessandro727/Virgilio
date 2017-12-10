@@ -45,5 +45,7 @@ public abstract class Router {
 	
 	
 	public abstract List<Route> getTopKRoutes(int k);
+	
+	public abstract List<Route> getRouteList();
 
 }

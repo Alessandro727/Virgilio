@@ -37,12 +37,9 @@ public class Evaluation extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String prossimaPagina = "";
 
-		HttpSession session = request.getSession(false);
 
-		@SuppressWarnings("unchecked")
-		List<Route> venuesNumber = ((List<Route>) session.getAttribute("finalRoute"));
+		int size = Integer.valueOf(request.getParameter("venuesNum"));
 		int quest1 = Integer.valueOf(request.getParameter("recommender_rating"));
 		int quest2 = Integer.valueOf(request.getParameter("novelty"));
 		int quest3 = Integer.valueOf(request.getParameter("serendipity"));
@@ -51,16 +48,16 @@ public class Evaluation extends HttpServlet {
 		int quest6 = Integer.valueOf(request.getParameter("venues"));
 
 		try {
-			persistEvaluation(quest1,quest2,quest3,quest4,quest5,quest6,venuesNumber.size());
+			persistEvaluation(quest1,quest2,quest3,quest4,quest5,quest6,size);
 		} catch (PersistenceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-
+		
 
 		ServletContext application  = getServletContext();
-		RequestDispatcher rd = application.getRequestDispatcher(prossimaPagina);
+		RequestDispatcher rd = application.getRequestDispatcher("/findTopKPopularRoutes1.jsp");
 		rd.forward(request, response);
 
 	}
@@ -75,6 +72,7 @@ public class Evaluation extends HttpServlet {
 		try {
 			connection = datasource.getConnection();
 			String insert = "insert into evaluation (quest1, quest2, quest3, quest4, quest5, quest6, numVenue) values (?, ?, ?, ?, ?, ?, ?)";
+			System.out.println(insert);
 			statement = connection.prepareStatement(insert);
 			statement.setInt(1, quest1);
 			statement.setInt(2, quest2);
@@ -101,6 +99,10 @@ public class Evaluation extends HttpServlet {
 				throw new PersistenceException(e.getMessage());
 			}
 		}
+	}
+	
+	public static void main(String[] args) throws PersistenceException	{
+		persistEvaluation(4, 4, 5, 5, 5, 3, 3);
 	}
 
 

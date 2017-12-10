@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Movies</title>
+    <title>Evaluation</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://s.codepen.io/assets/libs/modernizr.js" type="text/javascript"></script>
@@ -53,6 +53,9 @@
         <input type="radio" name="obvious" value="3">Neither Disagree nor agree</input>
         <input type="radio" name="obvious" value="2">Agree</input>
         <input type="radio" name="obvious" value="1">Strongly Agree</input>
+        
+         <h2>how many places are there in the chosen itinerary?</h2>
+        <input type="text" name="venuesNum" required>
 
         <h2>How many places of the route you would not want to visit?</h2>
         <input type="text" name="venues" required>
@@ -60,7 +63,7 @@
 
 
 
-        <div style="position:absolute; top:700px"><input type="submit" value="SUBMIT"/></div>
+        <div style="position:absolute; top:800px"><input type="submit" value="SUBMIT"/></div>
 
 
 </form></p>

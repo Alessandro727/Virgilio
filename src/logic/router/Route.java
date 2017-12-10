@@ -3,6 +3,8 @@ package logic.router;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.flickr4java.flickr.groups.Category;
+
 import model.Checkin;
 import model.User;
 import model.Venue;
@@ -296,8 +298,9 @@ public class Route {
 	public void calculateScoreWithoutSocial(User user) {
 		double alfa = 0.4;	// peso popolarit� del route
 		double beta = 0.2;	// peso distanza totale del route
-		double gamma = 0.05;	// peso numero tappe presenti
+		double gamma = 0.5;	// peso numero tappe presenti
 		double delta = 2;	// peso pesi utente-venue
+		double diversity = 2;
 		
 		double scoreAlfa = 0;
 		double scoreBeta = 0;
@@ -332,12 +335,17 @@ public class Route {
 			}			
 			
 		}
+		List<String> category = new ArrayList<>();
+		for (Node node : this.getNodes())	{
+			if(!category.contains(node.getVenue().getCategory_fq()))
+				category.add(node.getVenue().getCategory_fq());
+		}
 		
 		scoreAlfa = scoreAlfa * 0.3;	// normalizzo
 		scoreBeta = scoreBeta * 0.01;	// normalizzo
 		scoreGamma = scoreGamma * 0.05;	// normalizzo
 		
-		double score = (alfa*scoreAlfa)-(beta*scoreBeta)+(gamma*scoreGamma)+(delta*scoreDelta);
+		double score = (alfa*scoreAlfa)-(beta*scoreBeta)+(gamma*scoreGamma)+(delta*scoreDelta)+(diversity*category.size());
 		this.setScore(score);
 		
 	}

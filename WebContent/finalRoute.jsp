@@ -12,10 +12,10 @@ pageEncoding="ISO-8859-1"%>
 
     <%
     @SuppressWarnings("unchecked")
-    List<Route> topKroute = (List<Route>)request.getAttribute("topKroute");
+    List<Route> topKroute = (List<Route>)session.getAttribute("topKroute");
     Venue startVenue = topKroute.get(0).getNode(0).getVenue();
     Venue endVenue = topKroute.get(0).getNode(topKroute.get(0).getSize()-1).getVenue();
-    String mode = (String)request.getAttribute("mode");
+    String mode = (String)session.getAttribute("mode");
     %>
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>

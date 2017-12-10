@@ -50,22 +50,10 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
                 <li class="active"><a href="findTopKPopularRoutes1.jsp">Home</a></li>
-                <li>
-                    <a href="test1.jsp">Test 1</a>
-                </li>
-                <li>
-                    <a href="test1.jsp">Test 2</a>
-                </li>
-                <li>
-                    <a href="test1.jsp">Test 3</a>
-                </li>
-                <li>
-                    <a href="test1.jsp">Test 4</a>
-                </li>
+                
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="register1.jsp"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-                <li><a href="login.jsp"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                <li><a href="register1.jsp"><span class="glyphicon glyphicon-user"></span> Sign Out</a></li>
             </ul>
         </div>
     </div>

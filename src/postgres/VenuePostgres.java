@@ -416,7 +416,7 @@ public class VenuePostgres {
 	}
 
 
-	public static List<Venue> retriveOnlyNewVenue(List<Venue> venues, User user) throws PersistenceException	{
+	public static List<Venue> retriveOnlyNewVenues(List<Venue> venues, User user) throws PersistenceException	{
 
 		List<Long> venueIdVisited = new LinkedList<>();
 		long userId = UserPostgres.retriveUserIdByUsername(user.getUsername());
@@ -460,9 +460,6 @@ public class VenuePostgres {
 				it.remove();
 			}
 		}
-		
-		
-		
 		return newVenue;
 
 	}
@@ -476,13 +473,7 @@ public class VenuePostgres {
 				lon2 = lon + radius;
 		
 		Map<Venue, Integer> venueMap = new HashMap<>();
-		
-		System.out.println("\n");
-		System.out.println("\n");
-		System.out.println("POSTI VISITATI DA UTENTI ESPERTI LISTA PARTENZA SIZE: "+venues.size());
-		System.out.println("\n");
-		System.out.println("\n");
-		
+	
 		DataSource datasource = new DataSource();
 		Connection connection = null;
 		PreparedStatement statement = null;
@@ -521,10 +512,6 @@ public class VenuePostgres {
 				}
 			}
 		}
-		
-		System.out.println("Dimesione MAPPA luoghi più visitati da utenti esperti = "+venueMap.size());
-		
-		
 		venueMap = Utilities.sortByValue(venueMap);
 
 		return new ArrayList<>(venueMap.keySet());
@@ -536,11 +523,6 @@ public class VenuePostgres {
 		
 		Map<Venue, Integer> venuesMap = new HashMap<>();
 		
-		System.out.println("\n");
-		System.out.println("\n");
-		System.out.println("POSTI VISITATI DA UTENTI SIMILI LISTA PARTENZA SIZE: "+venues.size());
-		System.out.println("\n");
-		System.out.println("\n");
 		
 		List<Venue> venuesVisited = new ArrayList<>(venues);
 		
@@ -583,8 +565,59 @@ public class VenuePostgres {
 			
 		}
 		
-		System.out.println("Dimesione MAPPA luoghi più visitati da utenti più simili = "+venuesMap.size());
+		venuesMap = Utilities.sortByValue(venuesMap);
 		
+		
+		return new ArrayList<>(venuesMap.keySet());
+		
+		
+	}
+	
+	public static List<Venue> venuesVisitedFromDifferentUsers(List<Venue> venues, List<Long> similarUsers) throws PersistenceException	{
+		
+		Map<Venue, Integer> venuesMap = new HashMap<>();
+		
+		
+		List<Venue> venuesVisited = new ArrayList<>(venues);
+		
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		
+		for (Venue venue : venuesVisited) {
+			
+			try {
+				connection = datasource.getConnection();
+				String query = "SELECT venue_id, COUNT(user_id) as userNumber FROM checkins, users WHERE checkins.user_id = users.id AND checkins.venue_id = "+venue.getId()
+				+" AND ( ";
+				for (Long long1 : similarUsers) {
+					query = query+"checkins.user_id != "+long1+" AND ";
+				}
+				query = query+"true) GROUP BY venue_id";
+				statement = connection.prepareStatement(query);
+				result = statement.executeQuery();
+				if (result.next()) {
+					
+					Integer userNumber = result.getInt("userNumber");
+					venuesMap.put(venue, userNumber);
+				}
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			} finally {
+				try {
+					if (result != null)
+						result.close();
+					if (statement != null) 
+						statement.close();
+					if (connection!= null)
+						connection.close();
+				} catch (SQLException e) {
+					throw new PersistenceException(e.getMessage());
+				}
+			}
+			
+		}
 		
 		venuesMap = Utilities.sortByValue(venuesMap);
 		

@@ -19,8 +19,7 @@ public class KMeans
 	private int _nrows, _ndims; // the number of rows and dimensions
 	private int _numClusters; // the number of clusters;
 
-	// Constructor; loads records from file <fileName>. 
-	// if labels do not exist, set labelname to null
+	
 	public KMeans(double[][] data, int nrows, int ndims) 	{
 
 		this._data =data;
@@ -246,12 +245,7 @@ public class KMeans
 
 
 	public static Map<Long, Integer> clusterResult() throws PersistenceException {
-		/**
-		 * The code commented out here is just an example of how to use
-		 * the provided functions and constructors.
-		 * 
-		 */
-
+		
 		List<User> users = UserPostgres.getAllUsers();
 
 		int size = users.size();

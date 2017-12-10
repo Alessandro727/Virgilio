@@ -2,11 +2,17 @@ package logic;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
 import model.Context;
+import model.User;
 import model.Venue;
+import postgres.CheckinPostgres;
+import postgres.PersistenceException;
+import postgres.VenuePostgres;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +47,139 @@ public class Filter {
 	 * 
 	 */
 
+	
+	
+	public static List<Venue> filterVenueWithRecommendationAlgorithm(List<Venue> venuesInTheSquare, List<Long> similarUsers, User user, double lat, double lng, int maxWayPoints) 		{
+
+
+		List<Venue> newVenues = new ArrayList<>();
+		List<Venue> popularVenues = new ArrayList<>();
+		List<Venue> venuesOfSimilarUsers = new ArrayList<>();
+		List<Venue> venuesOfDifferentUsers = new ArrayList<>();
+		List<Venue> venuesOfExpertUsers = new ArrayList<>();
+		List<Venue> sameAgeUserVenues = new ArrayList<>();
+		List<Venue> venuesOfFriends = new ArrayList<>();
+
+		List<Venue> finalVenuesList = new ArrayList<>();
+
+		try {
+
+
+			popularVenues = CheckinPostgres.mostVisitedVenues(venuesInTheSquare);
+
+			System.out.println("most visited checkins = "+popularVenues.size());
+
+			venuesOfSimilarUsers = VenuePostgres.venuesVisitedFromSimilarUsers(venuesInTheSquare, similarUsers);
+
+			System.out.println("venue visited from similar user = "+venuesOfSimilarUsers.size());
+
+			venuesOfExpertUsers = VenuePostgres.retriveAllResidenceVenues(venuesInTheSquare, lat, lng, 0.1);
+
+			System.out.println("venue expert users = "+venuesOfExpertUsers.size());
+
+			sameAgeUserVenues = VenuePostgres.sameAgeUserVenues(venuesInTheSquare, user.getAge());
+
+			venuesOfDifferentUsers = VenuePostgres.venuesVisitedFromDifferentUsers(venuesInTheSquare, similarUsers);
+
+			//			venuesOfFriends = UserPostgres.retrieveVenueFriends(venuesInTheSquare, user);
+
+			venuesInTheSquare.addAll(venuesInTheSquare.size(), venuesOfDifferentUsers);
+
+			newVenues = VenuePostgres.retriveOnlyNewVenues(venuesInTheSquare, user);
+
+			System.out.println("venue expert users = "+newVenues.size());
+
+
+		} catch (PersistenceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		int k = 0;
+
+		for (Venue venue : popularVenues) {
+			if (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue) && sameAgeUserVenues.contains(venue) && venuesOfFriends.contains(venue)
+					|| (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue) && sameAgeUserVenues.contains(venue))
+					|| (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue) && venuesOfFriends.contains(venue))
+					|| (venuesOfExpertUsers.contains(venue) && sameAgeUserVenues.contains(venue) && venuesOfFriends.contains(venue))
+					|| (venuesOfFriends.contains(venue) && venuesOfSimilarUsers.contains(venue) && sameAgeUserVenues.contains(venue))
+					|| (venuesOfSimilarUsers.contains(venue) && venuesOfExpertUsers.contains(venue)) || (venuesOfExpertUsers.contains(venue) && sameAgeUserVenues.contains(venue))
+					|| (venuesOfSimilarUsers.contains(venue) && sameAgeUserVenues.contains(venue)) || (venuesOfFriends.contains(venue) && sameAgeUserVenues.contains(venue))
+					|| (venuesOfFriends.contains(venue) && venuesOfSimilarUsers.contains(venue)) || (venuesOfFriends.contains(venue) && venuesOfExpertUsers.contains(venue)))	{
+				finalVenuesList.add(venue);
+				k++;
+			}
+		}
+
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("FINAL VENUE DOPO 1: "+finalVenuesList.size());
+		System.out.println("\n");
+		System.out.println("\n");
+
+		int q =0;
+		int w =0;
+		if(finalVenuesList.size()<25)	{
+			while (w<20 && q<popularVenues.size())	{
+				if (!finalVenuesList.contains(popularVenues.get(q)))	{
+					finalVenuesList.add(popularVenues.get(q));
+					w++;
+
+				}
+				q++;
+
+			}
+		}
+
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("FINAL VENUE DOPO 2: "+finalVenuesList.size());
+		System.out.println("\n");
+		System.out.println("\n");
+
+		int cont=0;
+		int f=0;
+
+
+		while (f<newVenues.size() && cont<10)	{
+			if (!finalVenuesList.contains(newVenues.get(f)))	{
+				finalVenuesList.add(newVenues.get(f));
+				cont++;
+			}
+			f++;
+		}
+
+
+		System.out.println("\n");
+		System.out.println("\n");
+		System.out.println("FINAL VENUE DOPO 3: "+finalVenuesList.size());
+		System.out.println("\n");
+		System.out.println("\n");
+
+
+		return finalVenuesList;
+
+	}
+	
+
+	public static synchronized void filterFoodVenues(List<Venue> finalVenuesList) {
+
+		int cont=0;
+
+		for (Iterator<Venue> iterator = finalVenuesList.iterator(); iterator.hasNext(); ) {
+			Venue value = iterator.next();
+			if (value.getMacro_category().getId()==6 && cont<2) {
+				cont++;
+			}
+			else {
+				if (value.getMacro_category().getId()==6 && cont==2) {
+					iterator.remove();
+				}
+			}
+		}
+
+
+	}
 
 	public List<Venue> filterVenues(List<Venue> venues) {
 		if (!this.context.getSunny())

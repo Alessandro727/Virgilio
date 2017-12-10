@@ -11,22 +11,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection.Response;
+import org.neo4j.cypher.internal.compiler.v2_3.ast.QueryTagger.forEachChild;
 import org.neo4j.cypher.internal.compiler.v2_3.codegen.setStaticField;
 
 import logic.router.JenaManagerForPlace;
 
 import org.jsoup.Jsoup;
 
+import model.MacroCategory;
 import model.Venue;
 
 
@@ -222,14 +233,166 @@ public class JsonReader {
 
 	}
 
+	public static void yelpTest() throws ClientProtocolException, IOException	{
+		String venueCategoryYelp = getYelpCategory(4);
+
+		String tokenId = null;
+		String tokenSecret = null;
+
+		Properties prop = new Properties();
+		InputStream input = null;
+
+		try {
+
+			prop.load(Utilities.class.getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			tokenId = prop.getProperty("YELP_TOKEN");
+			tokenSecret = prop.getProperty("YELP_TOKEN_SECRET");
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+
+
+
+		String getURL = "https://api.yelp.com/v3/businesses/search?latitude=41.8919300&longitude=12.51130&categories="+venueCategoryYelp+"&radius=150";
+		CloseableHttpClient client = HttpClients.custom().build();
+
+		// (1) Use the new Builder API (from v4.3)
+		HttpUriRequest request = RequestBuilder.get()
+				.setUri(getURL)
+				// (2) Use the included enum
+				//                .setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+				// (3) Or your own
+				.setHeader("Authorization", tokenId+" "+tokenSecret)
+				.build();
+
+		CloseableHttpResponse response = client.execute(request);
+		HttpEntity resEntityGet = response.getEntity();
+		InputStream is = resEntityGet.getContent();
+		try {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			String jsonText = readAll(rd);
+			//					System.out.println(jsonText);
+			JSONObject json = new JSONObject(jsonText);
+			System.out.println(json.toString());
+			for (int i=0; i<json.getJSONArray("businesses").length(); i++)	{
+
+
+				String jsonName = json.getJSONArray("businesses").getJSONObject(i).get("name").toString();
+				//						System.out.println(jsonName);
+				String jsonAddress = json.getJSONArray("businesses").getJSONObject(i).getJSONObject("location").get("address1").toString();
+				//						System.out.println(jsonAddress);
+
+				System.out.println("2"+jsonName);
+
+				//				if (compareStrings(jsonName, venue.getName_fq())>0.70 )  {
+				//					if(json.getJSONArray("businesses").getJSONObject(i).get("is_closed").toString().equals("false"))		{
+				//						if(!openVenue.contains(venue))	{
+				//							openVenue.add(venue);
+				//						}
+				//					}
+				//				}
+				//				else {
+				//					if(venue.getAddress()!=null)	{
+				//						if(compareStrings(jsonAddress, venue.getAddress())>0.94 )	{
+				//							if(!openVenue.contains(venue))	{
+				//								openVenue.add(venue);
+				//							}
+				//						}
+				//					}
+				//
+				//				}
+
+			}
+
+		} finally {
+			is.close();
+
+		}
+	}
+
+	public static void FoursquareHours(List<Venue> venues) throws JSONException, IOException	{
+
+		String CLIENT_ID = null;
+		String CLIENT_SECRET = null;
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+
+			prop.load(Utilities.class.getClassLoader().getResourceAsStream("config.properties"));
+			// get the property value and print it out
+
+			CLIENT_ID = prop.getProperty("FQ_CLIENT_ID");
+			CLIENT_SECRET = prop.getProperty("FQ_CLIENT_SECRET");
+
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		List<Venue> openVenue = new ArrayList<>();
+
+		for (Venue venue : venues) {
+
+
+			String ll = venue.getLatitude()+","+venue.getLongitude();
+
+			//		String ll = "41.9033,12.4899";
+
+
+			JSONObject json = JsonReader.readJsonFromUrl("https://api.foursquare.com/v2/venues/search?ll="+ll+"&client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&v=20171203&radius=0");
+//			System.out.println("https://api.foursquare.com/v2/venues/search?ll="+ll+"&client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&v=20171203&radius=0");
+			JSONArray array = json.getJSONObject("response").getJSONArray("venues");
+
+			for(int i=0; i<array.length(); i++)	{
+
+				String venueId = array.getJSONObject(i).getString("id");
+				String venueName = array.getJSONObject(i).getString("name");
+				String address = array.getJSONObject(i).getJSONArray("location").getJSONObject(0).getString("address");
+
+
+			}
+		}
+
+		//		}
+
+
+	}
+	//		System.out.println(json.toString());
+
+
+
+
+
+
 	public static double compareStrings(String stringA, String stringB) {
 		return StringUtils.getJaroWinklerDistance(stringA, stringB);
 	}
-	
+
 	public static void main(String[] args) throws JSONException, IOException	{
-		
-		System.out.println(getPosterUrl("tt0110912"));
-		
+
+		//		System.out.println(getPosterUrl("tt0110912"));
+//		FoursquareHours();
+
 	}
 
 

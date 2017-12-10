@@ -61,7 +61,7 @@ public class JenaManagerForTraks implements JenaManager{
 				+"?artista wdt:P136 ?genere."+"\n"
 				+"FILTER(?lat >"+lat1+" && ?lat<="+lat2+" && ?long>"+lon1+" && ?long<="+lon2+")"+"\n"
 				+"}"+"\n"
-				+"LIMIT 5";
+				+"LIMIT 15";
 
 		QueryExecution queryExecution = QueryExecutionFactory.sparqlService(ontology_serviceTrack,
 				queryTrack);

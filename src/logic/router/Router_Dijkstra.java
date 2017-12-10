@@ -9,6 +9,7 @@ import model.User;
 public class Router_Dijkstra extends Router {
 	
 	private final int INFINITY = Integer.MAX_VALUE;
+	private List<Route> routeList; 
 	
 	private NodePriorityQueue priorityQ = new NodePriorityQueue();
 
@@ -77,6 +78,11 @@ public class Router_Dijkstra extends Router {
 			return null;
 	}
 	
+	@Override
+	public List<Route> getRouteList() {
+		
+		return this.routeList;
+	}
 	
 
 }

@@ -5,12 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import model.Checkin;
 import model.MacroCategory;
 import model.User;
+import model.Venue;
+import util.Utilities;
 
 
 
@@ -253,6 +257,54 @@ public class UserPostgres {
 				throw new PersistenceException(e.getMessage());
 			}
 		}
+	}
+
+	public static List<Venue> retrieveVenueFriends(List<Venue> venues, User user) throws PersistenceException {
+		Map<Venue, Integer> venuesMap = new HashMap<>();
+
+
+		List<Venue> venuesVisited = new ArrayList<>(venues);
+
+		DataSource datasource = new DataSource();
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet result = null;
+
+		for (Venue venue : venuesVisited) {
+
+			try {
+				connection = datasource.getConnection();
+				String query = "SELECT venue_id, COUNT(user_id) as userNumber FROM checkins, users, friendship WHERE checkins.user_id = frienship.friend_id AND checkins.venue_id = "+venue.getId()+" and frienship.user_id = "+user.getId()+" GROUP BY venue_id";
+				statement = connection.prepareStatement(query);
+				result = statement.executeQuery();
+				if (result.next()) {
+
+					Integer userNumber = result.getInt("userNumber");
+					venuesMap.put(venue, userNumber);
+				}
+			} catch (SQLException e) {
+				throw new PersistenceException(e.getMessage());
+			} finally {
+				try {
+					if (result != null)
+						result.close();
+					if (statement != null) 
+						statement.close();
+					if (connection!= null)
+						connection.close();
+				} catch (SQLException e) {
+					throw new PersistenceException(e.getMessage());
+				}
+			}
+
+		}
+
+		venuesMap = Utilities.sortByValue(venuesMap);
+
+
+		return new ArrayList<>(venuesMap.keySet());
+
+
 	}
 
 

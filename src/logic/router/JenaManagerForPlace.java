@@ -35,11 +35,14 @@ import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photos.SearchParameters;
 
+import logic.Filter;
 import model.MacroCategory;
 import model.Venue;
 import postgres.CheckinPostgres;
 import postgres.PersistenceException;
+import servlet.FindTopKPopularRoutes;
 import util.JsonReader;
+import util.Utilities;
 
 
 public class JenaManagerForPlace {
@@ -56,7 +59,7 @@ public class JenaManagerForPlace {
 	private final static String nightLifeCategory = "Pub, Cinema, Nightclub, Stripclub, Theatre, Brothel, Brewery, Casino, byNight, Dance, Bingo";
 	private final static String shopAndServiceCategory = "Marketplace, Brewery, CoffeeShop, Commercial, Florist, Hairdresser, Market, PublicMarket, Shop, Shopping, Shops, Supermarket, AnimeShop, ArtShop, Mall, Patisserie, ShoppingCenter, Souvenir";
 	private final static String outdoorsAndRecreationCategory = "AnimalShelter, Biergarten, BicycleRental, Campsite, Farm, Picknick, PicnicSite, ThemePark, Zoo, Viewpoint, ArchaeologicalSite, Castle, UNESCOWorldHeritage, LandusePark, Volcano, Glacier, Peak, Grassland, Tree, Wood, CaveEntrance, Beach, Cape, Crater, Fjord, Island, Hill, Island, NaturalWaterfall, ProtectedArea, featuresSport, DogPark, WaterPark, NatureReserve, Park, Garden";
-	private final static String athleticsAndSport = "Gym, Sport, SportsCentre, SportShop, Stadium";
+	private final static String athleticsAndSport = "Gym, Sport, SportsCentre, SportShop, Stadium, parkRide, ski, snowmobile, featuresSport, SwimmingPool, SnowPark";
 
 	private final static String ontology_service =  "http://linkedgeodata.org/sparql";
 
@@ -114,13 +117,14 @@ public class JenaManagerForPlace {
 
 
 			for (String id : categories) {
-				if(id.equals("3"))	{
+				if(id.equals("3") || id.equals("6"))	{
 					if (mapCategory.get(Integer.parseInt(id)).contains(category))	{
 						limitValue = "50";
 					}
 				}	
 
 			}
+			
 
 
 			query += "UNION "+"\n"+"{ SELECT ?obj (SAMPLE(?l) as ?label) (SAMPLE(?lat) as ?latitudine) (SAMPLE(?long) as ?longitudine) (SAMPLE(?openHours) as ?open) (SAMPLE(?tipo) as ?category) (SAMPLE(?street) AS ?s) (SAMPLE(?number) AS ?numb) WHERE {"
@@ -234,10 +238,15 @@ public class JenaManagerForPlace {
 
 			for (String id : categories) {
 				if (mapCategory.get(Integer.parseInt(id)).contains(categoryName))	{
+					System.out.println(Integer.parseInt(id));
 					mCategory.setId(Integer.parseInt(id));
 					mCategory.addMeanResidenceTime(id);
 				}	
 
+			}
+			
+			if(mCategory.getWeights()==null)	{
+				mCategory.setId(6);
 			}
 
 			obj.setCategory_fq(categoryName);
@@ -349,9 +358,16 @@ public class JenaManagerForPlace {
 		List<String> cat = new ArrayList<>();
 
 
-		cat.add("1");
+		
+		cat.add("10");
 
-		List<Venue> venues = JenaManagerForPlace.retriveNodes(41.89, 12.49, 0.1, cat);
+		List<Venue> venues = JenaManagerForPlace.retriveNodes(41.8, 12.45, 0.1, cat);
+		
+		Filter.filterFoodVenues(venues);
+		
+		for (Venue venue : venues) {
+			System.out.println(venue.getName_fq());
+		}
 		
 		System.out.println(venues.size());
 		

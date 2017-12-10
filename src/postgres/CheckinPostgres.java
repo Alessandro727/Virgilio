@@ -652,7 +652,7 @@ public class CheckinPostgres {
 	}
 
 
-	public static List<Venue> mostVisitedCheckins(List<Venue> venues) throws PersistenceException	{
+	public static List<Venue> mostVisitedVenues(List<Venue> venues) throws PersistenceException	{
 		Map<Venue,Integer>	checkinsPerVenue = new HashMap<>();
 		
 		List<Venue> venuesVisited = new ArrayList<>(venues);
@@ -667,6 +667,7 @@ public class CheckinPostgres {
 			try {
 				connection = datasource.getConnection();
 				String query = "SELECT COUNT(venue_id) as count FROM checkins WHERE checkins.venue_id = "+venue.getId();
+				System.out.println(query);
 				statement = connection.prepareStatement(query);
 				result = statement.executeQuery();
 				if (result.next()) {

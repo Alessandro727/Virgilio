@@ -10,6 +10,7 @@ import model.User;
 public class Router_DijkstraMax extends Router {
 
 	private final int MINUS_INFINITY = Integer.MIN_VALUE;
+	private List<Route> routeList; 
 	
 	public Router_DijkstraMax(Graph graph, User user, int maxTime, int maxWayPoints) {
 		super(graph, user, maxTime, maxWayPoints);
@@ -105,6 +106,12 @@ public class Router_DijkstraMax extends Router {
 		}			
 		else
 			return null;
+	}
+
+	@Override
+	public List<Route> getRouteList() {
+		
+		return this.routeList;
 	}
 
 }
